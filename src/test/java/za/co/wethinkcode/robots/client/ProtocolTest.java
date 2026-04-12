@@ -1,0 +1,1 @@
+// # Test if JSON messages are formatted correctly

@@ -1,0 +1,1 @@
+// # Test if obstacles actually block movement
