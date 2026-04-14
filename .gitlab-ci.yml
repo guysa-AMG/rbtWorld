@@ -9,12 +9,16 @@ stages:
 
 
 unit-test-job:  
+  tags:
+    - loadshed1
   stage: test    
   script:
     - ./mvn test
 
 
 integration-tests-job:   
+  tags:
+    - loadshed1
   stage: test   
   script:
     - echo "currently no IT"
