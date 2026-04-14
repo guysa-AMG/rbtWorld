@@ -1,4 +1,6 @@
-image: eclipse-temurin:21
+default:
+  interruptible: false
+  image: eclipse-temurin:21
 
 stages:          
 
