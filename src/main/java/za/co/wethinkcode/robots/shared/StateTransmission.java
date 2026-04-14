@@ -1,0 +1,16 @@
+// # POJOs for easy JSON serialization
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import za.co.wethinkcode.robots.server.commands.Command;
+
+public class StateTransmission{
+
+
+    public  StateTransmission(){ }
+
+public void encode(Command com){ }
+  public Command  decode(String data){
+    ObjectMapper.
+  }
+}

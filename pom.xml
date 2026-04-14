@@ -20,6 +20,7 @@
         <version.picocli>4.6.1</version.picocli>
         <version.slf4j>2.0.17</version.slf4j>
         <version.surefire>2.22.1</version.surefire>
+        <exec.mainClass>za.co.wethinkcode.robots.server.Server</exec.mainClass>
     </properties>
 
     <dependencies>
