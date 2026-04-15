@@ -48,7 +48,7 @@ public class RobotClient {
 
             System.out.println("Connected to : " + host + ":" + port);
             System.out.println("Type: <robotName> <command> [arguments....] (example: HAL launch)");
-            System.out.println("Tyoe: <robotName> quite to exit");
+            System.out.println("Type: <robotName> quite to exit");
 
             commandLoop();
         }catch (IOException e){
@@ -78,6 +78,7 @@ public class RobotClient {
                     System.out.println("Server Disconnected");
                     return;
                 }
+                //System.out.println(responseJson);
                 handleResponse(responseJson);
 
                 if("quit".equalsIgnoreCase(request.getCommand())){
@@ -193,7 +194,8 @@ public class RobotClient {
 
     public static void main(String[] args) {
         String host = "localhost";
-        int port = 5000;
+        int port = 2146;
+        // id = 20.20.18.206
 
         if (args != null && args.length >= 1 && args[0] != null && !args[0].isBlank()) {
             host = args[0];
@@ -207,3 +209,4 @@ public class RobotClient {
     }
 }
 
+// mvn --% -DskipTests compile exec:java -Dexec.mainClass=za.co.wethinkcode.robots.client.RobotClient -Dexec.args="20.20.18.206 2146"

@@ -4,7 +4,7 @@ package za.co.wethinkcode.robots.server;
 
 import za.co.wethinkcode.flow.Recorder;
 
-public class Server {
+class RobotServer {
 
     public static void main(String[] args){
         throw new UnsupportedOperationException( "TODO" );
