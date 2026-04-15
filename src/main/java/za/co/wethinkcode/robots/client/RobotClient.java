@@ -59,7 +59,34 @@ public class RobotClient {
     }
 
     private void commandLoop() {
+        try(BufferedReader console = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))){
+            String userLine;
+            while((userLine = console.readLine()) != null){
+                userLine = userLine.trim();
+                if(userLine.isBlank()){continue;}
 
+                Request request = toRequest(userLine);
+                if(request == null){continue;};
+
+                String json = toJson(request);
+                if(json == null){continue;};
+
+                serverOut.println(json);
+
+                String responseJson = serverIn.readLine(); //here am assuming that the server sends one JSON object per line
+                if(responseJson == null){
+                    System.out.println("Server Disconnected");
+                    return;
+                }
+                handleResponse(responseJson);
+
+                if("quit".equalsIgnoreCase(request.getCommand())){
+                    return;
+                }
+            }
+        }catch (IOException e){
+            System.out.println("I/O error in client loop ("+ e.getMessage()+")");
+        }
     }
 
     private Request toRequest(String userLine) {
