@@ -163,7 +163,27 @@ public class RobotClient {
 
     }
 
-    private void handleResponse(String responseJson) {}
+    private void handleResponse(String responseJson) {
+        Response response = fromJson(responseJson);
+        if(response == null){
+            System.out.println("Received non-JSON/invalid response: " + responseJson);
+            return;
+        }
+        String result = (response.getResult() == null ? "UNKNOWN" : response.getResult());
+        String message = (response.getMessage() == null ? "" : response.getMessage());
+        System.out.println(result + (message.isBlank() ? "" : message));
+
+        try{
+            if(response.getData() != null){
+                System.out.println("DATA: " + mapper.writeValueAsString(response.getData()));
+            }
+            if(response.getState() != null){
+                System.out.println("STATE: " + mapper.writeValueAsString(response.getState()));
+            }
+        }catch (JsonProcessingException ignored){
+            // if data/state isn't JSON-serializable, i will just skip
+        }
+    }
 
     private void shutDown() {}
 
