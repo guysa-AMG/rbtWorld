@@ -112,8 +112,13 @@ public class RobotClient {
     }
 
     private Response fromJson(String json) {
-        return null;
+        try{
+            return mapper.readValue(json, Response.class);
+        }catch (Exception e){
+            return null;
+        }
     }
+
     public static final class Request{
         private String robot;
         private String command;
