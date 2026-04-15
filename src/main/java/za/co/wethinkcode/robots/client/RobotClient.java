@@ -185,7 +185,11 @@ public class RobotClient {
         }
     }
 
-    private void shutDown() {}
+    private void shutDown() {
+        try{if (serverIn != null) serverIn.close();}catch (IOException e){}
+        if(serverOut != null) serverOut.close();
+        try{if (socket != null) socket.close();}catch (IOException e){}
+    }
 
     public static void main(String[] args) {
         String host = "localhost";
