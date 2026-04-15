@@ -103,7 +103,12 @@ public class RobotClient {
     }
 
     private String toJson(Request request) {
-        return null;
+        try {
+            return mapper.writeValueAsString(request);
+        }catch (JsonProcessingException e){
+            System.out.println("Failed to serialize request to Json(" + e.getMessage() + ")");
+            return null;
+        }
     }
 
     private Response fromJson(String json) {
