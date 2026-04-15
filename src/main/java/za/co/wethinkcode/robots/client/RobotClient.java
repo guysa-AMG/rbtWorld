@@ -90,7 +90,16 @@ public class RobotClient {
     }
 
     private Request toRequest(String userLine) {
-        return null;
+        String[] parts = userLine.split("\\s+");
+        if(parts.length < 2){
+            System.out.println("Invalid input. Use: <robotName> <command> [arguments....] (example: HAL launch)>");
+            return null;
+        }
+        String robotName = parts[0];
+        String command = parts[1];
+        String[] arguments = (parts.length > 2) ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0];
+
+        return new Request(robotName, command, arguments);
     }
 
     private String toJson(Request request) {
