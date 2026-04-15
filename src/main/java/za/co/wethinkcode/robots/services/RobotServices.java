@@ -13,7 +13,7 @@ public class RobotServices {
     public static  RobotServices getInstance(){
         return instance;
     }
-    public addRobot(Robot){
+    public void addRobot(){
         
     }
 
