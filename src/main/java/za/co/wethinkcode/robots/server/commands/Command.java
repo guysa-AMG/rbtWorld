@@ -1,19 +1,26 @@
 // # Abstract class or Interface
 package za.co.wethinkcode.robots.server.commands;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class Command {
-  
-    private String name;
+    private String robotName;
+    private String CommandName;
     private String[] argument;
 
+    public String getCommandName(){
+        return this.CommandName;
+    }
+    public String getRobotName(){
+        return this.robotName;
+    }
+    public void execute(){}
+
     Command(String name,String[] arguemnt){
-        this.name=name;
+        this.CommandName=name;
         this.argument=argument;
     }
     Command(String name){
-        this.name = name;
+        this.CommandName = name;
         this.argument = argument;
     }
     

@@ -1,21 +1,11 @@
 // # Main entry point, listens for connections
 
 package za.co.wethinkcode.robots.server;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Properties;
 import java.util.Scanner;
 
 import za.co.wethinkcode.flow.Recorder;
-import za.co.wethinkcode.robots.server.util.WorldReader;
+import za.co.wethinkcode.robots.client.RobotClient;
+import za.co.wethinkcode.robots.models.IpAddr;
 
 public class Server {
 
@@ -25,11 +15,23 @@ public class Server {
         if (args.length<1){
             new RobotServer();
         }else{
+<<<<<<< HEAD
         new RobotServer(args[0]);
         }
     }
     else{
         
+=======
+            
+        }
+    }
+    else{
+   
+           IpAddr addr =  ConnectionInfo();
+
+        RobotClient client = new RobotClient(addr);
+        client.start();
+>>>>>>> 0ef7e7fddcac246c431466416919c1e566a57c59
     }
 }
 
@@ -39,6 +41,18 @@ public class Server {
         new Recorder().logRun();
     }
 
+<<<<<<< HEAD
+=======
+    static public IpAddr ConnectionInfo(){
+        Scanner scan = new Scanner(System.in);
+        System.out.print("ip addr: ");
+        String ip = scan.nextLine();
+        System.out.print("port: ");
+        String port = scan.nextLine();
+        
+        return new IpAddr(ip, Integer.parseInt(port));
+    }
+>>>>>>> 0ef7e7fddcac246c431466416919c1e566a57c59
 
     public static Boolean isHosting(){
         Boolean ret=true;
