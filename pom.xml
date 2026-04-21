@@ -20,9 +20,18 @@
         <version.picocli>4.6.1</version.picocli>
         <version.slf4j>2.0.17</version.slf4j>
         <version.surefire>2.22.1</version.surefire>
+        <exec.mainClass>za.co.wethinkcode.robots.server.Server</exec.mainClass>
     </properties>
 
     <dependencies>
+
+    <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.30</version>
+    <scope>provided</scope>
+</dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>

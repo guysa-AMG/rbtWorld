@@ -1,1 +1,0 @@
-// # POJOs for easy JSON serialization

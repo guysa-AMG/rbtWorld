@@ -1,19 +1,43 @@
-// # Main entry point, listens for connections
-
 package za.co.wethinkcode.robots.server;
 
-import za.co.wethinkcode.flow.Recorder;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-class RobotServer {
+public class RobotServer {
+   
+    private int port;
 
-    public static void main(String[] args){
-        throw new UnsupportedOperationException( "TODO" );
+    public RobotServer( String arg_port){
+        
+        this.port = Integer.decode(arg_port);
+        this.init();
+    }
+     public RobotServer(){
+        this("2146");
+
+        
     }
 
-    // The following initialisation is REQUIRED for `flow` monitoring.
-    // DO NOT REMOVE OR MODIFY THIS CODE.
-    static {
-        new Recorder().logRun();
+    public void init(){
+        
+       try{
+       ServerSocket servSock =  new ServerSocket(this.port);
+       boolean loop = true;
+       while(loop){
+        System.out.println("...listening to incoming connection");
+       Socket client = servSock.accept();
+
+      Thread th = new Thread(new ClientHandler(client));
+      th.start();
+     
+       }
+
+       servSock.close();
+       }
+      catch (Exception e) {
+        // TODO: handle exception
+       }
+      
     }
 
 }
