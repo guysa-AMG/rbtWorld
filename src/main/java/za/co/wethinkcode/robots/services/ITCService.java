@@ -27,6 +27,7 @@ public class ITCService {
    
 
     public synchronized  String doThisCommand(String data){ 
+        
         this.log.info("Command recieved: "+data);
         Protocol protocol =new Protocol();
         ServerRequest req =  protocol.decodeRequest(data);

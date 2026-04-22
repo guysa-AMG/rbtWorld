@@ -3,12 +3,14 @@ package za.co.wethinkcode.robots.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 import za.co.wethinkcode.robots.server.commands.Command;
 
 
 
 @Data
+@NoArgsConstructor
 public class ServerRequest {
 
     public ServerRequest(String robot,String command,String[] args){
