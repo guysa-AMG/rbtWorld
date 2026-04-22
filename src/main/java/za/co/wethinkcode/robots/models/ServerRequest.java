@@ -6,6 +6,8 @@ import za.co.wethinkcode.robots.server.commands.Command;
 
 
 
+@Data
+@NoArgsConstructor
 public class ServerRequest {
 
     public ServerRequest(String robot, String command, String[] args) {
@@ -24,17 +26,12 @@ public class ServerRequest {
     private String[] arguments;
 
 
-    public Command getRobot() {
+ 
+    public String getCommandInstance() {
         return null;
     }
 
-    public String getCommand() {
-        return null;
-    }
-
-    public Command getArguments() {
-        return null;
-    }
+   
 
 
 }
