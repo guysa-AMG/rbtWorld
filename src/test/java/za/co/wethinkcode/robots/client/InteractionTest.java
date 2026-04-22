@@ -64,4 +64,13 @@ public class InteractionTest {
                 RobotClient.toRequest("Mark fly up 20");
             });
     }
+
+        @DisplayName(value = "invalid Command Test")
+    @Test
+    void NoNameCommands(){
+        assertThrows(InvalidCommandException.class, 
+            ()->{
+                RobotClient.toRequest("Forward 50");
+            });
+    }
 }
