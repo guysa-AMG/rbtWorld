@@ -1,19 +1,17 @@
 package za.co.wethinkcode.robots.services;
 
 import java.util.logging.Logger;
-
-import lombok.experimental.Helper;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.Command;
-import za.co.wethinkcode.robots.server.robot.Robot;
+
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 public class ITCService {
    private static ITCService instance = new ITCService();
-   private Logger log;
-   private Iworld world;
+   private volatile Logger log;
+   private volatile Iworld world;
 
     private ITCService(){
         this.log =  Logger.getLogger("Robot Service");
@@ -28,12 +26,8 @@ public class ITCService {
     }
    
 
-    public void deserialize(String data){
-        ServerRequest req = new Protocol().decodeRequest(null);
-        
-    }
-
-     public String doThisCommand(String data){
+    public synchronized  String doThisCommand(String data){ 
+        this.log.info("Command recieved: "+data);
         Protocol protocol =new Protocol();
         ServerRequest req =  protocol.decodeRequest(data);
         Command com = req.getCommandInstance();
@@ -43,7 +37,7 @@ public class ITCService {
 
        
     }
-    public void  getAllPlayers(){}
+    public synchronized void  getAllPlayers(){}
     //must implement
     public Boolean isValid(){
 
