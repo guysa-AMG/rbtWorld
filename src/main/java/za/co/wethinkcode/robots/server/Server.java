@@ -39,7 +39,7 @@ public class Server {
         String ip = scan.nextLine();
         System.out.print("port: ");
         String port = scan.nextLine();
-        
+        scan.close();
         return new IpAddr(ip, Integer.parseInt(port));
     }
 

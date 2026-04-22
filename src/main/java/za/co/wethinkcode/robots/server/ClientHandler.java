@@ -23,23 +23,23 @@ class ClientHandler implements Runnable{
     @Override
     public void run()  {
         try {
-            boolean loop =true; 
+            
             BufferedReader br =  new BufferedReader(new InputStreamReader(this.specificSock.getInputStream()));
             String data;
 
-        
-            while ( ( data = br.readLine()) !=null){
-
-                 ITCService.getInstance().doThisCommand(data);
-                
             Scanner scan = new Scanner(System.in);
 
+            while ( ( data = br.readLine()) !=null){
+            
+            ITCService.getInstance().doThisCommand(data);
              System.out.print("response> ");
              data = scan.nextLine()+"\n";
              System.out.println(data);
            this.specificSock.getOutputStream().write(data.getBytes());
            this.specificSock.getOutputStream().flush();
             }
+            
+            scan.close();
         
         } catch (IOException e) {
           
