@@ -3,7 +3,8 @@ package za.co.wethinkcode.robots.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import za.co.wethinkcode.robots.server.commands.Command;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
