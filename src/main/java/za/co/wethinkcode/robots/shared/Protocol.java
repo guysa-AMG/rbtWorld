@@ -61,6 +61,7 @@ public class Protocol implements IProtocol {
         }
     }
 
+
     private void validateRequest(ServerRequest req) {
         if (req == null) {
             throw new IllegalArgumentException("Request cannot be null");
