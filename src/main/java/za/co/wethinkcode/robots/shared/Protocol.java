@@ -38,5 +38,41 @@ public class Protocol implements IProtocol {
             throw new UnsupportedOperationException("Unimplemented method 'decodeResponse'");
         }
     }
-}
 
+    @Override
+    public String encodeRequest(ServerRequest req) {
+        try {
+            return mapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(req);
+        } catch (JsonProcessingException e) {
+            throw new UnsupportedOperationException("Unimplemented method 'encodeRequest'");
+        }
+    }
+
+    @Override
+    public String encodeResponse(ServerResponse res) {
+        try {
+            return mapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(res);
+        } catch (JsonProcessingException e) {
+            throw new UnsupportedOperationException("Unimplemented method 'encodeResponse'");
+        }
+    }
+
+    private void validateRequest(ServerRequest req) {
+        if (req == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+        if (req.getRobot() == null || req.getRobot().isEmpty()) {
+            throw new IllegalArgumentException("Robot name is required");
+        }
+        if (req.getCommand() == null) {
+            throw new IllegalArgumentException("Command is required");
+        }
+        if (req.getArgument() == null) {
+            throw new IllegalArgumentException("Argument is required");
+        }
+    }
+}
