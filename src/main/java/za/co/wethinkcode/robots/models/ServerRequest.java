@@ -28,7 +28,7 @@ public class ServerRequest {
 
 
  
-    public String getCommandInstance() {
+    public Command getCommandInstance() {
         return null;
     }
 
