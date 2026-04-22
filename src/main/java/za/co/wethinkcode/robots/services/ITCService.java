@@ -34,7 +34,7 @@ public class ITCService {
      public String doThisCommand(String data){
         Protocol protocol =new Protocol();
         ServerRequest req =  protocol.decodeRequest(data);
-        Command com = req.getCommand();
+        Command com = req.getCommandInstance();
         ServerResponse response = this.world.perform(com);
         System.out.println(response);
         return protocol.encodeResponse(response);
