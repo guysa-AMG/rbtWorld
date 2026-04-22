@@ -1,6 +1,7 @@
 // # Abstract class or Interface
 package za.co.wethinkcode.robots.server.commands;
-
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.server.world.Iworld;
 
 public abstract class Command {
     private String robotName;
@@ -13,7 +14,7 @@ public abstract class Command {
     public String getRobotName(){
         return this.robotName;
     }
-    public void execute(){}
+    public abstract ServerResponse execute(Iworld world);
 
     Command(String name,String[] arguemnt){
         this.CommandName=name;

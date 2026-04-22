@@ -1,9 +1,9 @@
 // # Interface for the world
 package za.co.wethinkcode.robots.server.world;
-
+import za.co.wethinkcode.robots.models.ServerResponse;
 import java.util.List;
 
-public interface IWorld {
+public interface Iworld {
 
     /**
      * These are the possible results when a robot tries to move.
@@ -11,6 +11,7 @@ public interface IWorld {
     enum Direction {
         NORTH, SOUTH, EAST, WEST
     }
+
     enum UpdateResponse {
         SUCCESS,            // The move worked fine
         HIT_ROBOT,          // Crashed into another player
@@ -79,6 +80,7 @@ public interface IWorld {
      * Remember: (0,0) is the center!
      */
     int getWidth();
+
     int getHeight();
 
     /**
@@ -90,4 +92,9 @@ public interface IWorld {
      * Returns all the obstacles in the world (for the server console).
      */
     List<Object> getObstacles();
+
+    /**
+     * Executes a command within the world context.
+     */
+    ServerResponse perform(za.co.wethinkcode.robots.server.commands.Command command);
 }
