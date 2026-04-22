@@ -39,10 +39,9 @@ public class RobotWorld implements IWorld {
             else if (dir == Direction.EAST) stepX += (1 * multiplier);
             else if (dir == Direction.WEST) stepX -= (1 * multiplier);
 
-            // BOUNDARY MATH: (0,0) is center.
-            // In a 2x2 world, edges are at 1 and -1
-            int xLimit = width / 2;
-            int yLimit = height / 2;
+            // Updated Boundary check for an odd-sized world
+            int xLimit = (width - 1) / 2;
+            int yLimit = (height - 1) / 2;
 
             if (stepX > xLimit || stepX < -xLimit || stepY > yLimit || stepY < -yLimit) {
                 return UpdateResponse.OUT_OF_BOUNDS;
