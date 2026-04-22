@@ -8,6 +8,9 @@ public interface IWorld {
     /**
      * These are the possible results when a robot tries to move.
      */
+    enum Direction {
+        NORTH, SOUTH, EAST, WEST
+    }
     enum UpdateResponse {
         SUCCESS,            // The move worked fine
         HIT_ROBOT,          // Crashed into another player

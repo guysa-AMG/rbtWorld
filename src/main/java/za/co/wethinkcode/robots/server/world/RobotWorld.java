@@ -1,4 +1,5 @@
 // # Implementation of the 2D world logic
+
 package za.co.wethinkcode.robots.server.world;
 
 import java.util.*;
@@ -10,7 +11,7 @@ public class RobotWorld implements IWorld {
     private final int visibility;
 
     private final Map<String, int[]> robotPositions = new HashMap<>();
-    private final Map<String, Direction> robotDirections = new HashMap<>();
+    private final Map<String, IWorld.Direction> robotDirections = new HashMap<>();
     private final List<Obstacle> obstacles = new ArrayList<>();
 
     public RobotWorld(int width, int height, int visibility) {
@@ -22,9 +23,11 @@ public class RobotWorld implements IWorld {
     @Override
     public UpdateResponse moveRobot(String name, int steps) {
         int[] currentPos = robotPositions.get(name);
-        Direction dir = robotDirections.get(name);
-        int multiplier = (steps > 0) ? 1 : -1;
+        IWorld.Direction dir = robotDirections.get(name);
 
+        if (currentPos == null || dir == null) return UpdateResponse.OUT_OF_BOUNDS;
+
+        int multiplier = (steps > 0) ? 1 : -1;
         int nextX = currentPos[0];
         int nextY = currentPos[1];
 
@@ -34,10 +37,10 @@ public class RobotWorld implements IWorld {
             int stepY = nextY;
 
             // EXACT MATH: North is +Y, South is -Y, East is +X, West is -X
-            if (dir == Direction.NORTH) stepY += (1 * multiplier);
-            else if (dir == Direction.SOUTH) stepY -= (1 * multiplier);
-            else if (dir == Direction.EAST) stepX += (1 * multiplier);
-            else if (dir == Direction.WEST) stepX -= (1 * multiplier);
+            if (dir == IWorld.Direction.NORTH) stepY += multiplier;
+            else if (dir == IWorld.Direction.SOUTH) stepY -= multiplier;
+            else if (dir == IWorld.Direction.EAST) stepX += multiplier;
+            else if (dir == IWorld.Direction.WEST) stepX -= multiplier;
 
             // Updated Boundary check for an odd-sized world
             int xLimit = (width - 1) / 2;
@@ -70,20 +73,21 @@ public class RobotWorld implements IWorld {
     public List<Object> look(String name) {
         List<Object> results = new ArrayList<>();
         int[] pos = robotPositions.get(name);
+        if (pos == null) return results;
 
         // SPEC: Robot only sees in straight lines (N, S, E, W)
-        for (Direction lookDir : Direction.values()) {
+        for (IWorld.Direction lookDir : IWorld.Direction.values()) {
             for (int dist = 1; dist <= visibility; dist++) {
                 int lookX = pos[0];
                 int lookY = pos[1];
 
-                if (lookDir == Direction.NORTH) lookY += dist;
-                else if (lookDir == Direction.SOUTH) lookY -= dist;
-                else if (lookDir == Direction.EAST) lookX += dist;
-                else if (lookDir == Direction.WEST) lookX -= dist;
+                if (lookDir == IWorld.Direction.NORTH) lookY += dist;
+                else if (lookDir == IWorld.Direction.SOUTH) lookY -= dist;
+                else if (lookDir == IWorld.Direction.EAST) lookX += dist;
+                else if (lookDir == IWorld.Direction.WEST) lookX -= dist;
 
-                // Check for Edges first
-                if (lookX > (width/2) || lookX < -(width/2) || lookY > (height/2) || lookY < -(height/2)) {
+                // Check for Edges first (using the odd rectangle math)
+                if (Math.abs(lookX) > (width - 1) / 2 || Math.abs(lookY) > (height - 1) / 2) {
                     results.add(formatSeen("EDGE", lookDir, dist));
                     break;
                 }
@@ -101,6 +105,15 @@ public class RobotWorld implements IWorld {
             }
         }
         return results;
+    }
+
+    // Helper method to fix the "Cannot resolve method formatSeen" error
+    private Map<String, Object> formatSeen(String type, IWorld.Direction dir, int dist) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("direction", dir.toString());
+        map.put("type", type);
+        map.put("distance", dist);
+        return map;
     }
 
     @Override
@@ -123,7 +136,7 @@ public class RobotWorld implements IWorld {
     @Override public boolean addRobot(String name) {
         if (robotPositions.containsKey(name)) return false;
         robotPositions.put(name, new int[]{0, 0});
-        robotDirections.put(name, Direction.NORTH);
+        robotDirections.put(name, IWorld.Direction.NORTH);
         return true;
     }
 
@@ -133,28 +146,39 @@ public class RobotWorld implements IWorld {
     }
 
     @Override public void rotateRobot(String name, boolean turnRight) {
-        Direction current = robotDirections.get(name);
+        IWorld.Direction current = robotDirections.get(name);
+        if (current == null) return;
+
+        IWorld.Direction next;
         if (turnRight) {
-            robotDirections.put(name, (current == Direction.NORTH) ? Direction.EAST : (current == Direction.EAST) ? Direction.SOUTH : (current == Direction.SOUTH) ? Direction.WEST : Direction.NORTH);
+            next = (current == IWorld.Direction.NORTH) ? IWorld.Direction.EAST :
+                    (current == IWorld.Direction.EAST) ? IWorld.Direction.SOUTH :
+                    (current == IWorld.Direction.SOUTH) ? IWorld.Direction.WEST : IWorld.Direction.NORTH;
         } else {
-            robotDirections.put(name, (current == Direction.NORTH) ? Direction.WEST : (current == Direction.WEST) ? Direction.SOUTH : (current == Direction.SOUTH) ? Direction.EAST : Direction.NORTH);
+            next = (current == IWorld.Direction.NORTH) ? IWorld.Direction.WEST :
+                    (current == IWorld.Direction.WEST) ? IWorld.Direction.SOUTH :
+                    (current == IWorld.Direction.SOUTH) ? IWorld.Direction.EAST : IWorld.Direction.NORTH;
         }
+        robotDirections.put(name, next);
     }
 
     @Override public int getWidth() { return width; }
     @Override public int getHeight() { return height; }
     @Override public List<Object> getObstacles() { return new ArrayList<>(obstacles); }
+
     @Override public String getRobotState(String n) {
         int[] p = robotPositions.get(n);
+        if (p == null) return "Robot not found";
         return "Position: [" + p[0] + "," + p[1] + "], Direction: " + robotDirections.get(n);
     }
+
     @Override public boolean checkHit(String s, int d) { return false; }
 
     /**
      * Exact Obstacle Math: Rectangular coordinates.
      */
     public static class Obstacle {
-        private final int x1, y1, x2, y2; // top-left (x1, y1) and bottom-right (x2, y2)
+        private final int x1, y1, x2, y2;
         private final String type;
 
         public Obstacle(int x1, int y1, int x2, int y2, String type) {
@@ -164,8 +188,6 @@ public class RobotWorld implements IWorld {
         }
 
         public boolean isAt(int x, int y) {
-            // A point (x,y) is inside if it's between the X boundaries
-            // AND between the Y boundaries.
             return (x >= x1 && x <= x2) && (y <= y1 && y >= y2);
         }
 
