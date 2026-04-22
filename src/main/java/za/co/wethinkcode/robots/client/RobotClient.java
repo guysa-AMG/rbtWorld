@@ -95,7 +95,7 @@ public class RobotClient {
                 //System.out.println(responseJson);
                 handleResponse(responseJson);
 
-                if("quit".equalsIgnoreCase(request.getCommand().getCommandName())){
+                if("quit".equalsIgnoreCase(request.getCommandInstance().getCommandName())){
                     return;
                 }
             }
