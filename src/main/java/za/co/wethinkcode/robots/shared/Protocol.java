@@ -65,10 +65,10 @@ public class Protocol implements IProtocol {
         if (req == null) {
             throw new IllegalArgumentException("Request cannot be null");
         }
-        if (req.getRobot() == null || req.getRobot().getCommandName().trim().isEmpty()) {
+        if (req.getRobot() == null) {
             throw new IllegalArgumentException("Robot name is required");
         }
-        if (req.getCommand() == null) {
+        if (req.getCommandInstance() == null) {
             throw new IllegalArgumentException("Command is required");
         }
         if (req.getArgument() == null) {
