@@ -24,14 +24,5 @@ private String command;
 private String[] arguments;
 
 
-public Command getRobot() {return null;}
-
-public Command getCommand(){
-    return null;
-}
-
-public Command getArgument() {return null;}
-
-
 
 }
