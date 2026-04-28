@@ -6,10 +6,13 @@ Iteration 1: simple CLI client that sends JSON strings to the server over a sock
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.EnumValues;
 
+import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 import java.io.BufferedReader;
@@ -77,7 +80,7 @@ public class RobotClient {
             while((userLine = console.nextLine()) != null){
                 userLine = userLine.trim();
                 if(userLine.isBlank()){continue;}
-
+                try{
                 ServerRequest request = toRequest(userLine);
                 if(request == null){continue;};
 
@@ -85,6 +88,7 @@ public class RobotClient {
                 if(json == null){continue;};
 
                 serverOut.println(json);
+                
 
                 String responseJson = serverIn.readLine(); //here am assuming that the server sends one JSON object per line
                System.out.print(responseJson);
@@ -97,6 +101,9 @@ public class RobotClient {
 
                 if("quit".equalsIgnoreCase(request.getCommandInstance().getCommandName())){
                     return;
+                }}
+                catch(InvalidCommandException err){
+                    System.err.println("[x] Invalid Command");
                 }
             }
         }catch (IOException e){
@@ -104,14 +111,21 @@ public class RobotClient {
         }
     }
 
-    private ServerRequest toRequest(String userLine) {
+    public static ServerRequest toRequest(String userLine) throws InvalidCommandException  {
         String[] parts = userLine.split("\\s+");
         if(parts.length < 2){
             System.out.println("Invalid input. Use: <robotName> <command> [arguments....] (example: HAL launch)>");
             return null;
         }
         String robotName = parts[0];
-        String command = parts[1];
+        String command = parts[1].toLowerCase();
+       try{
+        CommandTypeEnum.valueOf(command);
+       }
+       catch(IllegalArgumentException illegal){
+              throw new InvalidCommandException();
+       }
+        
         String[] arguments = (parts.length > 2) ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0];
 
         return new ServerRequest(robotName, command, arguments);

@@ -5,3 +5,5 @@ original_test_src/*
 *.flot
 !libs/*.jar
 grade_output.txt
+.idea/
+.vscode/

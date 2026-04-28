@@ -13,15 +13,15 @@ public abstract class Command {
     public String getRobotName(){
         return this.robotName;
     }
-    public void execute(){}
+    public abstract void execute();
 
-    Command(String name,String[] arguemnt){
+    Command(String name,String[] argument){
         this.CommandName=name;
         this.argument=argument;
     }
     Command(String name){
         this.CommandName = name;
-        this.argument = argument;
+        this.argument = null;
     }
     
 }
