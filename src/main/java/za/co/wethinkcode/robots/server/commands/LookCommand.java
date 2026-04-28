@@ -1,17 +1,21 @@
 package za.co.wethinkcode.robots.server.commands;
 
-public class LookCommand extends  Command{
+import za.co.wethinkcode.robots.server.robot.Robot;
+import za.co.wethinkcode.robots.server.world.Iworld;
 
-    LookCommand(String name) {
-        super(name);
-        //TODO Auto-generated constructor stub
+public class LookCommand extends Command {
+
+    public LookCommand() {
+        super("look");
     }
 
     @Override
-    public void execute() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+    public boolean execute(Robot target, Iworld world) {
+
+        System.out.println("Robot " + target.getName() + " is looking around.");
+
+        return true;
     }
-    
-    
 }
+
+
