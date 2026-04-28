@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
+import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
+import za.co.wethinkcode.robots.services.ITCService;
 
 public class RobotServer {
    
@@ -34,6 +37,10 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
+       Iworld world = new RobotWorld();
+       ITCService.getInstance().setWorld(world);
+
+
        while(loop){
         System.out.println("...listening to incoming connection");
        Socket client = servSock.accept();

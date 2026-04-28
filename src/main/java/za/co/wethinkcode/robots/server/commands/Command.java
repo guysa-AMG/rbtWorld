@@ -1,27 +1,54 @@
 // # Abstract class or Interface
 package za.co.wethinkcode.robots.server.commands;
 
+import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.server.robot.BaseRobot;
+import za.co.wethinkcode.robots.server.world.Iworld;
 
 public abstract class Command {
-    private String robotName;
-    private String CommandName;
-    private String[] argument;
+    protected String robotName;
+    protected String CommandName;
+    protected String[] argument;
 
     public String getCommandName(){
         return this.CommandName;
     }
+    public void setRobotName(String name){
+        this.robotName=name;
+    }
+
     public String getRobotName(){
         return this.robotName;
     }
-    public abstract void execute();
+    public abstract ServerResponse execute(Iworld world,BaseRobot robot);
 
-    Command(String name,String[] argument){
+    Command(String name,String[] argument,String rbtName){
         this.CommandName=name;
+        this.robotName=rbtName;
         this.argument=argument;
     }
-    Command(String name){
-        this.CommandName = name;
-        this.argument = null;
+    Command(String[] argument,String rbtNameString){
+        this(null,argument,rbtNameString);
     }
+   
+    Command(String name,String rbtNameString){
+        this(name,null,rbtNameString);
+    }
+   public static Command generate(ServerRequest req){
+    System.out.println(req.getCommand());
+    return switch(req.getCommand()){
+
+        case "launch" -> new LaunchCommand(req.getArguments(),req.getRobot());
+
+        case "state" -> new StateCommand("state",req.getRobot());
+
+        default -> new HelpCommand("help",req.getRobot());
+    };
+
     
+        
+    }
+
+  
 }

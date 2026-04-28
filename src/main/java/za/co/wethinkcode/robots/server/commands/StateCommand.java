@@ -4,13 +4,12 @@ import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
-public class HelpCommand extends Command {
+public class StateCommand extends Command {
 
-    
-
-    HelpCommand(String name, String rbtNameString) {
-        super("help", rbtNameString);
-        //TODO Auto-generated constructor stub
+  
+    StateCommand(String name, String rbtNameString) {
+        super(name, rbtNameString);
+     
     }
 
     @Override
@@ -19,9 +18,5 @@ public class HelpCommand extends Command {
         throw new UnsupportedOperationException("Unimplemented method 'execute'");
     }
 
- 
-
-   
-
-    
+  
 }

@@ -107,7 +107,7 @@ public class RobotClient {
                 //System.out.println(responseJson);
                 handleResponse(responseJson);
 
-                if("quit".equalsIgnoreCase(request.getCommandInstance().getCommandName())){
+                if("quit".equalsIgnoreCase(request.getCommand())){
                     return;
                 }}
                 catch(InvalidCommandException err){
@@ -147,7 +147,7 @@ public class RobotClient {
             return;
         }
         String result = (response.getResult() == null ? "UNKNOWN" : response.getResult().toString());
-        String message = (response.getData().get("message") == null ? "" : response.getData().get("message"));
+        String message = (response.getData().getMessage() == null ? "" : response.getData().getMessage());
         System.out.println(result + (message.isBlank() ? "" : message));
 
         try{

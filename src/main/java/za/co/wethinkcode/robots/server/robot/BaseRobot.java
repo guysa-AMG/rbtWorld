@@ -13,6 +13,8 @@ public abstract class BaseRobot extends Impediments {
      private int shield;
      private int fireRate;
 
+
+     private int  shoots;
    
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
        
@@ -21,7 +23,9 @@ public abstract class BaseRobot extends Impediments {
         this.name = name;
         this.fireRate = FRate;
         this.shield = 20;
+        this.shoots =3;
     }
+
    
      protected boolean absorbDamage(int shots){
      if (this.shield>0){
@@ -35,12 +39,20 @@ public abstract class BaseRobot extends Impediments {
           }
     }
 
-    static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
+    public int getShoots(){
+     return this.shoots;
+    }
+   public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
      
      return new SimpleRobot(name, x,  y, shield, FRate);
     }
 
-   
+    public Directions getDirection(){
+          return this.direction;
+    }
+    public int getShield(){
+     return this.shield;
+    }
     
      public boolean shootRobot(BaseRobot robot){
          if (robot.absorbDamage(this.fireRate)){

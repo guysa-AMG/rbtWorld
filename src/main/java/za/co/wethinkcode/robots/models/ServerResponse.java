@@ -21,27 +21,10 @@ public class ServerResponse {
     private StatusCode result;
 
     @JsonProperty(required = true)
-    private Map<String,String> data;
+    private ServerResponseData data;
 
     @JsonProperty
-    private State state;
+    private ServerResponseState state;
 
 }
 
-class State{
-
-@JsonProperty
-private ArrayList<Integer> position;
-
-@JsonProperty
-private Directions Direction;
-
-@JsonProperty
-private int shields;
-
-@JsonProperty
-private int shots;
-
-@JsonProperty
-private OperationalMode status;
-}

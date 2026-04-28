@@ -32,14 +32,5 @@ public class ServerRequest {
     private String[] arguments;
 
 
-    @JsonIgnore
-    public Command getCommandInstance() {
-        return null;
-    }
-
-   
-
-
-
 
 }
