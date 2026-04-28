@@ -1,0 +1,212 @@
+classDiagram
+    direction LR
+
+    namespace shared {
+        class Protocol {
+            <<utility>>
+            +CMD_LAUNCH : String
+            +CMD_LOOK : String
+            +CMD_FIRE : String
+            +CMD_STATE : String
+            +RESULT_OK : String
+            +RESULT_ERROR : String
+        }
+
+        class Request {
+            -robot : String
+            -command : String
+            -arguments : String[]
+            +getRobot() String
+            +getCommand() String
+            +getArguments() String[]
+        }
+
+        class Response {
+            -result : String
+            -message : String
+            -data : Object
+            -state : Object
+        }
+
+        class StateTransmission {
+            +encode(c : Command) String
+            +decode(data : String) Command
+        }
+    }
+
+    namespace client {
+        class RobotClient {
+            -host : String
+            -port : int
+            -socket : Socket
+            -mapper : ObjectMapper
+            -serverIn : BufferedReader
+            -serverOut : PrintWriter
+            +start() void
+            -commandLoop() void
+            -toRequest(line) Request
+            -toJson(req) String
+            -fromJson(json) Response
+            -handleResponse(json) void
+            +main(args)$ void
+        }
+
+        class NetworkHandler {
+            -socket : Socket
+            +connect(host, port) void
+            +send(msg : String) void
+            +receive() String
+            +close() void
+        }
+    }
+
+    namespace server {
+        class Server {
+            +main(args)$ void
+            +isHosting()$ Boolean
+        }
+
+        class RobotServer {
+            -port : int
+            +RobotServer(port : String)
+            +RobotServer()
+            +init() void
+        }
+
+        class ClientHandler {
+            <<Runnable>>
+            -specificSock : Socket
+            +run() void
+        }
+
+        class RobotServices {
+            <<Singleton>>
+            -instance$ : RobotServices
+            -log : Logger
+            +getInstance()$ RobotServices
+            +addRobot() void
+            +getAllPlayers() void
+            +isValid() Boolean
+            +execute() void
+        }
+
+        class WorldReader {
+            -prop : Properties
+            +getWorldMap() String[]
+        }
+    }
+
+    namespace world {
+        class IWorld {
+            <<interface>>
+            +addRobot(r : Robot) boolean
+            +removeRobot(name) void
+            +isBlocked(x, y) boolean
+            +pathBlocked(from, to) boolean
+            +getRobots() List~Robot~
+        }
+
+        class RobotWorld {
+            -robots : Map~String,Robot~
+            -obstacles : List~Obstacle~
+            -width : int
+            -height : int
+            -visibility : int
+        }
+
+        class Obstacle {
+            <<abstract>>
+            #x : int
+            #y : int
+            +blocks(x, y)* boolean
+        }
+
+        class SquareObstacle
+        class Pit
+        class Lake
+    }
+
+    namespace robot {
+        class Robot {
+            -name : String
+            -position : Point
+            -direction : Direction
+            -shields : int
+            -shots : int
+            -status : OperationalMode
+            +move(steps) void
+            +turn(dir) void
+            +takeHit() void
+        }
+
+        class OperationalMode {
+            <<enumeration>>
+            NORMAL
+            REPAIR
+            RELOAD
+            DEAD
+        }
+
+        class RobotMake {
+            <<factory>>
+            +sniper()$ Robot
+            +tank()$ Robot
+        }
+    }
+
+    namespace commands {
+        class Command {
+            <<abstract>>
+            #name : String
+            #argument : String[]
+            +execute(r : Robot, w : IWorld)* Response
+        }
+
+        class MoveCommand
+        class LookCommand
+        class FireCommand
+        class RepairCommand
+        class ReloadCommand
+        class LaunchCommand
+        class StateCommand
+        class CommandFactory {
+            <<factory>>
+            +build(req : Request)$ Command
+        }
+    }
+
+    Server ..> RobotServer : creates
+    RobotServer "1" o-- "*" ClientHandler : spawns thread per client
+    ClientHandler ..> RobotServices : delegates to
+    ClientHandler ..> CommandFactory : parses requests
+    ClientHandler ..> StateTransmission : serializes
+
+    CommandFactory ..> Command : returns
+    Command <|-- MoveCommand
+    Command <|-- LookCommand
+    Command <|-- FireCommand
+    Command <|-- RepairCommand
+    Command <|-- ReloadCommand
+    Command <|-- LaunchCommand
+    Command <|-- StateCommand
+
+    IWorld <|.. RobotWorld
+    RobotWorld "1" o-- "*" Robot : contains
+    RobotWorld "1" o-- "*" Obstacle : contains
+    Obstacle <|-- SquareObstacle
+    Obstacle <|-- Pit
+    Obstacle <|-- Lake
+
+    Robot --> OperationalMode
+    RobotMake ..> Robot : creates
+
+    Command ..> Robot : acts on
+    Command ..> IWorld : queries
+
+    RobotClient *-- Request
+    RobotClient *-- Response
+    RobotClient ..> NetworkHandler : (planned)
+    RobotClient ..> Protocol : uses keys
+
+    RobotServer ..> WorldReader : loads world.properties
+    RobotServices ..> IWorld : owns world state
