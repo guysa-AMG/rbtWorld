@@ -11,7 +11,9 @@ public class QuitCommand extends Command {
 
     @Override
     public boolean execute(Robot target, Iworld world) {
+
         world.removeRobot(target.getName());
+
         System.out.println("Robot " + target.getName() + " has quit.");
         return true;
     }
