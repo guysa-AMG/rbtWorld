@@ -1,5 +1,6 @@
 package za.co.wethinkcode.robots.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -31,7 +32,7 @@ public class ServerRequest {
     private String[] arguments;
 
 
- 
+    @JsonIgnore
     public Command getCommandInstance() {
         return null;
     }

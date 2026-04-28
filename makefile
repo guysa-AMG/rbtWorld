@@ -3,6 +3,7 @@ serve:
 connect:
 	mvn compile exec:java -Dexec.mainClass=za.co.wethinkcode.robots.client.RobotClient -Dexec.args="guysa 2146"
 compile:
+	
 	./mvnw compile
 test:
 	./mvnw test

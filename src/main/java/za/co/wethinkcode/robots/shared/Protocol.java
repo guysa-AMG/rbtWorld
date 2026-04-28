@@ -43,7 +43,6 @@ public class Protocol implements IProtocol {
     public String encodeRequest(ServerRequest req) {
         try {
             return mapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(req);
         } catch (JsonProcessingException e) {
             throw new UnsupportedOperationException("Unimplemented method 'encodeRequest'");
@@ -54,7 +53,6 @@ public class Protocol implements IProtocol {
     public String encodeResponse(ServerResponse res) {
         try {
             return mapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(res);
         } catch (JsonProcessingException e) {
             throw new UnsupportedOperationException("Unimplemented method 'encodeResponse'");

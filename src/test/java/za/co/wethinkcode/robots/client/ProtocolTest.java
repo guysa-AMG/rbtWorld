@@ -12,24 +12,23 @@ import za.co.wethinkcode.robots.shared.Protocol;
 public class ProtocolTest{
 
      //TODO Please Comment this line if Protocol is implemented
-    @Disabled("waiting on Protocols implementation")
+   // @Disabled("waiting on Protocols implementation")
     @Test
     void testForwardSerialization(){
         Protocol proto = new Protocol();
         ServerRequest req = new ServerRequest("mark", "Forward", new String[]{"10"});
 
-        assertEquals(proto.encodeRequest(req),"{robot: mark, command: forward, arguments: [10]}");
+        assertEquals("{  'robot' : 'mark',  'command' : 'Forward',  'arguments' : [ '10' ]}",proto.encodeRequest(req).replace("\"", "\'").replaceAll("\n", "")
+       
+          );
     }
 
-
-    //TODO Please Comment this line if Protocol is implemented
-     @Disabled("waiting on Protocols implementation")
     @Test
     void testBackwardSerialization(){
         Protocol proto = new Protocol();
         ServerRequest req = new ServerRequest("mark", "Forward", new String[]{"10"});
 
-        assertEquals(req,proto.decodeRequest("{robot: mark, command: forward, arguments: [10]}"));
+        assertEquals(req,proto.decodeRequest("{  \"robot\" : \"mark\",  \"command\" : \"Forward\",  \"arguments\" : [ \"10\" ]}"));
     }
 
 
