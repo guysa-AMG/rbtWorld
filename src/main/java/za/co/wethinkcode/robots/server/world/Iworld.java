@@ -14,4 +14,9 @@ public interface Iworld {
 
     public ServerResponse perform(Command com);
 
+    char[] getSize();
+
+    char[] getObstacles();
+
+    char[] getRobotNames();
 }

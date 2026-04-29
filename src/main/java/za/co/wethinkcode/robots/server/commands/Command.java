@@ -2,26 +2,32 @@
 package za.co.wethinkcode.robots.server.commands;
 
 
+import za.co.wethinkcode.robots.server.robot.Robot;
+import za.co.wethinkcode.robots.server.world.Iworld;
+
 public abstract class Command {
     private String robotName;
     private String CommandName;
     private String[] argument;
 
-    public String getCommandName(){
+    public String getCommandName() {
         return this.CommandName;
     }
-    public String getRobotName(){
+
+    public String getRobotName() {
         return this.robotName;
     }
-    public abstract void execute();
 
-    Command(String name,String[] argument){
-        this.CommandName=name;
-        this.argument=argument;
+    Command(String name, String[] argument) {
+        this.CommandName = name;
+        this.argument = argument;
     }
-    Command(String name){
+
+    Command(String name) {
         this.CommandName = name;
         this.argument = null;
     }
-    
+
+    public abstract boolean execute(Robot target, Iworld world);
 }
+
