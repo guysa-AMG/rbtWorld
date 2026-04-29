@@ -58,4 +58,18 @@ public abstract class Robot extends Impediments {
      }
 
 
+    public Directions getDirection() {
+         return this.direction;
+    }
+
+    public int getShields() {
+         return this.shield;
+    }
+
+    public int getFireRate() {
+         return this.fireRate;
+    }
+
+    public void sendMessage(String string) {
+    }
 }
