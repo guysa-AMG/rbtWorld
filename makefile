@@ -7,6 +7,9 @@ compile:
 	./mvnw compile
 test:
 	./mvnw test
+coverage:
+	./mvnw jacoco:report
+	firefox target/site/jacoco/index.html
 clean:
 	./mvnw clean
 serve_arged:
