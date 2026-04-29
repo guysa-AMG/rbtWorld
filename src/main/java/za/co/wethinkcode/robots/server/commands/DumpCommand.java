@@ -27,7 +27,7 @@ public class DumpCommand extends Command {
         stringBuilder.append("Robots: ").append(world.getRobotNames()).append("\n");
         stringBuilder.append("\n=== Command Metadata ===\n");
         stringBuilder.append("Command: ").append(getCommandName()).append("\n");
-        stringBuilder.append("Arguments: ").append(Arrays.toString(getArguments())).append("\n");
+        //stringBuilder.append("Arguments: ").append(Arrays.toString(getArguments())).append("\n");
         stringBuilder.append("==================");
 
         target.sendMessage(stringBuilder.toString());
