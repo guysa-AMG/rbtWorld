@@ -36,7 +36,7 @@ public class ITCService {
         ServerRequest req =  protocol.decodeRequest(data);
        Command com = Command.generate(req);
         ServerResponse response = this.world.perform(com);
-        System.out.println(response);
+       
         return protocol.encodeResponse(response);
 
        

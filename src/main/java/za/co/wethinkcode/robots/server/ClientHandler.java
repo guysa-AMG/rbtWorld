@@ -40,7 +40,7 @@ class ClientHandler implements Runnable{
             String request= data;
             this.log.info("read => "+ request+" from "+client);
             String sendableData = ITCService.getInstance().doThisCommand(request)+"\n";
-    
+            this.log.warn("sending=> "+sendableData);
            this.specificSock.getOutputStream().write(sendableData.getBytes());
            this.specificSock.getOutputStream().flush();
             

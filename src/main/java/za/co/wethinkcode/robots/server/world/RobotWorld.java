@@ -14,12 +14,13 @@ import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 public class RobotWorld implements Iworld{
-    public HashMap<String,BaseRobot> robots;
+    public Map<String,BaseRobot> robots;
     private Logger log;
 
    
    public RobotWorld(){
         this.log=LoggerFactory.getLogger(RobotWorld.class);
+        this.robots=new HashMap<>();
     }
     
     @Override
@@ -41,6 +42,7 @@ public class RobotWorld implements Iworld{
     @Override
     public ServerResponse perform(Command com) {
         this.log.info("executing "+com.getCommandName()+" command for "+com.getRobotName());
+
         BaseRobot robot = this.robots.get(com.getRobotName());
       return  com.execute(this,robot);
 

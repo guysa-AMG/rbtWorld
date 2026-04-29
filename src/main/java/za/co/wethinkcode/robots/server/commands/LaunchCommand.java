@@ -23,7 +23,7 @@ public class LaunchCommand extends Command {
     @Override
     public ServerResponse execute(Iworld world,BaseRobot robot) {
       world.addRobot(robotName);
-
+      robot = world.getAllRobots().get(robotName);
       return new ServerResponse(
         StatusCode.OK,
          new ServerResponseData(null,robot.getPosition(), Iworld.visibleDistance, Iworld.reloadTime, Iworld.repairTime, robot.getShield()),

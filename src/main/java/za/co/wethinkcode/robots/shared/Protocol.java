@@ -1,5 +1,8 @@
 package za.co.wethinkcode.robots.shared;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +11,11 @@ import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 
 public class Protocol implements IProtocol {
-
+    private Logger logger;
     private final ObjectMapper mapper;
 
     public Protocol() {
+        this.logger=LoggerFactory.getLogger(Protocol.class);
         this.mapper = new ObjectMapper();
         this.mapper.findAndRegisterModules();
         this.mapper.configure(
@@ -33,9 +37,10 @@ public class Protocol implements IProtocol {
     @Override
     public ServerResponse decodeResponse(String data) {
         try {
+            this.logger.warn("decoding => "+data);
             return mapper.readValue(data, ServerResponse.class);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Unimplemented method 'decodeResponse'");
+            throw new UnsupportedOperationException("Invalid Json Response failed to decode'");
         }
     }
 
