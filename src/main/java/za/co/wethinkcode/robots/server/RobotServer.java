@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.services.ITCService;
@@ -17,6 +18,7 @@ public class RobotServer {
         
         this.port = Integer.decode(arg_port);
         try{
+            JvmMetrics.builder().register();
         HTTPServer prometheusServer = HTTPServer.builder()
                                                 .port(9200)
                                                 .buildAndStart();
@@ -44,9 +46,10 @@ public class RobotServer {
        while(loop){
         System.out.println("...listening to incoming connection");
        Socket client = servSock.accept();
-
+        
       Thread th = new Thread(new ClientHandler(client));
       th.start();
+      ITCService.getInstance().addThreadControllers(client,th);
      
        }
 

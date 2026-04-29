@@ -17,6 +17,7 @@ public abstract class Command {
     public void setRobotName(String name){
         this.robotName=name;
     }
+    
 
     public String getRobotName(){
         return this.robotName;

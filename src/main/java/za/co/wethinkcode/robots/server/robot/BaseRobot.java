@@ -4,7 +4,7 @@ import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 
-public abstract class BaseRobot extends Impediments {
+public abstract class BaseRobot implements Impediments {
      private String name;
      private Position position;
        
@@ -42,6 +42,7 @@ public abstract class BaseRobot extends Impediments {
     public int getShoots(){
      return this.shoots;
     }
+    
    public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
      
      return new SimpleRobot(name, x,  y, shield, FRate);
@@ -70,7 +71,10 @@ public abstract class BaseRobot extends Impediments {
      public Position getPosition(){
           return this.position;
      }
-
+     public boolean updateDirection(Directions direc){
+          this.direction=direc;
+          return true;
+     }
      public boolean updatePosition(Position pos){
           this.position = pos;
           return true;

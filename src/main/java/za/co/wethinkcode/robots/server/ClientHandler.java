@@ -18,7 +18,7 @@ class ClientHandler implements Runnable{
     private String client;
     private Scanner scan ;
     public ClientHandler(Socket sock){
-    this.client=sock.getLocalAddress().getAddress().toString();
+    this.client=sock.getLocalAddress().getHostAddress();
     this.log=LoggerFactory.getLogger(ClientHandler.class);
     this.log.info("new connection to -> "+client);
     this.specificSock=sock;
@@ -39,9 +39,16 @@ class ClientHandler implements Runnable{
             
             String request= data;
             this.log.info("read => "+ request+" from "+client);
-            String sendableData = ITCService.getInstance().doThisCommand(request)+"\n";
+            
+            String sendableData = ITCService.getInstance().doThisCommand(request);
+            if (sendableData == "off"){
+            
+                this.specificSock.close();
+                ITCService.getInstance().terminateServerThread(specificSock);
+                break;    
+            }
             this.log.warn("sending=> "+sendableData);
-           this.specificSock.getOutputStream().write(sendableData.getBytes());
+           this.specificSock.getOutputStream().write((sendableData+"\n").getBytes());
            this.specificSock.getOutputStream().flush();
             
             }

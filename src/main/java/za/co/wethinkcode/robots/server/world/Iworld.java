@@ -16,7 +16,6 @@ public interface Iworld {
     
    
 
-    public void moveRobot(String RobotName,Position pos);
     
     public Map<String,BaseRobot> getAllRobots();
     
