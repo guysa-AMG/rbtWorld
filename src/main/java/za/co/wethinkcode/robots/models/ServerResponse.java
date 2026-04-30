@@ -3,14 +3,16 @@ package za.co.wethinkcode.robots.models;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,6 +27,9 @@ public class ServerResponse {
 
     @JsonProperty
     private ServerResponseState state;
+    
 
+    public boolean equals(ServerResponse req){
+    return this.result.equals(req.result)&&this.data.equals(req.data)&&this.state.equals(req.state);
 }
-
+}

@@ -24,10 +24,31 @@ public class LaunchCommand extends Command {
     public ServerResponse execute(Iworld world,BaseRobot robot) {
       world.addRobot(robotName);
       robot = world.getAllRobots().get(robotName);
-      return new ServerResponse(
-        StatusCode.OK,
-         new ServerResponseData(null,robot.getPosition(), Iworld.visibleDistance, Iworld.reloadTime, Iworld.repairTime, robot.getShield()),
-        new ServerResponseState(robot.getPosition(), robot.getDirection(), robot.getShield(), robot.getShoots(), OperationalMode.NORMAL) );
+        
+      ServerResponseData data  = ServerResponseData.builder()
+                                                   .position(robot.getPosition())
+                                                   .visibility(Iworld.visibleDistance)
+                                                   .reload(Iworld.reloadTime)
+                                                   .repair(Iworld.repairTime)
+                                                   .shields(robot.getShield())
+                                                   .build();
+
+                                        
+      ServerResponseState state = ServerResponseState.builder()
+                                                     .position(robot.getPosition())
+                                                     .direction(robot.getDirection())
+                                                     .shields(robot.getShield())
+                                                     .shots(robot.getShoots())
+                                                     .status(OperationalMode.NORMAL)
+                                                     .build();
+                                                
+
+      ServerResponse res = ServerResponse.builder()
+                                         .result(StatusCode.OK)
+                                         .data(data)
+                                         .state(state)
+                                         .build();
+      return res;         
     }
 
    

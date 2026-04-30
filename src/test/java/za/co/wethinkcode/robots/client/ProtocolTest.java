@@ -14,12 +14,11 @@ public class ProtocolTest{
      //TODO Please Comment this line if Protocol is implemented
    // @Disabled("waiting on Protocols implementation")
     @Test
-    @Disabled
     void testForwardSerialization(){
         Protocol proto = new Protocol();
         ServerRequest req = new ServerRequest("mark", "Forward", new String[]{"10"});
 
-        assertEquals("{ 'robot':'mark','command':'Forward','arguments':['10']}",proto.encodeRequest(req).replace("\"", "\'").replaceAll("\n", "")
+        assertEquals("{'robot':'mark','command':'Forward','arguments':['10']}",proto.encodeRequest(req).replace("\"", "\'").replaceAll("\n", "")
        
           );
     }
@@ -37,7 +36,7 @@ public class ProtocolTest{
        @Disabled("waiting on Protocols implementation")
     @Test
     void testForwardDeSerialization(){
-     //TODO Please implement me
+    
     }
 
 

@@ -8,32 +8,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import za.co.wethinkcode.robots.server.commands.OperationalMode;
 
 @Builder
-@Data
 @AllArgsConstructor
+@Data
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-    
-public class ServerResponseState {
-    
-    @JsonProperty
-    Position position;
+public class ServerResponseObject {
 
     @JsonProperty
     Directions direction;
 
     @JsonProperty
-    int shields;
+    ImpedimentType type;
 
     @JsonProperty
-    int shots;
-
-    @JsonProperty
-    OperationalMode status;
-    public boolean equals(ServerResponseState req){
-    return this.direction.equals(req.direction)&&this.position.equals(req.position)&&this.status==req.status&&this.shields==req.shields&&this.shots==req.shots;
-}
+    int distance;
 
 }
