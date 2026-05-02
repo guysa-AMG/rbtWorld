@@ -3,6 +3,7 @@ package za.co.wethinkcode.robots.server.robot;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.server.commands.OperationalMode;
 
 public abstract class Robot extends Impediments {
      private String name;
