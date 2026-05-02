@@ -12,6 +12,10 @@ public abstract class Robot extends Impediments {
 
      private int shield;
      private int fireRate;
+     private OperationalMode status;
+
+     private int worldWidth;
+     private int worldHeight;
 
    
      public Robot(String name,int x, int y,int shield,int FRate) {
@@ -20,7 +24,8 @@ public abstract class Robot extends Impediments {
         this.direction = Directions.NORTH;
         this.name = name;
         this.fireRate = FRate;
-        this.shield = 20;
+        this.shield = shield;
+        this.status = OperationalMode.NORMAL;
     }
    
      protected boolean absorbDamage(int shots){
@@ -68,6 +73,10 @@ public abstract class Robot extends Impediments {
 
     public int getFireRate() {
          return this.fireRate;
+    }
+
+    public OperationalMode getStatus() {
+        return this.status;
     }
 
     public void sendMessage(String string) {
