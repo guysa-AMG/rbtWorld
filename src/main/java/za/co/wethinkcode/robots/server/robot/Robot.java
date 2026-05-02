@@ -28,27 +28,7 @@ public abstract class Robot extends Impediments {
         this.status = OperationalMode.NORMAL;
     }
    
-     protected boolean absorbDamage(int shots){
-     if (this.shield>0){
 
-          this.shield-=shots;
-
-          return true;
-     }
-          else{
-               return false;
-          }
-    }
-    
-     public boolean shootRobot(Robot robot){
-         if (robot.absorbDamage(this.fireRate)){
-          return true;
-         }
-         else{
-          return false;
-         }
-     }
-   
      public String getName(){
           return this.name;
       }
@@ -156,5 +136,42 @@ public abstract class Robot extends Impediments {
             case EAST  -> Directions.WEST;
             case WEST  -> Directions.EAST;
         };
+    }
+
+    protected boolean absorbDamage(int shots){
+        if (this.shield>0){
+            this.shield-=shots;
+            if (this.shield <= 0) {
+                this.shield = 0;
+                this.status = OperationalMode.DEAD;
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean shootRobot(Robot robot){
+        if (this.fireRate <= 0){
+            sendMessage("No shots remaining, please reload.");
+            return false;
+        }
+        this.fireRate--;
+        return robot.absorbDamage(this.fireRate);
+
+    }
+
+    public void reload(int maxFireRate) {
+        this.fireRate = maxFireRate;
+        this.status = OperationalMode.NORMAL;
+    }
+
+    public void repair(int maxShield) {
+        this.shield = maxShield;
+        this.status = OperationalMode.NORMAL;
+    }
+
+    public boolean isDead() {
+        return this.status == OperationalMode.DEAD;
     }
 }
