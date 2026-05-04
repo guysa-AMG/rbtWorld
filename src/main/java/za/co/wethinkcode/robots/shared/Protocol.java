@@ -30,7 +30,7 @@ public class Protocol implements IProtocol {
             validateRequest(req);
             return req;
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Unimplemented method 'decodeRequest'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
@@ -40,7 +40,7 @@ public class Protocol implements IProtocol {
             this.logger.warn("decoding => "+data);
             return mapper.readValue(data, ServerResponse.class);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Invalid Json Response failed to decode'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
@@ -50,7 +50,7 @@ public class Protocol implements IProtocol {
             return mapper
                     .writeValueAsString(req);
         } catch (JsonProcessingException e) {
-            throw new UnsupportedOperationException("Unimplemented method 'encodeRequest'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ public class Protocol implements IProtocol {
             return mapper
                     .writeValueAsString(res);
         } catch (JsonProcessingException e) {
-            throw new UnsupportedOperationException("Unimplemented method 'encodeResponse'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 

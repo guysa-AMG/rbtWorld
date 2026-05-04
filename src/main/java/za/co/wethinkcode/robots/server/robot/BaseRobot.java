@@ -3,6 +3,7 @@ package za.co.wethinkcode.robots.server.robot;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.server.commands.OperationalMode;
 
 public abstract class BaseRobot implements Impediments {
      private String name;
@@ -13,7 +14,7 @@ public abstract class BaseRobot implements Impediments {
      private int shield;
      private int fireRate;
 
-
+     private OperationalMode state;
      private int  shoots;
    
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
@@ -41,6 +42,13 @@ public abstract class BaseRobot implements Impediments {
 
     public int getShoots(){
      return this.shoots;
+    }
+
+    public void setOperationalState(OperationalMode state){
+     this.state=state;
+    }
+    public OperationalMode getOperationState(){
+     return this.state;
     }
     
    public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
@@ -79,6 +87,7 @@ public abstract class BaseRobot implements Impediments {
           this.position = pos;
           return true;
      }
+    
 
 
 }

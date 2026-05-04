@@ -7,6 +7,7 @@ import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.commands.Command;
+import za.co.wethinkcode.robots.server.commands.ErrorCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 import java.util.*;
@@ -17,7 +18,8 @@ public class RobotWorld implements Iworld {
     private final int height;
     private final int visibility;
     private final List<Obstacle> obstacles;
-
+    private ArrayList<ArrayList<Impediments>> map;
+    private ArrayList<Position> emptySpots;
     private final Map<String, BaseRobot> robots = new HashMap<>();
 
     public RobotWorld(int width, int height, int visibility) {
@@ -25,12 +27,20 @@ public class RobotWorld implements Iworld {
         this.height = height;
         this.visibility = visibility;
         this.obstacles= new ArrayList<Obstacle>();
+        
     }
 
     public RobotWorld() {
         this(10,10,7);
+        this.emptySpots=new ArrayList<>();
     }
-
+    public void loadMap(ArrayList<ArrayList<Impediments>> map ){
+        
+        this.map=map;
+    }
+    public void setEmptySlots(ArrayList<Position> empties){
+        this.emptySpots=empties;
+    }
     @Override
     public boolean moveRobot(String name, int steps) {
         BaseRobot robot = robots.get(name);
@@ -209,7 +219,11 @@ public class RobotWorld implements Iworld {
     public ServerResponse perform(Command command) {
         // You need to actually execute the command here
         // For now, to pass the build, you can return the command's result
+        
         BaseRobot robot = this.robots.get(command.getRobotName());
+        if (robot==null && command.getCommandName()!="launch"){
+                command = new ErrorCommand("robot "+command.getRobotName()+" has not been launched",command.getRobotName());
+        }
         return command.execute(this,robot);
     }
 
@@ -218,6 +232,39 @@ public class RobotWorld implements Iworld {
     @Override
     public Map<String, BaseRobot> getAllRobots() {
        return this.robots;
+    }
+    
+    @Override
+    public Position newSpawnPoint() {
+     for(int i =0;i<this.map.size();i++){
+        var subArr = this.map.get(i);
+        for(int j =0;j<subArr.size();j++){
+            if (this.map.get(i).get(j)==null){
+                return new Position(i, j);
+            }
+        
+     }
+
+     }
+     return null;
+    }
+
+	@Override
+	public boolean moveRobot(String name, Position IntendedPosition) {
+        return true;
+
+    }
+
+	@Override
+	public boolean isPositionAvailable(Position intendedPos) {
+	int x=intendedPos.getX();
+    int y = intendedPos.getY();
+    if (map.get(x).get(y)==null){
+        return true;
+    }
+    else{
+        return false;
+    }
     }
 
   

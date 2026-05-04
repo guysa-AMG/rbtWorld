@@ -1,11 +1,13 @@
 // # Interface for the world
 package za.co.wethinkcode.robots.server.world;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
@@ -28,20 +30,21 @@ public interface Iworld {
      * Returns true if it worked, false if name is taken or world is full.
      */
     boolean addRobot(String name);
-
+    boolean moveRobot(String name,int step);
     /**
      * Kick a robot out of the world (e.g., if they quit or die).
      */
     void removeRobot(String name);
-
-
+    boolean isPositionBlocked(int x, int y);
+    
+    void loadMap(ArrayList<ArrayList<Impediments>> map );
     // Movement & Physics
 
     /**
      * Move a robot forward or backward by X steps.
      * This needs to check the path for obstacles and the world edge.
      */
-    boolean moveRobot(String name, int steps);
+    boolean moveRobot(String name, Position IntendedPosition);
 
     /**
      * Turn the robot 90 degrees left or right.
@@ -51,7 +54,7 @@ public interface Iworld {
     /**
      * Check if a specific coordinate is currently blocked by an obstacle.
      */
-    boolean isPositionBlocked(int x, int y);
+    boolean isPositionAvailable(Position intendedPos);
 
     /**
      * Check if a coordinate is a bottomless pit.
@@ -88,6 +91,8 @@ public interface Iworld {
      * Gets the current (x, y) and direction for a robot to send back to the client.
      */
     String getRobotState(String name);
+
+   abstract Position newSpawnPoint();
 
     /**
      * Returns all the obstacles in the world (for the server console).

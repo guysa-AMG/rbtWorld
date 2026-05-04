@@ -41,6 +41,7 @@ public class RobotServer {
        boolean loop = true;
        Iworld world = new RobotWorld();
        ITCService.getInstance().setWorld(world);
+   
 
 
        while(loop){

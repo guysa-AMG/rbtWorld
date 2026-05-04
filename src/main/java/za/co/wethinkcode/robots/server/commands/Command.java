@@ -10,14 +10,19 @@ public abstract class Command {
     protected String robotName;
     protected String CommandName;
     protected String[] argument;
-
+    protected String attribute;
     public String getCommandName(){
         return this.CommandName;
     }
     public void setRobotName(String name){
         this.robotName=name;
     }
-    
+    public String getAttribute(){
+        return this.attribute;
+    }
+    public void setAttribute(String data){
+        this.attribute = data;
+    }
 
     public String getRobotName(){
         return this.robotName;
@@ -43,6 +48,10 @@ public abstract class Command {
         case "launch" -> new LaunchCommand(req.getArguments(),req.getRobot());
 
         case "state" -> new StateCommand("state",req.getRobot());
+
+        case "forward" -> new ForwardCommand( req.getArguments(), req.getRobot());
+
+        case "back" -> new BackCommand( req.getArguments(), req.getRobot());
 
         default -> new HelpCommand("help",req.getRobot());
     };

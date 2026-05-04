@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(value = Include.NON_NULL)
+@JsonInclude(value = Include.NON_DEFAULT)
 public class ServerResponseData {
     
     @JsonProperty

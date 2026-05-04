@@ -15,7 +15,7 @@ import za.co.wethinkcode.robots.server.commands.OperationalMode;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-    
+
 public class ServerResponseState {
     
     @JsonProperty
