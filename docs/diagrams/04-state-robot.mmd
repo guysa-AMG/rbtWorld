@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> NORMAL : launch
+    NORMAL --> REPAIR : repair cmd
+    REPAIR --> NORMAL : repair time elapsed
+    NORMAL --> RELOAD : reload cmd
+    RELOAD --> NORMAL : reload time elapsed
+    NORMAL --> DEAD : shields == 0
+    DEAD --> [*] : removed from world

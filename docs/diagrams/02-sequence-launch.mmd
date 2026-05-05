@@ -1,0 +1,23 @@
+sequenceDiagram
+    autonumber
+    actor U as User (CLI)
+    participant C as RobotClient
+    participant H as ClientHandler<br/>(per-thread)
+    participant F as CommandFactory
+    participant W as RobotWorld
+    participant R as Robot
+
+    U->>C: HAL launch sniper
+    C->>C: toRequest() builds Request{robot,command,args}
+    C->>C: toJson(request)
+    C->>H: JSON line over Socket
+    H->>H: parse JSON -> Request
+    H->>F: build(request)
+    F-->>H: LaunchCommand
+    H->>W: addRobot("HAL", "sniper")
+    W->>R: new Robot(name, make)
+    W-->>H: Robot state (position, shields...)
+    H->>H: build Response{result:OK, state:{...}}
+    H-->>C: JSON line back over Socket
+    C->>C: fromJson(line)
+    C-->>U: prints "OK" + state
