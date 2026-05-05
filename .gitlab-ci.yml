@@ -18,7 +18,7 @@ unit-test-job:
 
 integration-tests-job:   
   tags:
-    - loadshed1
+    - group20
   stage: test   
   script:
     - echo "currently no IT"
