@@ -3,21 +3,27 @@ package za.co.wethinkcode.robots.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
+
 import java.net.Socket;
 import java.util.Scanner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import za.co.wethinkcode.robots.services.ITCService;
 
 class ClientHandler implements Runnable{
     private Socket specificSock;
-    
+    private  Logger log;
+    private String client;
+    private Scanner scan ;
     public ClientHandler(Socket sock){
+    this.client=sock.getLocalAddress().getHostAddress();
+    this.log=LoggerFactory.getLogger(ClientHandler.class);
+    this.log.info("new connection to -> "+client);
     this.specificSock=sock;
     System.out.println("new connection");
+    this.scan = new Scanner(System.in);
     }
 
     @Override
@@ -26,23 +32,30 @@ class ClientHandler implements Runnable{
             
             BufferedReader br =  new BufferedReader(new InputStreamReader(this.specificSock.getInputStream()));
             String data;
+         
 
-            Scanner scan = new Scanner(System.in);
-
-            while ( ( data = br.readLine()) !=null){
+            while ((data = br.readLine())!=null){
+             
             
-            ITCService.getInstance().doThisCommand(data);
-             System.out.print("response> ");
-             data = scan.nextLine()+"\n";
-             System.out.println(data);
-           this.specificSock.getOutputStream().write(data.getBytes());
-           this.specificSock.getOutputStream().flush();
+            String request= data;
+            this.log.info("read => "+ request+" from "+client);
+            
+            String sendableData = ITCService.getInstance().doThisCommand(request);
+            if (sendableData == "off"){
+            
+                this.specificSock.close();
+                ITCService.getInstance().terminateServerThread(specificSock);
+                break;    
             }
+            this.log.warn("sending=> "+sendableData);
+           this.specificSock.getOutputStream().write((sendableData+"\n").getBytes());
+           this.specificSock.getOutputStream().flush();
             
-            scan.close();
+            }
+          
         
         } catch (IOException e) {
-          
+            this.log.error(e.getMessage()+ "["+client+"]");
             e.printStackTrace();
         }
 

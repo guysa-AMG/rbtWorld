@@ -57,15 +57,18 @@ public class RobotClient {
         try{
             
             socket = new Socket(host, port);
+            
             serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-
+            
             System.out.println("Connected to : " + host + ":" + port);
+            
+            Scanner scan = new Scanner(System.in);
           while (run) {
              System.out.println("Type: <robotName> <command> [arguments....] (example: HAL launch)");
             System.out.println("Type: <robotName> quite to exit");
 
-            commandLoop();}
+            commandLoop(scan);}
         }catch (IOException e){
             System.out.println("Failed to connect to : " + host + ":" + port + "\n" + e.getMessage());
         }finally {
@@ -73,11 +76,14 @@ public class RobotClient {
         }
     }
 
-    private void commandLoop() {
-        try(
-            Scanner console = new Scanner(System.in)){
-            String userLine;
-            while((userLine = console.nextLine()) != null){
+    private void commandLoop(Scanner scan) {
+        try{
+
+            
+          String userLine="";
+                
+            while((userLine = scan.nextLine())!=null){
+                
                 userLine = userLine.trim();
                 if(userLine.isBlank()){continue;}
                 try{
@@ -88,6 +94,8 @@ public class RobotClient {
                 if(json == null){continue;};
 
                 serverOut.println(json);
+               
+                serverOut.flush();
                 
 
                 String responseJson = serverIn.readLine(); //here am assuming that the server sends one JSON object per line
@@ -99,7 +107,7 @@ public class RobotClient {
                 //System.out.println(responseJson);
                 handleResponse(responseJson);
 
-                if("quit".equalsIgnoreCase(request.getCommandInstance().getCommandName())){
+                if("quit".equalsIgnoreCase(request.getCommand())){
                     return;
                 }}
                 catch(InvalidCommandException err){
@@ -139,7 +147,7 @@ public class RobotClient {
             return;
         }
         String result = (response.getResult() == null ? "UNKNOWN" : response.getResult().toString());
-        String message = (response.getData().get("message") == null ? "" : response.getData().get("message"));
+        String message = (response.getData().getMessage() == null ? "" : response.getData().getMessage());
         System.out.println(result + (message.isBlank() ? "" : message));
 
         try{

@@ -1,0 +1,14 @@
+<configuration>
+    <!-- Define the File Appender -->
+    <appender name="RobotWorld" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/logs/robotWorld.log</file> <!-- Path to your log file -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Attach the appender to the root logger -->
+    <root level="INFO">
+        <appender-ref ref="RobotWorld" />
+    </root>
+</configuration>

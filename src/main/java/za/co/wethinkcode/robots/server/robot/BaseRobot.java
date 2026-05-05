@@ -5,7 +5,7 @@ import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.server.commands.OperationalMode;
 
-public abstract class Robot extends Impediments {
+public abstract class BaseRobot implements Impediments {
      private String name;
      private Position position;
        
@@ -18,18 +18,44 @@ public abstract class Robot extends Impediments {
      private int worldWidth;
      private int worldHeight;
 
+     private OperationalMode state;
+     private int  shoots;
    
-     public Robot(String name,int x, int y,int shield,int FRate) {
+     public BaseRobot(String name,int x, int y,int shield,int FRate) {
        
         this.position= new Position(x, y);
         this.direction = Directions.NORTH;
         this.name = name;
         this.fireRate = FRate;
-        this.shield = shield;
-        this.status = OperationalMode.NORMAL;
+        this.shield = 20;
+        this.shoots =3;
     }
+
    
 
+    public int getShoots(){
+     return this.shoots;
+    }
+
+    public void setOperationalState(OperationalMode state){
+     this.state=state;
+    }
+    public OperationalMode getOperationState(){
+     return this.state;
+    }
+    
+   public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
+     
+     return new SimpleRobot(name, x,  y, shield, FRate);
+    }
+
+    
+    public int getShield(){
+     return this.shield;
+    }
+    
+     
+   
      public String getName(){
           return this.name;
       }
@@ -37,11 +63,15 @@ public abstract class Robot extends Impediments {
      public Position getPosition(){
           return this.position;
      }
-
+     public boolean updateDirection(Directions direc){
+          this.direction=direc;
+          return true;
+     }
      public boolean updatePosition(Position pos){
           this.position = pos;
           return true;
      }
+    
 
 
     public Directions getDirection() {
@@ -152,7 +182,7 @@ public abstract class Robot extends Impediments {
         return false;
     }
 
-    public boolean shootRobot(Robot robot){
+    public boolean shootRobot(BaseRobot robot){
         if (this.fireRate <= 0){
             sendMessage("No shots remaining, please reload.");
             return false;

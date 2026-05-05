@@ -1,22 +1,33 @@
 package za.co.wethinkcode.robots.server.commands;
 
-import za.co.wethinkcode.robots.server.robot.Robot;
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseState;
+import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
 public class StateCommand extends Command {
 
-    public StateCommand() {
-        super("state");
+  
+    StateCommand(String name, String rbtNameString) {
+        super(name, rbtNameString);
+     
     }
 
     @Override
-    public boolean execute(Robot target, Iworld world) {
+    public ServerResponse execute(Iworld world, BaseRobot robot) {
+        ServerResponseState state = ServerResponseState.builder()
+                                                        .position(robot.getPosition())
+                                                        .shields(robot.getShield())
+                                                        .shots(robot.getShoots())
+                                                        .status(robot.getOperationState())
+                                                        .build();
+                                                        
+        ServerResponse res =  ServerResponse.builder()
+                                            .state(state)
+                                            .build();
 
-        System.out.println("Robot " + target.getName() + " is at position "
-                + target.getPosition()
-                + " facing " + target.getDirection());
-
-
-        return true;
+        return res;
     }
+
+  
 }

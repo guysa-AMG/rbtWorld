@@ -1,17 +1,20 @@
 package za.co.wethinkcode.robots.server.commands;
 
 import java.util.Arrays;
-import za.co.wethinkcode.robots.server.robot.Robot;
+
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.server.robot.BaseRobot;
+
 import za.co.wethinkcode.robots.server.world.Iworld;
 
 public class DumpCommand extends Command {
 
-    public DumpCommand() {
-        super("dump");
+    public DumpCommand(String rbtName) {
+        super("dump",rbtName);
     }
 
     @Override
-    public boolean execute(Robot target, Iworld world) {
+    public ServerResponse execute(Iworld world, BaseRobot target) {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("=== Robot Dump ===\n");
@@ -22,18 +25,19 @@ public class DumpCommand extends Command {
         stringBuilder.append("Shots: ").append(target.getFireRate()).append("\n");
 
         stringBuilder.append("\n=== World Dump ===\n");
-        stringBuilder.append("World size: ").append(world.getSize()).append("\n");
+       // stringBuilder.append("World size: ").append(world.getSize()).append("\n");
         stringBuilder.append("Obstacles: ").append(world.getObstacles()).append("\n");
-        stringBuilder.append("Robots: ").append(world.getRobotNames()).append("\n");
+      //  stringBuilder.append("Robots: ").append(world.getRobotNames()).append("\n");
         stringBuilder.append("\n=== Command Metadata ===\n");
         stringBuilder.append("Command: ").append(getCommandName()).append("\n");
         //stringBuilder.append("Arguments: ").append(Arrays.toString(getArguments())).append("\n");
         stringBuilder.append("==================");
 
         target.sendMessage(stringBuilder.toString());
-        return true;
+        return null;
     }
 
+  
 
 
 

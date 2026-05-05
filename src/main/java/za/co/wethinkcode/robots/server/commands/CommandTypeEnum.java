@@ -6,6 +6,7 @@ public enum CommandTypeEnum {
     quit,
     launch,
     look,
+    robots,
     forward,
     back,
     turn,

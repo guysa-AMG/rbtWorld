@@ -1,0 +1,20 @@
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as RobotClient
+    participant H as ClientHandler
+    participant Cmd as FireCommand
+    participant W as RobotWorld
+    participant R1 as Attacker Robot
+    participant R2 as Victim Robot
+
+    U->>C: HAL fire
+    C->>H: {"robot":"HAL","command":"fire"}
+    H->>Cmd: execute(R1, W)
+    Cmd->>W: robotsInLineOfSight(R1)
+    W-->>Cmd: [R2]
+    Cmd->>R2: takeHit()
+    R2->>R2: decrement shields, set DEAD if zero
+    Cmd-->>H: Response result OK / data {distance, hit R2}
+    H-->>C: JSON
+    C-->>U: "Hit R2 at distance 3"

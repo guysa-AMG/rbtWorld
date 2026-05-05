@@ -1,5 +1,8 @@
 package za.co.wethinkcode.robots.shared;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +11,11 @@ import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 
 public class Protocol implements IProtocol {
-
+    private Logger logger;
     private final ObjectMapper mapper;
 
     public Protocol() {
+        this.logger=LoggerFactory.getLogger(Protocol.class);
         this.mapper = new ObjectMapper();
         this.mapper.findAndRegisterModules();
         this.mapper.configure(
@@ -26,16 +30,17 @@ public class Protocol implements IProtocol {
             validateRequest(req);
             return req;
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Unimplemented method 'decodeRequest'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
     @Override
     public ServerResponse decodeResponse(String data) {
         try {
+            this.logger.warn("decoding => "+data);
             return mapper.readValue(data, ServerResponse.class);
         } catch (Exception e) {
-            throw new UnsupportedOperationException("Unimplemented method 'decodeResponse'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
@@ -43,10 +48,9 @@ public class Protocol implements IProtocol {
     public String encodeRequest(ServerRequest req) {
         try {
             return mapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(req);
         } catch (JsonProcessingException e) {
-            throw new UnsupportedOperationException("Unimplemented method 'encodeRequest'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 
@@ -54,10 +58,9 @@ public class Protocol implements IProtocol {
     public String encodeResponse(ServerResponse res) {
         try {
             return mapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(res);
         } catch (JsonProcessingException e) {
-            throw new UnsupportedOperationException("Unimplemented method 'encodeResponse'");
+            throw new UnsupportedOperationException(e.getMessage());
         }
     }
 

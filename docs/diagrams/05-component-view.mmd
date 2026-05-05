@@ -1,0 +1,21 @@
+flowchart LR
+    subgraph CLIENT["Client JVM"]
+        RC[RobotClient]
+        NH[NetworkHandler]
+        RC --- NH
+    end
+
+    subgraph SERVER["Server JVM"]
+        RS[RobotServer<br/>ServerSocket :2146]
+        CH[ClientHandler<br/>Thread per client]
+        SVC[RobotServices<br/>singleton]
+        WORLD[RobotWorld]
+        CFG[(world.properties)]
+
+        RS -->|spawns| CH
+        CH --> SVC
+        SVC --> WORLD
+        RS -. reads .-> CFG
+    end
+
+    NH <-->|JSON over TCP| RS
