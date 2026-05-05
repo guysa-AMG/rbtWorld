@@ -1,5 +1,8 @@
 package za.co.wethinkcode.robots.client;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,4 +51,59 @@ public class RobotClientConstructorTest {
         );
         assertEquals("port must be between 1 and 65535", exception.getMessage());
     }
+
+    @Test
+    void constructor_rejectsEmptyHost(){
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RobotClient("", 2146)
+        );
+        assertEquals("host must not be blank", ex.getMessage());
+    }
+    // this test will test whitespace A string of just spaces (" ") is rejected just like null and ""
+    @Test
+    void constructor_rejectsBlankHost(){
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RobotClient(" ", 2146)
+        );
+        assertEquals("host must not be blank", ex.getMessage());
+    }
+
+    @Test
+    void constructor_rejectsZeroPort() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RobotClient("localhost", 0)
+        );
+        assertEquals("port must be between 1 and 65535", ex.getMessage());
+    }
+
+    @Test
+    void constructor_rejectsNegativePort() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RobotClient("localhost", -1)
+        );
+        assertEquals("port must be between 1 and 65535", ex.getMessage());
+    }
+
+    @Test
+    void constructor_rejectsPortAboveMax() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RobotClient("localhost", 65536)
+        );
+        assertEquals("port must be between 1 and 65535", ex.getMessage());
+    }
+
+    // Port = 1 is accepted (lower boundary inclusive)
+    @Test
+    void constructor_acceptsPortAtLowerBound() {
+        assertDoesNotThrow(() -> new RobotClient("localhost", 1));
+    }
+
+
+
+
 }
