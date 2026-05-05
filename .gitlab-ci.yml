@@ -10,7 +10,7 @@ stages:
 
 unit-test-job:  
   tags:
-    - loadshed1
+    - group20
   stage: test    
   script:
     - ./mvnw test
