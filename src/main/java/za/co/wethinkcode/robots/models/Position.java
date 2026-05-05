@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Data
 @NoArgsConstructor
 public class Position {
@@ -29,7 +28,7 @@ public class Position {
     public void decrementY(){
         this.Y-=1;
     }
-    
+
     
      public Position copy(){
           return new Position(this.X,this.Y);

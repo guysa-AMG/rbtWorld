@@ -124,7 +124,7 @@ private volatile Map<Socket,Thread> threads;
         this.logger.info("Command recieved: "+data);
         Protocol protocol =new Protocol();
         ServerRequest req =  protocol.decodeRequest(data);
-        this.logger.error(req.getCommand());
+       
         if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){
             return "off";
         }

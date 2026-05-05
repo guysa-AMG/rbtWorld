@@ -6,7 +6,6 @@ import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
-import za.co.wethinkcode.robots.server.robot.Robot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
 public abstract class Command {
