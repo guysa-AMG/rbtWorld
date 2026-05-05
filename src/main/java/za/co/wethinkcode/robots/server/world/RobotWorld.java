@@ -259,7 +259,7 @@ public class RobotWorld implements Iworld {
 	public boolean isPositionAvailable(Position intendedPos) {
 	int x=intendedPos.getX();
     int y = intendedPos.getY();
-    if (map.get(x).get(y)==null){
+    if (map.get(y).get(x)==null){
         return true;
     }
     else{

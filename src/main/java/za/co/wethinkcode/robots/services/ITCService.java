@@ -77,7 +77,9 @@ private volatile Map<Socket,Thread> threads;
             String[] rows = raw_map.toString().split(",");
           
             for (String row: rows){
+                
                 char[] column = row.toLowerCase().toCharArray();
+                
                 ArrayList<Impediments> temp = new ArrayList<>();
                 for (char ch:column){
                     Impediments obj=null;
@@ -93,9 +95,9 @@ private volatile Map<Socket,Thread> threads;
                      if (ch=='m'){
                     obj= new Mountain();
                     }
-                  
+                    if(ch!='"'){
                     temp.add(obj);
-               
+                    }
                 }
            
                 new_map.add(temp);

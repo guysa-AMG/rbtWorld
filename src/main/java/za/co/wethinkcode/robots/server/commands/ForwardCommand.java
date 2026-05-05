@@ -27,7 +27,7 @@ public class ForwardCommand extends Command{
         int steps = Integer.parseInt(this.argument[0]);
       
         switch(robot.getDirection()){
-            case Directions.NORTH -> {
+            case Directions.SOUTH -> {
                 intendedPosition.setY(intendedPosition.getY()+steps);
                 Position testPosition = pos.copy();
                 while(!intendedPosition.equals(pos))
@@ -43,7 +43,7 @@ public class ForwardCommand extends Command{
             
             }
 
-            case Directions.SOUTH -> {
+            case Directions.NORTH -> {
                 intendedPosition.setY(intendedPosition.getY()-steps);
                 Position testPosition = pos.copy();
                 while(!intendedPosition.equals(pos))
@@ -77,9 +77,9 @@ public class ForwardCommand extends Command{
                 intendedPosition.setX(intendedPosition.getX()-steps);
                 Position testPosition = pos.copy();
                 while(!intendedPosition.equals(pos))
-                {testPosition.decrementX();;
+                {testPosition.decrementX();
                 if (world.isPositionAvailable(testPosition)){
-                    pos.decrementX();;
+                    pos.decrementX();
                 }
                 else{
                     break;
@@ -91,9 +91,6 @@ public class ForwardCommand extends Command{
         
      
     
-          if (world.isPositionAvailable(pos)){
-           
-        }
 
        
 

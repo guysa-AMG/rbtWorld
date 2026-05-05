@@ -18,9 +18,14 @@ public class LookCommand extends  Command{
 
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
-        
+        //TODO Implement the whole look logic 
+
+
+
+
+
         ServerResponseData data  = ServerResponseData.builder()
-                                                
+                                                 
                                                    .position(robot.getPosition())
                                                    .visibility(Iworld.visibleDistance)
                                                    .reload(Iworld.reloadTime)

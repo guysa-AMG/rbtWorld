@@ -21,25 +21,78 @@ public class BackCommand extends Command{
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
         Position pos = robot.getPosition();
-        
-        switch(robot.getDirection()){
-            case Directions.NORTH -> pos.decrementY();
-
-            case Directions.SOUTH -> pos.incrementY();
-
-            case Directions.EAST -> pos.incrementX();
-
-            case Directions.WEST -> pos.decrementX();
-
+        Position intendedPosition = pos.copy();
+            int steps = Integer.parseInt(this.argument[0]);
+    switch(robot.getDirection()){
+            case Directions.NORTH -> {
+                intendedPosition.setY(intendedPosition.getY()+steps);
+                Position testPosition = pos.copy();
+                while(!intendedPosition.equals(pos))
+                {testPosition.incrementY();
+                if (world.isPositionAvailable(testPosition)){
+                    pos.incrementY();
+                }
+                else{
+                    break;
+                }
+            }
+         
             
+            }
+
+            case Directions.SOUTH -> {
+                intendedPosition.setY(intendedPosition.getY()-steps);
+                Position testPosition = pos.copy();
+                while(!intendedPosition.equals(pos))
+                {testPosition.decrementY();
+                if (world.isPositionAvailable(testPosition)){
+                    pos.decrementY();
+                }
+                else{
+                    break;
+                }
+            }
+       
+            }
+
+            case Directions.WEST -> {
+                intendedPosition.setX(intendedPosition.getX()+steps);
+                Position testPosition = pos.copy();
+                while(!intendedPosition.equals(pos))
+                {testPosition.incrementX();
+                if (world.isPositionAvailable(testPosition)){
+                    pos.incrementX();
+                }
+                else{
+                    break;
+                }
+            }
+           
+            }
+
+            case Directions.EAST -> {
+                intendedPosition.setX(intendedPosition.getX()-steps);
+                Position testPosition = pos.copy();
+                while(!intendedPosition.equals(pos))
+                {testPosition.decrementX();
+                if (world.isPositionAvailable(testPosition)){
+                    pos.decrementX();
+                }
+                else{
+                    break;
+                }
+            }
+         
+            }
         }
         
-        if (world.isPositionAvailable(pos)){
-            world.moveRobot(robot.getName(), pos);
-        }
+     
+
+
+       
 
         ServerResponseData data = ServerResponseData.builder()
-                                                    .message("DONE")
+                                                    .message(intendedPosition.equals(robot.getPosition())?"DONE":"BLOCKED")
                                                     .build();
 
         ServerResponseState state = ServerResponseState.builder()
@@ -55,6 +108,7 @@ public class BackCommand extends Command{
                                            .state(state)
                                            .build();
         return res;
+        
         
         
 
