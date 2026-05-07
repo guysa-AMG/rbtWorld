@@ -12,6 +12,8 @@ import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseData;
+import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.shared.Protocol;
 
@@ -25,13 +27,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RobotClient {
 
     private final String host;
+    private Logger log;
     private final int port;
-
+    private String robotName=null;
     private final ObjectMapper mapper = new ObjectMapper();
-
+    private ServerResponseData data;
+    private ServerResponseState state;
     private Socket socket;
     private BufferedReader serverIn;
     private PrintWriter serverOut;
@@ -39,6 +46,7 @@ public class RobotClient {
     public RobotClient(IpAddr addr){
         host=addr.ip();
         port=addr.port();
+        this.log = LoggerFactory.getLogger(RobotClient.class);
     }
     public RobotClient(String host, int port) {
       
@@ -81,13 +89,17 @@ public class RobotClient {
 
             
           String userLine="";
-                
+                System.out.print("command >");
             while((userLine = scan.nextLine())!=null){
                 
                 userLine = userLine.trim();
                 if(userLine.isBlank()){continue;}
                 try{
+                if (this.robotName!=null){
+                    userLine=this.robotName+" "+userLine;
+                }
                 ServerRequest request = toRequest(userLine);
+                this.robotName = request.getRobot();
                 if(request == null){continue;};
 
                 String json = new Protocol().encodeRequest(request).toString();
@@ -99,12 +111,12 @@ public class RobotClient {
                 
 
                 String responseJson = serverIn.readLine(); //here am assuming that the server sends one JSON object per line
-               System.out.print(responseJson);
+               
                 if(responseJson == null){
                     System.out.println("Server Disconnected");
                     return;
                 }
-                //System.out.println(responseJson);
+              
                 handleResponse(responseJson);
 
                 if("quit".equalsIgnoreCase(request.getCommand())){
@@ -113,6 +125,13 @@ public class RobotClient {
                 catch(InvalidCommandException err){
                     System.err.println("[x] Invalid Command");
                 }
+                if ( this.state !=null && this.robotName!=null){
+                    System.out.printf("[%s,%s] %s > ",this.state.getPosition().getX(),this.state.getPosition().getY(),this.robotName);
+                }
+                else{
+                    System.out.print("Command > ");
+                }
+
             }
         }catch (IOException e){
             System.out.println("I/O error in client loop ("+ e.getMessage()+")");
@@ -121,6 +140,7 @@ public class RobotClient {
 
     public static ServerRequest toRequest(String userLine) throws InvalidCommandException  {
         String[] parts = userLine.split("\\s+");
+        
         if(parts.length < 2){
             System.out.println("Invalid input. Use: <robotName> <command> [arguments....] (example: HAL launch)>");
             return null;
@@ -146,19 +166,15 @@ public class RobotClient {
             System.out.println("Received non-JSON/invalid response: " + responseJson);
             return;
         }
+        this.log.info("client side got "+responseJson);
         String result = (response.getResult() == null ? "UNKNOWN" : response.getResult().toString());
         String message = (response.getData().getMessage() == null ? "" : response.getData().getMessage());
-        System.out.println(result + (message.isBlank() ? "" : message));
-
-        try{
-            if(response.getData() != null){
-                System.out.println("DATA: " + mapper.writeValueAsString(response.getData()));
-            }
-            if(response.getState() != null){
-                System.out.println("STATE: " + mapper.writeValueAsString(response.getState()));
-            }
-        }catch (JsonProcessingException ignored){
-            // if data/state isn't JSON-serializable, i will just skip
+      
+        if(response.getData() != null){
+            this.data = response.getData();
+        }
+        if(response.getState() != null){
+           this.state=response.getState();
         }
     }
 
