@@ -40,7 +40,7 @@ public class RobotServer {
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
        Iworld world = new RobotWorld();
-       ITCService.getInstance().setWorld(world);
+       ITCService.getInstance().loadWorld(world);
    
 
 

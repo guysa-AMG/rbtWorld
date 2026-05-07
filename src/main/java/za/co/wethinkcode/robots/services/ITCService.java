@@ -74,6 +74,13 @@ private volatile Map<Socket,Thread> threads;
 
        Object raw_map;
        if (( raw_map =prop.get("robotWorld"))!=null){
+            new_map = parseStringMap((String)raw_map);
+       }
+       
+    }return null;}
+    
+    public ArrayList<ArrayList<Impediments>> parseStringMap(String raw_map){
+         ArrayList<ArrayList<Impediments>> new_map=new ArrayList<>();
             String[] rows = raw_map.toString().split(",");
           
             for (String row: rows){
@@ -103,13 +110,20 @@ private volatile Map<Socket,Thread> threads;
                 new_map.add(temp);
 
             }
-       }
-    }
+      
         return new_map;
     }
+
+
+
+
     public void setWorld(Iworld given_world){
         this.logger.info(".... Robot World initialized");
         this.world = given_world;
+       
+    }
+    public void loadWorld(Iworld given_world){
+        setWorld(given_world);
          ArrayList<ArrayList<Impediments>> map = parseMap("world.properties");
         this.world.loadMap(map);
     }
