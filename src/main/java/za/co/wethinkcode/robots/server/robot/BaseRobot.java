@@ -27,70 +27,51 @@ public abstract class BaseRobot implements Impediments {
         this.direction = Directions.NORTH;
         this.name = name;
         this.fireRate = FRate;
-        this.shield = 20;
+        this.shield = shield;
         this.shoots =3;
+        this.status = OperationalMode.NORMAL;
     }
 
-   
-
+    
     public int getShoots(){
      return this.shoots;
     }
 
-    public void setOperationalState(OperationalMode state){
-     this.state=state;
-    }
-    public OperationalMode getOperationState(){
-     return this.state;
-    }
-    
-   public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
-     
-     return new SimpleRobot(name, x,  y, shield, FRate);
+     public OperationalMode getOperationState(){
+     return this.status;
     }
 
-    
     public int getShield(){
      return this.shield;
     }
-    
-     
-   
-     public String getName(){
-          return this.name;
-      }
-    
-     public Position getPosition(){
-          return this.position;
-     }
-     public boolean updateDirection(Directions direc){
-          this.direction=direc;
-          return true;
-     }
-     public boolean updatePosition(Position pos){
-          this.position = pos;
-          return true;
-     }
-    
 
+    public String getName(){
+        return this.name;
+      }
+
+    public Position getPosition(){
+        return this.position;
+     }
 
     public Directions getDirection() {
-         return this.direction;
+        return this.direction;
     }
 
+
     public int getShields() {
-         return this.shield;
+        return this.shield;
     }
 
     public int getFireRate() {
-         return this.fireRate;
+        return this.fireRate;
     }
 
     public OperationalMode getStatus() {
         return this.status;
     }
 
-    public void sendMessage(String string) {
+    public void setOperationalState(OperationalMode state){
+        this.state=state;
     }
 
     public void setWorldBounds(int width, int height) {
@@ -100,6 +81,24 @@ public abstract class BaseRobot implements Impediments {
 
     public void setStatus(OperationalMode status) {
         this.status = status;
+    }
+
+   public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
+     
+     return new SimpleRobot(name, x,  y, shield, FRate);
+
+   }
+
+     public boolean updateDirection(Directions direc){
+          this.direction=direc;
+          return true;
+     }
+     public boolean updatePosition(Position pos){
+          this.position = pos;
+          return true;
+     }   
+
+    public void sendMessage(String string) {
     }
 
     public void turnLeft() {
@@ -170,7 +169,7 @@ public abstract class BaseRobot implements Impediments {
     }
 
     protected boolean absorbDamage(int shots){
-        if (this.shield>0){
+        if (this.shield >0){
             this.shield-=shots;
             if (this.shield <= 0) {
                 this.shield = 0;
