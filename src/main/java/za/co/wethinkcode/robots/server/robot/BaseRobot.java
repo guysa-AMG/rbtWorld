@@ -8,16 +8,13 @@ import za.co.wethinkcode.robots.server.commands.OperationalMode;
 public abstract class BaseRobot implements Impediments {
      private String name;
      private Position position;
-       
      private Directions direction;
-
      private int shield;
      private int fireRate;
      private OperationalMode status;
-
+     
      private int worldWidth;
      private int worldHeight;
-
      private OperationalMode state;
      private int  shoots;
    
@@ -28,7 +25,7 @@ public abstract class BaseRobot implements Impediments {
         this.name = name;
         this.fireRate = FRate;
         this.shield = shield;
-        this.shoots =3;
+        this.shoots = 3;
         this.status = OperationalMode.NORMAL;
     }
 
