@@ -38,7 +38,7 @@ public abstract class BaseRobot implements Impediments {
     }
 
      public OperationalMode getOperationState(){
-     return this.status;
+     return this.state;
     }
 
     public int getShield(){
@@ -83,9 +83,9 @@ public abstract class BaseRobot implements Impediments {
         this.status = status;
     }
 
-   public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
+    public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
      
-     return new SimpleRobot(name, x,  y, shield, FRate);
+        return new SimpleRobot(name, x,  y, shield, FRate);
 
    }
 
