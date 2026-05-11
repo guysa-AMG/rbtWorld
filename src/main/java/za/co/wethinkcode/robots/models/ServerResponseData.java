@@ -24,6 +24,15 @@ public class ServerResponseData {
     List<ServerResponseObject> objects;
 
     @JsonProperty
+    int distance;
+
+    @JsonProperty
+    String robot;
+
+    @JsonProperty
+    ServerResponseState state;
+
+    @JsonProperty
     String message;
     
     @JsonProperty

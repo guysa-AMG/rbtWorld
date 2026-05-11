@@ -30,7 +30,7 @@ public class WorldTest {
         world = new RobotWorld(11, 11, 5);
     }
 
-    @Disabled
+   
     @DisplayName("forward and backward test")
     @Nested
     class travelTest{

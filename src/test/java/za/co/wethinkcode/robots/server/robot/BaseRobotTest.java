@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.server.commands.OperationalMode;
+import za.co.wethinkcode.robots.server.world.Iworld;
 
 public class BaseRobotTest {
 
@@ -55,7 +56,7 @@ public class BaseRobotTest {
 
         @Test
         void getShoots_initializedToThree() {
-            assertEquals(3, robot.getShoots());
+            assertEquals(Iworld.MAG_MAX, robot.getShoots());
         }
     }
 

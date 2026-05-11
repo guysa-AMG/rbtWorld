@@ -15,6 +15,7 @@ public interface Iworld {
     public final static float reloadTime=5f;
     public final static float repairTime=3f;
     public final static int visibleDistance=3;
+    public final static int MAG_MAX=5;
     
    
 
@@ -29,6 +30,9 @@ public interface Iworld {
      * Try to put a new robot in the world.
      * Returns true if it worked, false if name is taken or world is full.
      */
+
+    abstract BaseRobot getFireable(BaseRobot rbt);
+
     boolean addRobot(String name);
     boolean moveRobot(String name,int step);
     /**
