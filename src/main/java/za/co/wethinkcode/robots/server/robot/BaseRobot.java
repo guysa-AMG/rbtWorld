@@ -1,5 +1,8 @@
 package za.co.wethinkcode.robots.server.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;

@@ -13,4 +13,4 @@ coverage:
 clean:
 	./mvnw clean
 serve_arged:
-	./mvnw exec:java -Dexec.args="127.0.0.1 2146"
+	./mvnw exec:java -Dexec.args="5000"

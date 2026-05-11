@@ -13,8 +13,10 @@ public class Server {
     public static void main(String[] args){
        
     if(isHosting()){
-        if (args.length<1){
-            new RobotServer();
+        if (args.length==1){
+           
+            
+            new RobotServer(args[0]) ;
         }else{
             
         }
