@@ -157,6 +157,10 @@ public class RobotWorld implements Iworld {
         return false;
     }
 
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
+    }
+
     // OTHER INTERFACE METHODS
     @Override
      public boolean addRobot(String name) {

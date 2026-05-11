@@ -5,6 +5,23 @@ original_test_src/*
 *.flot
 !libs/*.jar
 grade_output.txt
+
+# IDE
 .idea/
 .vscode/
+*.iml
+
+# Tooling
 monitoring/
+
+# Node (mermaid-cli used to render UML diagrams)
+node_modules/
+package-lock.json
+
+# Local build/run scratch files
+cp.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
