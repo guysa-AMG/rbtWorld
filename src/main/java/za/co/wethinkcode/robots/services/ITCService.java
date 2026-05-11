@@ -1,7 +1,6 @@
 package za.co.wethinkcode.robots.services;
 
 
-import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.impediment.Hole;

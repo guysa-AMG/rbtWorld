@@ -1,5 +1,8 @@
 package za.co.wethinkcode.robots.server.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
@@ -54,7 +57,14 @@ public abstract class BaseRobot implements Impediments {
      return this.shield;
     }
     
-     
+    public List<BaseRobot> getRobotInSight(BaseRobot robot){
+        List<BaseRobot> bots = new ArrayList<>();
+        switch(robot.direction){
+           
+        
+        }
+        return null;
+    }  
    
      public String getName(){
           return this.name;
