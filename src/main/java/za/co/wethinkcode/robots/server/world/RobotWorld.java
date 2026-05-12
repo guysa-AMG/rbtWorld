@@ -279,6 +279,9 @@ public class RobotWorld implements Iworld {
     }
 
     Impediments getObjectsAtPosition(Position pos ){
+        if (pos==null){
+            return null;
+        }
         int x = pos.getX();
         int y = pos.getY();
         if (x<0||y<0){

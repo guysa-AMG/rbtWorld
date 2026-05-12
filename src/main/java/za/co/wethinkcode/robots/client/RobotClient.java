@@ -68,7 +68,7 @@ public class RobotClient {
         try{
             
             socket = new Socket(host, port);
-            
+            //TODO BENDER ASCII 
             serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             
@@ -135,6 +135,7 @@ public class RobotClient {
                 catch(InvalidCommandException err){
                     System.err.println("[x] Invalid Command");
                 }
+                
                 if(this.data.getMessage()=="BLOCKED"){
                         //TODO rather call interaction into print
                  
@@ -144,7 +145,7 @@ public class RobotClient {
                 if ( this.state !=null && this.robotName!=null){
                     //TODO rather call interaction into print
                  
-                    System.out.printf("{%s}[%s,%s] %s > ",this.state.getPosition().getX(),this.state.getPosition().getY(),this.state.getDirection(),this.robotName);
+                    System.out.printf("{%s}[%s,%s] %s > ",this.state.getDirection(),this.state.getPosition().getX(),this.state.getPosition().getY(),this.robotName);
                 }
                 else{
                     //TODO rather call interaction into print
@@ -195,9 +196,7 @@ public class RobotClient {
         if(response.getData() != null){
             this.data = response.getData();
         }
-        if(response.getState() != null){
-           this.state=response.getState();
-        }
+        
     }
 
     private void shutDown() {
