@@ -90,9 +90,6 @@ public class BackCommand extends Command{
         }
         
      
-    
-
-       
 
         ServerResponseData data = ServerResponseData.builder()
                                                     .message(intendedPosition.equals(robot.getPosition())?"DONE":"BLOCKED")

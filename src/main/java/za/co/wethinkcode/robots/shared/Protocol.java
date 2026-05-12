@@ -10,6 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 
+/**
+ * Protocol 
+ * this class is responsible for the serialization and deserialization of 
+ * server Request and response using the jackson lib
+ */
 public class Protocol implements IProtocol {
     private Logger logger;
     private final ObjectMapper mapper;
@@ -18,9 +23,7 @@ public class Protocol implements IProtocol {
         this.logger=LoggerFactory.getLogger(Protocol.class);
         this.mapper = new ObjectMapper();
         this.mapper.findAndRegisterModules();
-        this.mapper.configure(
-                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false
-        );
+        this.mapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
     }
 
     @Override

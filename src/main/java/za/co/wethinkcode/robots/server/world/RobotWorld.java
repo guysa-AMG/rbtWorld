@@ -266,6 +266,7 @@ public class RobotWorld implements Iworld {
     if(x<0 || y<0){
         return false;
     }
+    System.out.print("Intended Position> "+intendedPos);
     if(y > (this.map.size()-1) || x> (this.map.get(y).size()-1)){
         return false;
     }
@@ -275,6 +276,77 @@ public class RobotWorld implements Iworld {
     else{
         return false;
     }
+    }
+
+    Impediments getObjectsAtPosition(Position pos ){
+        if (pos==null){
+            return null;
+        }
+        int x = pos.getX();
+        int y = pos.getY();
+        if (x<0||y<0){
+            return null;
+        }
+        return map.get(x).get(y);
+    }
+    @Override
+    public BaseRobot getFireable(BaseRobot rbt) {
+     Impediments botInSight;
+
+     Directions direction = rbt.getDirection();
+     Position bulletPosition = rbt.getPosition();
+      switch (direction) {
+
+        case SOUTH -> {
+            do {
+               bulletPosition.incrementY(); 
+
+            } while (isPositionAvailable(bulletPosition)|| bulletPosition.getStraightDistance(rbt.getPosition())<=Iworld.visibleDistance);
+            if (( botInSight = getObjectsAtPosition(bulletPosition)) instanceof BaseRobot){
+                return (BaseRobot) botInSight;
+            }
+            
+           }
+        case NORTH -> {
+                bulletPosition = rbt.getPosition();
+                do {
+                bulletPosition.decrementY(); 
+
+                } while (isPositionAvailable(bulletPosition)&& bulletPosition.getStraightDistance(rbt.getPosition())<=Iworld.visibleDistance);
+                if (( botInSight = getObjectsAtPosition(bulletPosition)) instanceof BaseRobot){
+                    return (BaseRobot) botInSight;
+                }
+           }
+        case EAST -> {
+             bulletPosition = rbt.getPosition();
+            do {
+               bulletPosition.incrementX(); 
+
+            } while (isPositionAvailable(bulletPosition)|| bulletPosition.getStraightDistance(rbt.getPosition())<=Iworld.visibleDistance);
+            if (( botInSight = getObjectsAtPosition(bulletPosition)) instanceof BaseRobot){
+                return (BaseRobot) botInSight;
+            }
+        }
+
+        case WEST -> {
+             bulletPosition = rbt.getPosition();
+            do {
+               bulletPosition.decrementX(); 
+
+            } while (isPositionAvailable(bulletPosition)|| bulletPosition.getStraightDistance(rbt.getPosition())<=Iworld.visibleDistance);
+            if (( botInSight = getObjectsAtPosition(bulletPosition)) instanceof BaseRobot){
+                return (BaseRobot) botInSight;
+            }
+            else{
+                return null;
+            }
+        
+         }
+        default  -> {return null;}
+
+     }
+      return null;
+
     }
 
   

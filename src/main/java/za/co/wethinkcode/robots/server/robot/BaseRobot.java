@@ -7,6 +7,7 @@ import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.server.commands.OperationalMode;
+import za.co.wethinkcode.robots.server.world.Iworld;
 
 public abstract class BaseRobot implements Impediments {
      private String name;
@@ -28,7 +29,7 @@ public abstract class BaseRobot implements Impediments {
         this.name = name;
         this.fireRate = FRate;
         this.shield = shield;
-        this.shoots = 3;
+        this.shoots = Iworld.MAG_MAX;
         this.status = OperationalMode.NORMAL;
     }
 
@@ -44,6 +45,38 @@ public abstract class BaseRobot implements Impediments {
     public int getShield(){
      return this.shield;
     }
+    public boolean inflictDamage(int shieldDamage){ 
+        if (this.shield<0){
+        this.shield-=shieldDamage;
+        return true;
+    }
+    return false;
+    }
+    
+    public List<BaseRobot> getRobotInSight(BaseRobot robot){
+        List<BaseRobot> bots = new ArrayList<>();
+        switch(robot.direction){
+           
+        
+        }
+        return null;
+    }  
+   
+   
+      public boolean decrementBullets()
+      {
+        if (this.shoots!=0){
+            this.shoots-=1;
+            return true;
+        }
+        return false;
+      }
+      public void reloadAllBullet(){
+        this.shoots=Iworld.MAG_MAX;
+      }
+    
+    
+    
 
     public String getName(){
         return this.name;
