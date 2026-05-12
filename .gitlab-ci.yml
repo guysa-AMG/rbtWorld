@@ -2,11 +2,19 @@
 image: eclipse-temurin:21-jdk
 
 stages:          
-  
+  - build
   - test
-  - deploy
 
-
+build:   
+  tags:
+    - group20
+  stage: build   
+  script:
+    - ./mvnw compile
+  artifacts:
+    paths:
+      - target/
+      - .
 
 unit-test-job:  
   tags:
@@ -16,11 +24,7 @@ unit-test-job:
     - ./mvnw test
 
 
-integration-tests-job:   
-  tags:
-    - group20
-  stage: test   
-  script:
-    - echo "currently no IT"
+
+
  
 
