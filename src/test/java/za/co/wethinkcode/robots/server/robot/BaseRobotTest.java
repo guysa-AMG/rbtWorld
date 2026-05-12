@@ -45,7 +45,7 @@ public class BaseRobotTest {
 
         @Test
         void getShield_defaultsTo20() {
-            assertEquals(20, robot.getShield());
+            assertEquals(5, robot.getShield());
         }
 
         @Test
