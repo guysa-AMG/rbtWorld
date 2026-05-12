@@ -68,7 +68,9 @@ public class RobotClient {
         try{
             
             socket = new Socket(host, port);
-            //TODO BENDER ASCII 
+            ConsoleInteraction ui = new ConsoleInteraction();
+            System.out.println(ui.getBenderAscii());
+
             serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             
