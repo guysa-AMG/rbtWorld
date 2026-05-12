@@ -267,6 +267,19 @@ public class BaseRobotTest {
             assertEquals(20, robot.getShield());
             assertEquals(OperationalMode.NORMAL, robot.getStatus());
         }
+
+        @Test
+        void status_becomesDeadWhenShieldZero() {
+            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
+            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 10);
+
+            shooter.shootRobot(target);
+
+            if (target.getShield() == 0) {
+                assertEquals(OperationalMode.DEAD, target.getStatus());
+            }
+        }
+
     }
 
     @Nested
