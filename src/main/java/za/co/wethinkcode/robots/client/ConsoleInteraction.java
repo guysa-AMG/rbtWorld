@@ -38,11 +38,22 @@ public class ConsoleInteraction {
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠿⠿⠿⣿⣿⣿⣿⣿⣿⠿⠿⠓⠀⠀
                 
-                [too tired to type the story rn but it basically goes here] 
-                
-                
-              
+                [too tired to type the story rn but it basically goes here]
                 """;
     }
+    // Prints the startup screen: ASCII art, a divider, then the server's
+    // opening story message. Called once from RobotClient.start() on connect.
+
+    public void displayWelcomeSequence(String storyResponse) {
+        String divider = ANSI_YELLOW + "════════════════════════════════════════════════════════" + ANSI_RESET;
+
+        System.out.println(ANSI_YELLOW + getBenderAscii() + ANSI_RESET);
+        System.out.println(divider);
+        System.out.println(applyAnsiColoring(storyResponse));
+        System.out.println(divider);
+        System.out.println(ANSI_DIM + "  Type 'help' for commands. Try not to embarrass yourself." + ANSI_RESET);
+        System.out.println();
+    }
+
 
 }
