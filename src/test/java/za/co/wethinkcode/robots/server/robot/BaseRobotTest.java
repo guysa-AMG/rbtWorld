@@ -192,6 +192,16 @@ public class BaseRobotTest {
             assertEquals(2, robot.getPosition().getX());
         }
 
+        @Test
+        void moveZeroSteps_doesNotChangePosition() {
+            int x = robot.getPosition().getX();
+            int y = robot.getPosition().getY();
+
+            robot.moveForward(0);
+
+            assertEquals(x, robot.getPosition().getX());
+            assertEquals(y, robot.getPosition().getY());
+        }
     }
 
     @Nested
