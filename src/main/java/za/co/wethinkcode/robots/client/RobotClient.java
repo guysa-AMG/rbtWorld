@@ -42,11 +42,13 @@ public class RobotClient {
     private Socket socket;
     private BufferedReader serverIn;
     private PrintWriter serverOut;
+    private ConsoleInteraction ui;
 
     public RobotClient(IpAddr addr){
 
         host=addr.ip();
         port=addr.port();
+
         this.log = LoggerFactory.getLogger(RobotClient.class);
      
     }
@@ -77,7 +79,7 @@ public class RobotClient {
             //TODO rather call interaction into print
             System.out.println("Connected to : " + host + ":" + port);
 
-            ConsoleInteraction ui = new ConsoleInteraction();
+             ui = new ConsoleInteraction();
             System.out.println(ui.getBenderAscii());
 
             Scanner scan = new Scanner(System.in);
@@ -103,16 +105,21 @@ public class RobotClient {
             
           String userLine="";
           //TODO rather call interaction into print      
-          System.out.print("command >");
+           System.out.print("command >");
             while((userLine = scan.nextLine())!=null){
-                
+               
                 userLine = userLine.trim();
                 if(userLine.isBlank()){continue;}
                 try{
                 if (this.robotName!=null){
                     userLine=this.robotName+" "+userLine;
                 }
+                if(userLine.contains("help")){
+                    ui.displayHelp();
+                    continue;
+                }
                 ServerRequest request = toRequest(userLine);
+
                 this.robotName = request.getRobot();
                 if(request == null){ continue; };
 
@@ -174,6 +181,7 @@ public class RobotClient {
         }
         String robotName = parts[0];
         String command = parts[1].toLowerCase();
+       
        try{
         CommandTypeEnum.valueOf(command);
        }
