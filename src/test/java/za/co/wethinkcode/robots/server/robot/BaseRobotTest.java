@@ -156,6 +156,13 @@ public class BaseRobotTest {
             assertTrue(robot.getPosition().getY() <= 5,
                     "Should not move past +5; got " + robot.getPosition().getY());
         }
+
+        @Test
+        void moveForward_facingSouth_decreasesY() {
+            robot.updateDirection(Directions.SOUTH);
+            robot.moveForward(2);
+            assertEquals(-2, robot.getPosition().getY());
+        }
     }
 
     @Nested
