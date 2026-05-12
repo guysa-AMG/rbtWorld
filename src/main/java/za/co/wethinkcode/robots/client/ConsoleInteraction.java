@@ -11,4 +11,38 @@ public class ConsoleInteraction {
     private static final String ANSI_YELLOW = "\u001B[1;33m";  // BENDER / headers
     private static final String ANSI_CYAN   = "\u001B[1;36m";  // command names
     private static final String ANSI_DIM    = "\u001B[2;37m";  // descriptions
+
+    // Regex patterns  compiled once up front so they are not  rebuilt on every call
+    private static final Pattern PATTERN_SUCCESS = Pattern.compile("\\bSUCCESS\\b");
+    private static final Pattern PATTERN_ERROR   = Pattern.compile("\\bERROR\\b");
+    private static final Pattern PATTERN_BENDER  = Pattern.compile("(?i)\\bBENDER\\b"); // case-insensitive
+
+    // Returns the Bender ASCII art string.
+   // The ascii art that will appear client side will be here
+
+    public String getBenderAscii() {
+        return """
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⢊⣤⣄⣀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⢠⠁⣾⣿⠏⠀⠈⠲⣤⣄⣀⠈⠙⠛⠿⠿⣿⣿⣿⣿⠇⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠈⢸⣿⣿⠀⠀⠀⠛⠈⠻⣿⣿⣶⣦⣤⣀⡀⠀⠉⠉⢂⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠘⡈⠿⣿⡄⠀⠀⠀⠀⠀⢈⡟⠛⠛⠛⣛⡛⠛⠒⣦⡀⠃
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣦⣌⡙⠲⢤⣀⣠⣴⣿⡇⠀⠀⠀⠈⠁⠀⢀⣿⡗⠸
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣶⣤⣉⠙⠻⠿⣿⣄⡀⠀⠀⠀⣠⣾⡿⢁⠃
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡟⠉⠿⢿⣿⣿⣿⣷⣶⣤⣌⣉⣙⠛⠛⠛⢋⠐⠁⠀
+                ⠀⠀⠀⠀⠀⠀⢀⣀⡀⡿⠄⠘⠠⢀⠌⠉⠛⠻⠿⢿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀
+                ⠀⣀⣤⣶⣾⣿⣿⣿⢻⣷⣀⠁⠀⡀⠀⠂⠤⢀⡀⡀⠀⠘⢹⡿⠀⠀⠀⠀⠀⠀
+                ⠙⢿⣿⣿⣿⣿⣿⣿⣧⡻⣿⣷⣤⣀⠁⠐⠀⠀⠰⠀⣀⣀⣼⠁⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣮⣛⢿⣿⣿⣷⣦⣤⣤⣤⣤⣾⢣⣦⡀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⣿⣾⣭⣽⣟⣛⣛⣛⣻⣥⣿⣿⣿⣦⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠿⠿⠿⣿⣿⣿⣿⣿⣿⠿⠿⠓⠀⠀
+                
+                [too tired to type the story rn but it basically goes here] 
+                
+                
+              
+                """;
+    }
+
 }
