@@ -15,7 +15,9 @@ public class RobotServer {
     private int port;
 
     public RobotServer( String arg_port){
-        
+        if(arg_port==null){
+            arg_port="2146";
+        }
         this.port = Integer.decode(arg_port);
         try{
             JvmMetrics.builder().register();

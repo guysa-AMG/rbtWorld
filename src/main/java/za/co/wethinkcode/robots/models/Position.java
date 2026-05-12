@@ -25,12 +25,29 @@ public class Position {
         this.Y+=1;
     }
      public void decrementX(){
+        
         this.X-=1;
     }
     public void decrementY(){
+      
         this.Y-=1;
     }
+    public int getStraightDistance(Position other){
+       Position distance= getDistance(other);
 
+        if (distance.X==0){
+            return distance.Y;
+        }
+        if (distance.Y==0){
+            return distance.X;
+        }return -1;
+     
+    
+    }
+
+    public Position getDistance(Position other){
+        return new Position(Math.abs(this.X-other.X),Math.abs(this.Y-other.Y));
+    }
     
      public Position copy(){
           return new Position(this.X,this.Y);

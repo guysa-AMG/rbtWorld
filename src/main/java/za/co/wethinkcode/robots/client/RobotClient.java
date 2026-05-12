@@ -42,11 +42,15 @@ public class RobotClient {
     private Socket socket;
     private BufferedReader serverIn;
     private PrintWriter serverOut;
+    private ConsoleInteraction ui;
 
     public RobotClient(IpAddr addr){
+
         host=addr.ip();
         port=addr.port();
+
         this.log = LoggerFactory.getLogger(RobotClient.class);
+     
     }
     public RobotClient(String host, int port) {
       
@@ -62,6 +66,7 @@ public class RobotClient {
 
     public void start() {
           boolean run=true;
+
         try{
             
             socket = new Socket(host, port);
@@ -71,22 +76,27 @@ public class RobotClient {
             serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             
+            //TODO rather call interaction into print
             System.out.println("Connected to : " + host + ":" + port);
 
-            ConsoleInteraction ui = new ConsoleInteraction();
+             ui = new ConsoleInteraction();
             System.out.println(ui.getBenderAscii());
 
             Scanner scan = new Scanner(System.in);
           while (run) {
-             System.out.println("Type: <robotName> <command> [arguments....] (example: HAL launch)");
-            System.out.println("Type: <robotName> quite to exit");
+            //TODO rather call interaction into print 
+            System.out.println("Type: <robotName> <command> [arguments....] (example: HAL launch)");
+            //TODO rather call interaction into print
+             System.out.println("Type: <robotName> quite to exit");
 
             commandLoop(scan);}
         }catch (IOException e){
+            //TODO rather call interaction into print
             System.out.println("Failed to connect to : " + host + ":" + port + "\n" + e.getMessage());
         }finally {
             shutDown();
         }
+           //TODO call onto the interaction class to print Story
     }
 
     private void commandLoop(Scanner scan) {
@@ -94,18 +104,24 @@ public class RobotClient {
 
             
           String userLine="";
-                System.out.print("command >");
+          //TODO rather call interaction into print      
+           System.out.print("command >");
             while((userLine = scan.nextLine())!=null){
-                
+               
                 userLine = userLine.trim();
                 if(userLine.isBlank()){continue;}
                 try{
                 if (this.robotName!=null){
                     userLine=this.robotName+" "+userLine;
                 }
+                if(userLine.contains("help")){
+                    ui.displayHelp();
+                    continue;
+                }
                 ServerRequest request = toRequest(userLine);
+
                 this.robotName = request.getRobot();
-                if(request == null){continue;};
+                if(request == null){ continue; };
 
                 String json = new Protocol().encodeRequest(request).toString();
                 if(json == null){continue;};
@@ -118,6 +134,7 @@ public class RobotClient {
                 String responseJson = serverIn.readLine(); //here am assuming that the server sends one JSON object per line
                
                 if(responseJson == null){
+                    //TODO rather call interaction into print
                     System.out.println("Server Disconnected");
                     return;
                 }
@@ -130,16 +147,27 @@ public class RobotClient {
                 catch(InvalidCommandException err){
                     System.err.println("[x] Invalid Command");
                 }
+                
+                if(this.data.getMessage()=="BLOCKED"){
+                        //TODO rather call interaction into print
+                 
+                    System.out.println("\033[91m you hit a object \033[00m");
+               
+                }
                 if ( this.state !=null && this.robotName!=null){
-                    System.out.printf("[%s,%s] %s > ",this.state.getPosition().getX(),this.state.getPosition().getY(),this.robotName);
+                    //TODO rather call interaction into print
+                 
+                    System.out.printf("{%s}[%s,%s] %s > ",this.state.getDirection(),this.state.getPosition().getX(),this.state.getPosition().getY(),this.robotName);
                 }
                 else{
+                    //TODO rather call interaction into print
                     System.out.print("Command > ");
                 }
 
             }
         }catch (IOException e){
-            System.out.println("I/O error in client loop ("+ e.getMessage()+")");
+            //TODO rather call interaction into print
+            System.out.println(" \0x33[91m I/O error in client loop ("+ e.getMessage()+")");
         }
     }
 
@@ -147,11 +175,13 @@ public class RobotClient {
         String[] parts = userLine.split("\\s+");
         
         if(parts.length < 2){
+            //TODO rather call interaction into print
             System.out.println("Invalid input. Use: <robotName> <command> [arguments....] (example: HAL launch)>");
             return null;
         }
         String robotName = parts[0];
         String command = parts[1].toLowerCase();
+       
        try{
         CommandTypeEnum.valueOf(command);
        }
@@ -168,6 +198,7 @@ public class RobotClient {
     private void handleResponse(String responseJson) {
         ServerResponse response =new Protocol().decodeResponse(responseJson);
         if(response == null){
+            //TODO rather call interaction into print
             System.out.println("Received non-JSON/invalid response: " + responseJson);
             return;
         }
@@ -178,9 +209,7 @@ public class RobotClient {
         if(response.getData() != null){
             this.data = response.getData();
         }
-        if(response.getState() != null){
-           this.state=response.getState();
-        }
+        
     }
 
     private void shutDown() {

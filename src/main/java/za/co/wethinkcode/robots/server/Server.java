@@ -6,24 +6,20 @@ import java.util.Scanner;
 import za.co.wethinkcode.flow.Recorder;
 import za.co.wethinkcode.robots.client.RobotClient;
 import za.co.wethinkcode.robots.models.IpAddr;
-import io.prometheus.metrics.exporter.httpserver.HTTPServer;
-;
+
+
 public class Server {
 
     public static void main(String[] args){
        
     if(isHosting()){
-        if (args.length==1){
-           
-            
-            new RobotServer(args[0]) ;
-        }else{
-            
-        }
+        if (args.length==1){ new RobotServer(args[0]) ;
+        }else{ new RobotServer(); }
     }
     else{
    
            IpAddr addr =  ConnectionInfo();
+
 
         RobotClient client = new RobotClient(addr);
         client.start();
