@@ -185,6 +185,13 @@ public class BaseRobotTest {
             assertEquals(-2, robot.getPosition().getX());
         }
 
+        @Test
+        void moveBack_facingWest_increasesX() {
+            robot.updateDirection(Directions.WEST);
+            robot.moveBack(2);
+            assertEquals(2, robot.getPosition().getX());
+        }
+
     }
 
     @Nested
