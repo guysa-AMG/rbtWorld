@@ -61,7 +61,12 @@ public class BaseRobotTest {
         @Test
         void getStatus_defaultsToNormal() {
             assertEquals(OperationalMode.NORMAL, robot.getStatus());
-    }
+        }
+
+         @Test
+        void getOperationState_returnsNullInitially() {
+            assertEquals(null, robot.getOperationState());
+        }
 
     }
 
