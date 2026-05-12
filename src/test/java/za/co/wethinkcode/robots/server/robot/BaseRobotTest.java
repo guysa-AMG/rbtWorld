@@ -104,6 +104,13 @@ public class BaseRobotTest {
             for (int i = 0; i < 4; i++) robot.turnLeft();
             assertEquals(Directions.NORTH, robot.getDirection());
         }
+
+        @Test
+        void turnLeft_WestToSouth() {
+            robot.turnLeft();
+            robot.turnLeft();
+            assertEquals(Directions.SOUTH, robot.getDirection());
+        }
     }
 
     @Nested
