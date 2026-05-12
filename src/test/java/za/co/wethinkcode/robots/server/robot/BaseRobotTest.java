@@ -202,6 +202,15 @@ public class BaseRobotTest {
             assertEquals(x, robot.getPosition().getX());
             assertEquals(y, robot.getPosition().getY());
         }
+
+        @Test
+        void forwardThenBack_returnsToOrigin() {
+            robot.moveForward(3);
+            robot.moveBack(3);
+
+            assertEquals(0, robot.getPosition().getX());
+            assertEquals(0, robot.getPosition().getY());
+        }
     }
 
     @Nested
