@@ -57,6 +57,17 @@ public class BaseRobotTest {
         void getShoots_initializedToThree() {
             assertEquals(3, robot.getShoots());
         }
+
+        @Test
+        void getStatus_defaultsToNormal() {
+            assertEquals(OperationalMode.NORMAL, robot.getStatus());
+        }
+
+         @Test
+        void getOperationState_returnsNullInitially() {
+            assertEquals(null, robot.getOperationState());
+        }
+
     }
 
     @Nested
@@ -93,6 +104,22 @@ public class BaseRobotTest {
             for (int i = 0; i < 4; i++) robot.turnLeft();
             assertEquals(Directions.NORTH, robot.getDirection());
         }
+
+        @Test
+        void turnLeft_WestToSouth() {
+            robot.turnLeft();
+            robot.turnLeft();
+            assertEquals(Directions.SOUTH, robot.getDirection());
+        }
+
+        @Test
+        void turnLeft_SouthToEast() {
+            robot.turnLeft();
+            robot.turnLeft();
+            robot.turnLeft();
+            assertEquals(Directions.EAST, robot.getDirection());
+        }
+
     }
 
     @Nested
@@ -128,6 +155,61 @@ public class BaseRobotTest {
             robot.moveForward(20);
             assertTrue(robot.getPosition().getY() <= 5,
                     "Should not move past +5; got " + robot.getPosition().getY());
+        }
+
+        @Test
+        void moveForward_facingSouth_decreasesY() {
+            robot.updateDirection(Directions.SOUTH);
+            robot.moveForward(2);
+            assertEquals(-2, robot.getPosition().getY());
+        }
+
+        @Test
+        void moveForward_facingWest_decreasesX() {
+            robot.updateDirection(Directions.WEST);
+            robot.moveForward(2);
+            assertEquals(-2, robot.getPosition().getX());
+        }
+
+        @Test
+        void moveBack_facingSouth_increasesY() {
+            robot.updateDirection(Directions.SOUTH);
+            robot.moveBack(2);
+            assertEquals(2, robot.getPosition().getY());
+        }
+
+        @Test
+        void moveBack_facingEast_decreasesX() {
+            robot.updateDirection(Directions.EAST);
+            robot.moveBack(2);
+            assertEquals(-2, robot.getPosition().getX());
+        }
+
+        @Test
+        void moveBack_facingWest_increasesX() {
+            robot.updateDirection(Directions.WEST);
+            robot.moveBack(2);
+            assertEquals(2, robot.getPosition().getX());
+        }
+
+        @Test
+        void moveZeroSteps_doesNotChangePosition() {
+            int x = robot.getPosition().getX();
+            int y = robot.getPosition().getY();
+
+            robot.moveForward(0);
+
+            assertEquals(x, robot.getPosition().getX());
+            assertEquals(y, robot.getPosition().getY());
+        }
+
+        @Test
+        void forwardThenBack_returnsToOrigin() {
+            robot.moveForward(3);
+            robot.moveBack(3);
+
+            assertEquals(0, robot.getPosition().getX());
+            assertEquals(0, robot.getPosition().getY());
         }
     }
 
@@ -185,6 +267,19 @@ public class BaseRobotTest {
             assertEquals(20, robot.getShield());
             assertEquals(OperationalMode.NORMAL, robot.getStatus());
         }
+
+        @Test
+        void status_becomesDeadWhenShieldZero() {
+            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
+            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 10);
+
+            shooter.shootRobot(target);
+
+            if (target.getShield() == 0) {
+                assertEquals(OperationalMode.DEAD, target.getStatus());
+            }
+        }
+
     }
 
     @Nested
@@ -206,6 +301,13 @@ public class BaseRobotTest {
         void isDead_trueWhenStatusDead() {
             robot.setStatus(OperationalMode.DEAD);
             assertTrue(robot.isDead());
+        }
+
+        @Test
+        void setStatus_doesNotAffectOperationState_bug() {
+            robot.setStatus(OperationalMode.RELOAD);
+
+            assertEquals(null, robot.getOperationState());
         }
     }
 }
