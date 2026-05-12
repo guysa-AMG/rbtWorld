@@ -68,15 +68,18 @@ public class RobotClient {
         try{
             
             socket = new Socket(host, port);
-            ConsoleInteraction ui = new ConsoleInteraction();
-            System.out.println(ui.getBenderAscii());
+
+
 
             serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             
             //TODO rather call interaction into print
             System.out.println("Connected to : " + host + ":" + port);
-            
+
+            ConsoleInteraction ui = new ConsoleInteraction();
+            System.out.println(ui.getBenderAscii());
+
             Scanner scan = new Scanner(System.in);
           while (run) {
             //TODO rather call interaction into print 
