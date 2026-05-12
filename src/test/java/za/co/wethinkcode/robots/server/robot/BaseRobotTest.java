@@ -111,6 +111,15 @@ public class BaseRobotTest {
             robot.turnLeft();
             assertEquals(Directions.SOUTH, robot.getDirection());
         }
+
+        @Test
+        void turnLeft_SouthToEast() {
+            robot.turnLeft();
+            robot.turnLeft();
+            robot.turnLeft();
+            assertEquals(Directions.EAST, robot.getDirection());
+        }
+
     }
 
     @Nested
