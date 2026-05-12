@@ -57,6 +57,12 @@ public class BaseRobotTest {
         void getShoots_initializedToThree() {
             assertEquals(3, robot.getShoots());
         }
+
+        @Test
+        void getStatus_defaultsToNormal() {
+            assertEquals(OperationalMode.NORMAL, robot.getStatus());
+    }
+
     }
 
     @Nested
