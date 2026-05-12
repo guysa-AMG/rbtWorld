@@ -302,5 +302,12 @@ public class BaseRobotTest {
             robot.setStatus(OperationalMode.DEAD);
             assertTrue(robot.isDead());
         }
+
+        @Test
+        void setStatus_doesNotAffectOperationState_bug() {
+            robot.setStatus(OperationalMode.RELOAD);
+
+            assertEquals(null, robot.getOperationState());
+        }
     }
 }
