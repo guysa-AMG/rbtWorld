@@ -178,6 +178,12 @@ public class BaseRobotTest {
             assertEquals(2, robot.getPosition().getY());
         }
 
+        @Test
+        void moveBack_facingEast_decreasesX() {
+            robot.updateDirection(Directions.EAST);
+            robot.moveBack(2);
+            assertEquals(-2, robot.getPosition().getX());
+        }
 
     }
 
