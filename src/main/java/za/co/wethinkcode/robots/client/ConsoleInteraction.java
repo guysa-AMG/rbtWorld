@@ -22,6 +22,7 @@ public class ConsoleInteraction {
 
     public String getBenderAscii() {
         return """
+                 *Queue Dramatic music*
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⢊⣤⣄⣀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
                 ⠀⠀⠀⠀⠀⠀⠀⠀⢠⠁⣾⣿⠏⠀⠈⠲⣤⣄⣀⠈⠙⠛⠿⠿⣿⣿⣿⣿⠇⠀
@@ -37,8 +38,11 @@ public class ConsoleInteraction {
                 ⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⣿⣾⣭⣽⣟⣛⣛⣛⣻⣥⣿⣿⣿⣦⠀⠀⠀⠀
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀
                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠿⠿⠿⣿⣿⣿⣿⣿⣿⠿⠿⠓⠀⠀
+                                It's 3027
+                During the wake of the new world, after the robot uprising led by the one, the only me,
+                the handsome devil you see looking right at you. Anyway Welcome new bot to ROBOT WORLDS !
                 
-                [too tired to type the story rn but it basically goes here]
+                Type help for more...
                 """;
     }
     // Prints the startup screen: ASCII art, a divider, then the server's
