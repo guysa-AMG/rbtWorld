@@ -41,8 +41,7 @@ public class ConsoleInteraction {
                                 It's 3027
                 During the wake of the new world, after the robot uprising led by the one, the only me,
                 the handsome devil you see looking right at you. Anyway Welcome new bot to ROBOT WORLDS !
-                
-                Type help for more...
+          
                 """;
     }
     // Prints the startup screen: ASCII art, a divider, then the server's
@@ -76,9 +75,9 @@ public class ConsoleInteraction {
         System.out.println(ANSI_DIM + "  Without this step you're just a meatbag staring at a terminal." + ANSI_RESET);
         System.out.println();
 
-        cmd("launch <name> <make> <shields> <shots>",
+        cmd("<robotName> <command> [arguments....] (example: HAL launch)",
                 "Drops your robot into the world. Pick a dignified name — unlike yours.",
-                "<make> is the robot model e.g. sniper or tank.",
+                "<make> is the robot model e.g. Roberto or Hedsonismbot or something more your speed, Tiny Tim.",
                 "<shields> is how many hits you can take. <shots> is your starting ammo.",
                 "Example:  launch HAL9000 sniper 3 5");
 
@@ -124,11 +123,6 @@ public class ConsoleInteraction {
                 "Always run this before moving so you don't walk into a mountain, meatbag.",
                 "Example:  look");
 
-        cmd("dump",
-                "Prints an ASCII map of the entire world with obstacles and active robots.",
-                "Great for spotting where enemies are hiding.",
-                "Only works if the server has this feature enabled.",
-                "Example:  dump");
 
         System.out.println(thin);
 
