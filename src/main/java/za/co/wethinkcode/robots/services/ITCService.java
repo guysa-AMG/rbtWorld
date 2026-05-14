@@ -11,12 +11,17 @@ package za.co.wethinkcode.robots.services;
 
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseData;
+import za.co.wethinkcode.robots.models.ServerResponseRobot;
+import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.models.impediment.Hole;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Mountain;
 import za.co.wethinkcode.robots.models.impediment.Rocks;
 import za.co.wethinkcode.robots.models.impediment.Tree;
 import za.co.wethinkcode.robots.server.commands.Command;
+import za.co.wethinkcode.robots.server.robot.BaseRobot;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,12 +39,38 @@ public class ITCService {
     //initialize all singleton instance fields using the volatile to keep values synced across all threads
     
    private volatile Map<Socket,Thread> threads;
+   private final Map<String, java.io.PrintWriter> clientWriters = new java.util.concurrent.ConcurrentHashMap<>();
    private volatile static ITCService instance = new ITCService();
    private volatile Logger logger = LoggerFactory.getLogger(ITCService.class);
    private volatile Iworld world;
 
     private ITCService(){
         this.threads=new HashMap<>();
+    }
+
+    public void registerClient(String robotName, java.io.PrintWriter writer) {
+        if (robotName == null || writer == null) return;
+        this.clientWriters.put(robotName, writer);
+    }
+
+    public void unregisterClient(String robotName) {
+        if (robotName != null) this.clientWriters.remove(robotName);
+    }
+
+    /** Push a one-way event to the named client (the victim). Safe to call from any thread. */
+    public void pushEvent(String robotName, ServerResponse event) {
+        if (robotName == null || event == null) return;
+        java.io.PrintWriter w = this.clientWriters.get(robotName);
+        if (w == null) return;
+        try {
+            String json = new Protocol().encodeResponse(event);
+            synchronized (w) {
+                w.println(json);
+                w.flush();
+            }
+        } catch (Exception e) {
+            this.logger.warn("pushEvent failed for " + robotName + ": " + e.getMessage());
+        }
     }
 
     public void addThreadControllers(Socket client,Thread thread){
@@ -158,8 +189,57 @@ public class ITCService {
         if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){return "off";}
         Command com = Command.generate(req);
         ServerResponse response = this.world.perform(com);
-       
+
+        decorateWithWorldState(response, req.getRobot());
+
         return protocol.encodeResponse(response);
+    }
+
+    /**
+     * Attach live world info (ammo pickups, robot lives) to every response,
+     * so the GUI never has to ask separately.
+     */
+    private void decorateWithWorldState(ServerResponse response, String robotName) {
+        if (response == null) return;
+        if (this.world instanceof RobotWorld rw) {
+            ServerResponseData data = response.getData();
+            if (data == null) {
+                data = ServerResponseData.builder().build();
+                response.setData(data);
+            }
+            if (data.getPickups() == null || data.getPickups().isEmpty()) {
+                data.setPickups(rw.getAmmoPickups());
+            }
+            // Snapshot of all robots (positions, health, kills) — so every client renders the whole arena.
+            java.util.List<ServerResponseRobot> snapshot = new java.util.ArrayList<>();
+            for (BaseRobot r : rw.getAllRobots().values()) {
+                snapshot.add(ServerResponseRobot.builder()
+                        .name(r.getName())
+                        .position(r.getPosition())
+                        .direction(r.getDirection())
+                        .lives(r.getLives())
+                        .shields(r.getShield())
+                        .shots(r.getShoots())
+                        .kills(r.getKills())
+                        .status(r.getOperationState())
+                        .build());
+            }
+            data.setRobots(snapshot);
+        }
+        BaseRobot robot = this.world.getAllRobots().get(robotName);
+        if (robot != null) {
+            ServerResponseState state = response.getState();
+            if (state == null) {
+                state = ServerResponseState.builder().build();
+                response.setState(state);
+            }
+            state.setLives(robot.getLives());
+            state.setKills(robot.getKills());
+            if (state.getPosition() == null) state.setPosition(robot.getPosition());
+            if (state.getDirection() == null) state.setDirection(robot.getDirection());
+            if (state.getShields() == 0) state.setShields(robot.getShield());
+            if (state.getShots() == 0) state.setShots(robot.getShoots());
+        }
     }
   
 }

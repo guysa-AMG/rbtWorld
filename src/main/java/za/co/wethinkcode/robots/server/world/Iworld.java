@@ -16,6 +16,8 @@ public interface Iworld {
     public final static float repairTime=3f;
     public final static int visibleDistance=3;
     public final static int MAG_MAX=5;
+    public final static int bulletRange=5;
+    public final static int lookRange=bulletRange;
     
    
 
