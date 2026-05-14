@@ -249,6 +249,16 @@ public class BaseRobotTest {
             assertEquals(Directions.SOUTH, robot.getDirection());
         }
 
+            @Test
+        void updatePosition_changesPosition() {
+            robot.updatePosition(
+                    new za.co.wethinkcode.robots.models.Position(5, -3)
+            );
+
+            assertEquals(5, robot.getPosition().getX());
+            assertEquals(-3, robot.getPosition().getY());
+        }
+
     }
 
     @Nested
