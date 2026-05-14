@@ -357,5 +357,16 @@ public class BaseRobotTest {
 
             assertEquals(null, robot.getOperationState());
         }
+
+        @Test
+        void setOperationalState_updatesOperationState() {
+            robot.setOperationalState(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getOperationState()
+            );
+        }
+
     }
 }
