@@ -2,8 +2,10 @@
 
 package za.co.wethinkcode.robots.server.world;
 import za.co.wethinkcode.robots.models.Directions;
+import za.co.wethinkcode.robots.models.ImpedimentType;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseObject;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.commands.Command;
@@ -21,6 +23,7 @@ public class RobotWorld implements Iworld {
     private ArrayList<ArrayList<Impediments>> map;
     private ArrayList<Position> emptySpots;
     private final Map<String, BaseRobot> robots = new HashMap<>();
+    private final java.util.Set<Position> ammoPickups = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public RobotWorld(int width, int height, int visibility) {
         this.width = width;
@@ -44,52 +47,60 @@ public class RobotWorld implements Iworld {
     @Override
     public boolean moveRobot(String name, int steps) {
         BaseRobot robot = robots.get(name);
+        if (robot == null) return false;
         Position currentPos = robot.getPosition();
         Directions dir = robot.getDirection();
 
         if (currentPos == null || dir == null) return false;
+        if (steps == 0) return true;
 
         int multiplier = (steps > 0) ? 1 : -1;
         int nextX = currentPos.getX();
         int nextY = currentPos.getY();
+        boolean fullyMoved = true;
 
-        // IMPORTANT: We check every single klik (step)
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+
         for (int i = 1; i <= Math.abs(steps); i++) {
             int stepX = nextX;
             int stepY = nextY;
 
-            // EXACT MATH: North is +Y, South is -Y, East is +X, West is -X
             if (dir == Directions.NORTH) stepY += multiplier;
             else if (dir == Directions.SOUTH) stepY -= multiplier;
             else if (dir == Directions.EAST) stepX += multiplier;
             else if (dir == Directions.WEST) stepX -= multiplier;
 
-            // Updated Boundary check for an odd-sized world
-            int xLimit = (width - 1) / 2;
-            int yLimit = (height - 1) / 2;
-
             if (stepX > xLimit || stepX < -xLimit || stepY > yLimit || stepY < -yLimit) {
-                return false;
+                fullyMoved = false;
+                break;
             }
 
-            // OBSTACLE MATH: Check if this klik is inside a mountain or lake
             if (isPositionBlocked(stepX, stepY)) {
-                return false;
+                fullyMoved = false;
+                break;
             }
 
-            // PIT MATH: If they hit a pit, they are removed from the world
             if (isPositionInPit(stepX, stepY)) {
-                removeRobot(name);
+                robot.updatePosition(new Position(stepX, stepY));
+                int remaining = robot.decrementLives();
+                if (remaining > 0) {
+                    Position spawn = findSafeSpawn();
+                    robot.respawnAt(spawn);
+                    updateRobot(name, robot);
+                } else {
+                    removeRobot(name);
+                }
                 return true;
             }
 
             nextX = stepX;
             nextY = stepY;
         }
-        Position newPosition = new Position(nextX, nextY);
-        robot.updatePosition(newPosition);
+        robot.updatePosition(new Position(nextX, nextY));
+        consumePickupAt(nextX, nextY, robot);
         updateRobot(name, robot);
-        return true;
+        return fullyMoved;
     }
 
     @Override
@@ -141,6 +152,80 @@ public class RobotWorld implements Iworld {
         return map;
     }
 
+    /**
+     * Structured scan in 4 cardinals up to {@link Iworld#lookRange}.
+     * Reports each visible obstacle/robot with its position.
+     * MOUNTAIN/WALL block line-of-sight; PIT/LAKE/TREE/ROCK are visible but the scan continues past them.
+     */
+    public List<ServerResponseObject> lookAround(String name) {
+        List<ServerResponseObject> out = new ArrayList<>();
+        BaseRobot robot = robots.get(name);
+        if (robot == null || robot.getPosition() == null) return out;
+        Position pos = robot.getPosition();
+
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+
+        for (Directions dir : Directions.values()) {
+            int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
+            int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
+            for (int dist = 1; dist <= Iworld.lookRange; dist++) {
+                int sx = pos.getX() + dx * dist;
+                int sy = pos.getY() + dy * dist;
+
+                if (sx < -xLimit || sx > xLimit || sy < -yLimit || sy > yLimit) {
+                    out.add(ServerResponseObject.builder()
+                            .direction(dir).distance(dist)
+                            .type(ImpedimentType.EDGE)
+                            .subtype("EDGE")
+                            .position(new Position(sx, sy))
+                            .build());
+                    break;
+                }
+
+                BaseRobot other = robotAtCell(sx, sy, robot);
+                if (other != null) {
+                    out.add(ServerResponseObject.builder()
+                            .direction(dir).distance(dist)
+                            .type(ImpedimentType.ROBOT)
+                            .subtype("ROBOT")
+                            .name(other.getName())
+                            .position(new Position(sx, sy))
+                            .build());
+                    break;
+                }
+
+                String hitType = obstacleTypeAt(sx, sy);
+                if (hitType != null) {
+                    out.add(ServerResponseObject.builder()
+                            .direction(dir).distance(dist)
+                            .type(ImpedimentType.OBSTACLE)
+                            .subtype(hitType)
+                            .position(new Position(sx, sy))
+                            .build());
+                    if ("MOUNTAIN".equals(hitType) || "WALL".equals(hitType)) break;
+                }
+            }
+        }
+        return out;
+    }
+
+    private BaseRobot robotAtCell(int x, int y, BaseRobot self) {
+        for (BaseRobot r : robots.values()) {
+            if (r == self) continue;
+            Position p = r.getPosition();
+            if (p != null && p.getX() == x && p.getY() == y) return r;
+        }
+        return null;
+    }
+
+    private String obstacleTypeAt(int x, int y) {
+        for (Obstacle obs : obstacles) {
+            if (obs.isAt(x, y)) return obs.getType();
+        }
+        return null;
+    }
+
     @Override
     public boolean isPositionBlocked(int x, int y) {
         for (Obstacle obs : obstacles) {
@@ -161,13 +246,92 @@ public class RobotWorld implements Iworld {
         this.obstacles.add(obstacle);
     }
 
+    /**
+     * Add a pickup ONLY if the cell is free of obstacles/pits and not already a pickup.
+     * Returns true if the pickup was placed.
+     */
+    public boolean addAmmoPickup(Position p) {
+        if (p == null) return false;
+        if (isPositionBlocked(p.getX(), p.getY())) return false;
+        if (isPositionInPit(p.getX(), p.getY())) return false;
+        for (Position existing : this.ammoPickups) {
+            if (existing.getX() == p.getX() && existing.getY() == p.getY()) return false;
+        }
+        this.ammoPickups.add(p);
+        return true;
+    }
+
+    public List<Position> getAmmoPickups() {
+        List<Position> copy = new ArrayList<>(this.ammoPickups.size());
+        for (Position p : this.ammoPickups) copy.add(p.copy());
+        return copy;
+    }
+
+    /** Find a safe spawn cell: in-bounds, not blocked, not a pit, not occupied, optionally far from {@code avoid}. */
+    public Position findSafeSpawn(List<Position> avoid, int minDistance) {
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+        java.util.Random rnd = new java.util.Random();
+        for (int attempt = 0; attempt < 500; attempt++) {
+            int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
+            int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
+            if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
+            if (robotAtCell(x, y, null) != null) continue;
+            // Avoid pickups and avoid-list cells
+            if (cellInList(x, y, getAmmoPickups(), 0)) continue;
+            if (avoid != null && !avoid.isEmpty() && cellInList(x, y, avoid, minDistance)) continue;
+            return new Position(x, y);
+        }
+        // Fallback: relax the minDistance constraint
+        for (int attempt = 0; attempt < 100; attempt++) {
+            int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
+            int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
+            if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
+            if (robotAtCell(x, y, null) != null) continue;
+            if (cellInList(x, y, getAmmoPickups(), 0)) continue;
+            return new Position(x, y);
+        }
+        return new Position(0, 0);
+    }
+
+    public Position findSafeSpawn() {
+        return findSafeSpawn(null, 0);
+    }
+
+    private boolean cellInList(int x, int y, List<Position> list, int minDistance) {
+        for (Position p : list) {
+            int dx = Math.abs(p.getX() - x);
+            int dy = Math.abs(p.getY() - y);
+            if (Math.max(dx, dy) <= minDistance) return true;
+        }
+        return false;
+    }
+
+    private void consumePickupAt(int x, int y, BaseRobot robot) {
+        Position match = null;
+        for (Position p : this.ammoPickups) {
+            if (p.getX() == x && p.getY() == y) { match = p; break; }
+        }
+        if (match != null) {
+            this.ammoPickups.remove(match);
+            robot.refillAmmo();
+            // Respawn a fresh pickup elsewhere, at least 6 cells away from the picker.
+            Position fresh = findSafeSpawn(List.of(robot.getPosition()), 6);
+            addAmmoPickup(fresh);
+        }
+    }
+
     // OTHER INTERFACE METHODS
     @Override
      public boolean addRobot(String name) {
         if (robots.containsKey(name)) return false;
-        BaseRobot robot = BaseRobot.Builder(name, 0, 0, 3, 2);
+        List<Position> others = new ArrayList<>();
+        for (BaseRobot r : robots.values()) {
+            if (r.getPosition() != null) others.add(r.getPosition());
+        }
+        Position spawn = findSafeSpawn(others, 8);
+        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), 3, 2);
         robots.put(name, robot);
-    
         return true;
     }
 
@@ -221,14 +385,11 @@ public class RobotWorld implements Iworld {
 
     @Override
     public ServerResponse perform(Command command) {
-        // You need to actually execute the command here
-        // For now, to pass the build, you can return the command's result
-        
         BaseRobot robot = this.robots.get(command.getRobotName());
-        if (robot==null && command.getCommandName()!="launch"){
-                command = new ErrorCommand("robot "+command.getRobotName()+" has not been launched",command.getRobotName());
+        if (robot == null && !"launch".equals(command.getCommandName())) {
+            command = new ErrorCommand("robot " + command.getRobotName() + " has not been launched", command.getRobotName());
         }
-        return command.execute(this,robot);
+        return command.execute(this, robot);
     }
 
   
@@ -261,21 +422,13 @@ public class RobotWorld implements Iworld {
 
 	@Override
 	public boolean isPositionAvailable(Position intendedPos) {
-	int x=intendedPos.getX();
-    int y = intendedPos.getY();
-    if(x<0 || y<0){
-        return false;
-    }
-    System.out.print("Intended Position> "+intendedPos);
-    if(y > (this.map.size()-1) || x> (this.map.get(y).size()-1)){
-        return false;
-    }
-    if (map.get(y).get(x)==null){
-        return true;
-    }
-    else{
-        return false;
-    }
+        if (intendedPos == null) return false;
+        int x = intendedPos.getX();
+        int y = intendedPos.getY();
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+        if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) return false;
+        return !isPositionBlocked(x, y);
     }
 
     Impediments getObjectsAtPosition(Position pos ){

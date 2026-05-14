@@ -52,6 +52,7 @@ public abstract class Command {
         case "state" -> new StateCommand("state",req.getRobot());
         case "robots" -> new RobotsCommand( req.getRobot());
         case "turn" -> new TurnCommand( req.getArguments(), req.getRobot());
+        case "look" -> new LookCommand("look", req.getRobot());
 
         case "fire" -> new FireCommand( req.getArguments(), req.getRobot());
 

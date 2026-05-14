@@ -1,37 +1,43 @@
 package za.co.wethinkcode.robots.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import za.co.wethinkcode.robots.server.commands.OperationalMode;
 
 @Builder
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
-public class ServerResponseObject {
+public class ServerResponseRobot {
 
     @JsonProperty
-    Directions direction;
-
-    @JsonProperty
-    ImpedimentType type;
-
-    @JsonProperty
-    int distance;
-
-    @JsonProperty
-    String subtype;
+    String name;
 
     @JsonProperty
     Position position;
 
     @JsonProperty
-    String name;
+    Directions direction;
 
+    @JsonProperty
+    int lives;
+
+    @JsonProperty
+    int shields;
+
+    @JsonProperty
+    int shots;
+
+    @JsonProperty
+    int kills;
+
+    @JsonProperty
+    OperationalMode status;
 }

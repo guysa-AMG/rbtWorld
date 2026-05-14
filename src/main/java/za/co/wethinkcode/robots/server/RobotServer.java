@@ -6,8 +6,8 @@ import java.net.Socket;
 
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
+import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
 import za.co.wethinkcode.robots.server.world.Iworld;
-import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.services.ITCService;
 
 public class RobotServer {
@@ -41,8 +41,9 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
-       Iworld world = new RobotWorld();
+       Iworld world = BattleArenaWorld.build();
        ITCService.getInstance().loadWorld(world);
+       System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
    
 
 

@@ -50,6 +50,12 @@ public class ServerResponseData {
     @JsonProperty
     int shields;
 
+    @JsonProperty
+    List<Position> pickups;
+
+    @JsonProperty
+    List<ServerResponseRobot> robots;
+
     public boolean equals(ServerResponseData req){
     return this.message.equals(req.message)&&this.position.equals(req.position)&&this.reload==req.reload&&this.repair==req.repair&&this.shields==req.shields&&this.visibility==req.visibility;
 }
