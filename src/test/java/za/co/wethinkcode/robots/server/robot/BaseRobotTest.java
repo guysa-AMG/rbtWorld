@@ -368,5 +368,15 @@ public class BaseRobotTest {
             );
         }
 
+        @Test
+        void setStatus_reloadModeIsStored() {
+            robot.setStatus(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getStatus()
+            );
+        }
+
     }
 }
