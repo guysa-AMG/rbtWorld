@@ -191,6 +191,17 @@ public class BaseRobotTest {
         }
 
         @Test
+        void moveForward_returnsTrue() {
+            assertTrue(robot.moveForward(2));
+        }
+
+        @Test
+        void moveBack_returnsTrue() {
+            assertTrue(robot.moveBack(2));
+        }
+
+
+        @Test
         void moveBack_facingSouth_increasesY() {
             robot.updateDirection(Directions.SOUTH);
             robot.moveBack(2);
