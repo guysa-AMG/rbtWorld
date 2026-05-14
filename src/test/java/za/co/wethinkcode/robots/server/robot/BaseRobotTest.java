@@ -328,6 +328,17 @@ public class BaseRobotTest {
             }
         }
 
+    // Ensures shield value never becomes negative after taking damage
+    @Test
+        void shield_neverDropsBelowZero() {
+            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
+            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 20);
+
+            shooter.shootRobot(target);
+
+            assertTrue(target.getShield() >= 0);
+        }
+
     }
 
     @Nested
