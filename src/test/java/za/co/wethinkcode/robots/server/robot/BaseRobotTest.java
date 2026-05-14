@@ -241,6 +241,14 @@ public class BaseRobotTest {
             assertEquals(0, robot.getPosition().getX());
             assertEquals(0, robot.getPosition().getY());
         }
+
+        @Test
+        void updateDirection_changesDirection() {
+            robot.updateDirection(Directions.SOUTH);
+
+            assertEquals(Directions.SOUTH, robot.getDirection());
+        }
+
     }
 
     @Nested
