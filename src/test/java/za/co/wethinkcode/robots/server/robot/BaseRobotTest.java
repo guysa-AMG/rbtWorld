@@ -114,11 +114,29 @@ public class BaseRobotTest {
         }
 
         @Test
+        void turnRight_WestToNorth() {
+            robot.updateDirection(Directions.WEST);
+
+            robot.turnRight();
+
+            assertEquals(Directions.NORTH, robot.getDirection());
+        }
+
+        @Test
         void turnLeft_SouthToEast() {
             robot.turnLeft();
             robot.turnLeft();
             robot.turnLeft();
             assertEquals(Directions.EAST, robot.getDirection());
+        }
+
+        @Test
+        void turnRight_SouthToWest() {
+            robot.turnRight();
+            robot.turnRight();
+            robot.turnRight();
+
+            assertEquals(Directions.WEST, robot.getDirection());
         }
 
     }
@@ -173,6 +191,17 @@ public class BaseRobotTest {
         }
 
         @Test
+        void moveForward_returnsTrue() {
+            assertTrue(robot.moveForward(2));
+        }
+
+        @Test
+        void moveBack_returnsTrue() {
+            assertTrue(robot.moveBack(2));
+        }
+
+
+        @Test
         void moveBack_facingSouth_increasesY() {
             robot.updateDirection(Directions.SOUTH);
             robot.moveBack(2);
@@ -212,6 +241,24 @@ public class BaseRobotTest {
             assertEquals(0, robot.getPosition().getX());
             assertEquals(0, robot.getPosition().getY());
         }
+
+        @Test
+        void updateDirection_changesDirection() {
+            robot.updateDirection(Directions.SOUTH);
+
+            assertEquals(Directions.SOUTH, robot.getDirection());
+        }
+
+            @Test
+        void updatePosition_changesPosition() {
+            robot.updatePosition(
+                    new za.co.wethinkcode.robots.models.Position(5, -3)
+            );
+
+            assertEquals(5, robot.getPosition().getX());
+            assertEquals(-3, robot.getPosition().getY());
+        }
+
     }
 
     @Nested
@@ -281,6 +328,17 @@ public class BaseRobotTest {
             }
         }
 
+    // Ensures shield value never becomes negative after taking damage
+    @Test
+        void shield_neverDropsBelowZero() {
+            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
+            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 20);
+
+            shooter.shootRobot(target);
+
+            assertTrue(target.getShield() >= 0);
+        }
+
     }
 
     @Nested
@@ -310,5 +368,26 @@ public class BaseRobotTest {
 
             assertEquals(null, robot.getOperationState());
         }
+
+        @Test
+        void setOperationalState_updatesOperationState() {
+            robot.setOperationalState(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getOperationState()
+            );
+        }
+
+        @Test
+        void setStatus_reloadModeIsStored() {
+            robot.setStatus(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getStatus()
+            );
+        }
+
     }
 }
