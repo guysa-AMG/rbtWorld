@@ -1,19 +1,10 @@
 
 image: eclipse-temurin:21-jdk
 
-stages:          
-  - build
+stages: 
   - test
 
-build:   
-  tags:
-    - group20
-  stage: build   
-  script:
-    - ./mvnw compile
-  artifacts:
-    paths:
-      - .
+
 
 unit-test-job:  
   tags:
