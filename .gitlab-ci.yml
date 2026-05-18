@@ -7,6 +7,9 @@ stages:
 
 
 unit-test-job:  
+  before_script:
+    - git config --global user.email "piplineBotjhb025@student.wethinkcode.co.za"
+    - git config --global user.name "piplineBotjhb025"
   tags:
     - group20
   stage: test    
