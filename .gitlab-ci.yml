@@ -5,22 +5,13 @@ stages:
   - build
   - test
 
-build:   
-  tags:
-    - group20
-  stage: build   
-  script:
-    - ./mvnw compile
-  artifacts:
-    paths:
-      - .
 
 unit-test-job:  
   tags:
     - group20
   stage: test    
   script:
-    - ./mvnw test
+    - ./mvnw clean test
 
 
 
