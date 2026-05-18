@@ -6,6 +6,7 @@ import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.BasicStroke;
@@ -33,6 +34,7 @@ public class WorldPanel extends JPanel {
     private String selfName;
     private volatile BulletFx bullet;
     private volatile Hud hud = new Hud(0, 0, 0, 0, 0);
+    private ImageIcon robotImg;
 
     public WorldPanel() {
         RobotWorld template = BattleArenaWorld.build();
@@ -44,6 +46,10 @@ public class WorldPanel extends JPanel {
         }
         setBackground(new Color(20, 20, 25));
         setPreferredSize(new Dimension(worldWidth * CELL + 2, worldHeight * CELL + 2));
+        loadRobotImage();
+    }
+    protected void  loadRobotImage(){
+        this.robotImg = new ImageIcon(WorldPanel.class.getClassLoader().getResource("image/bot.png"));
     }
 
     public void setSelfName(String name) {
@@ -208,6 +214,7 @@ public class WorldPanel extends JPanel {
         g2.setColor(new Color(255, 255, 255, (int) (alpha * 220)));
         int spark = Math.max(1, rad / 3);
         g2.fillOval(to[0] - spark / 2, to[1] - spark / 2, spark, spark);
+        
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -244,7 +251,7 @@ public class WorldPanel extends JPanel {
 
     private void drawRobots(Graphics2D g2) {
         for (Map.Entry<String, RobotMarker> e : robots.entrySet()) {
-            RobotMarker m = e.getValue();
+             RobotMarker m = e.getValue();
             int[] screen = worldToScreen(m.x, m.y);
             boolean isSelf = e.getKey().equalsIgnoreCase(selfName);
             Color body = isSelf ? new Color(255, 215, 0) : new Color(0, 200, 255);
@@ -258,6 +265,10 @@ public class WorldPanel extends JPanel {
 
             g2.setColor(Color.WHITE);
             g2.drawString(e.getKey(), screen[0] - (e.getKey().length() * 3), screen[1] - CELL / 2 - 2);
+
+            // g2.drawImage(robotImg.getImage(),m.x,m.y,100,100,null);
+
+            
         }
     }
 

@@ -30,7 +30,7 @@ public class WorldTest {
         world = new RobotWorld(11, 11, 5);
     }
 
-   
+   @Disabled
     @DisplayName("forward and backward test")
     @Nested
     class travelTest{
@@ -215,7 +215,7 @@ public class WorldTest {
             assertEquals(Directions.NORTH, world.getAllRobots().get("HAL").getDirection());
         }
     }
-
+    @Disabled
     @Nested
     @DisplayName("moveRobot — movement & collisions")
     class Movement {

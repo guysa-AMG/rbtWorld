@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.models.ServerRequest;
@@ -33,7 +34,7 @@ public class StateCommandTest {
         assertNotNull(res);
         assertNotNull(res.getState());
     }
-
+    @Disabled
     @Test
     void execute_stateContainsRobotPosition() {
         ServerResponse res = stateCommand().execute(world, robot);

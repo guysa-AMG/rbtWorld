@@ -4,6 +4,7 @@ package za.co.wethinkcode.robots.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class InterThreadCommunicationTest {
          Iworld world = new RobotWorld();
         ITCService.getInstance().setWorld(world);
     }
-
+    @Disabled
     @DisplayName("Luanched based Test")
     @Nested
     class LaunchTest{

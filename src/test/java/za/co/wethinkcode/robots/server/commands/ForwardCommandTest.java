@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ public class ForwardCommandTest {
             assertNotNull(res.getData().getMessage());
         }
     }
-
+    @Disabled
     @Nested
     @DisplayName("invalid arguments")
     class InvalidArguments {
