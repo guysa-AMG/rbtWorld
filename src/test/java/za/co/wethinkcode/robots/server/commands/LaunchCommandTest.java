@@ -41,10 +41,15 @@ public class LaunchCommandTest {
         Command launch = Command.generate(new ServerRequest("HAL", "launch", new String[0]));
         ServerResponse res = launch.execute(world, null);
 
+        // addRobot picks a safe random spawn — we just assert a position was set, not its exact value.
         assertNotNull(res.getState());
         assertNotNull(res.getState().getPosition());
-        assertEquals(0, res.getState().getPosition().getX());
-        assertEquals(0, res.getState().getPosition().getY());
+        int xLimit = (world.getWidth() - 1) / 2;
+        int yLimit = (world.getHeight() - 1) / 2;
+        int x = res.getState().getPosition().getX();
+        int y = res.getState().getPosition().getY();
+        assertTrue(Math.abs(x) <= xLimit && Math.abs(y) <= yLimit,
+                "spawn position " + x + "," + y + " should be inside the world");
     }
 
     @Test

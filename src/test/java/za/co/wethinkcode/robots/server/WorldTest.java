@@ -30,8 +30,10 @@ public class WorldTest {
         world = new RobotWorld(11, 11, 5);
     }
 
-   
+
     @DisplayName("forward and backward test")
+    @Disabled("Brittle exact-JSON assertions; superseded by ForwardCommandTest and BackCommandTest. " +
+            "Spawn is now random + responses are decorated with pickups/robots snapshot.")
     @Nested
     class travelTest{
 
@@ -223,6 +225,9 @@ public class WorldTest {
         @Test
         void moveRobot_facingNorth_increasesY() {
             world.addRobot("HAL");
+            // Spawn is random — pin the robot to a known cell first.
+            BaseRobot bot = world.getAllRobots().get("HAL");
+            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
             assertTrue(world.moveRobot("HAL", 3));
             assertEquals(3, world.getAllRobots().get("HAL").getPosition().getY());
             assertEquals(0, world.getAllRobots().get("HAL").getPosition().getX());
@@ -231,6 +236,8 @@ public class WorldTest {
         @Test
         void moveRobot_blockedByMountain_returnsFalse() {
             world.addRobot("HAL");
+            BaseRobot bot = world.getAllRobots().get("HAL");
+            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
             world.addObstacle(new Obstacle(0, 1, 0, 1, "MOUNTAIN"));
             assertFalse(world.moveRobot("HAL", 1));
         }
@@ -238,6 +245,10 @@ public class WorldTest {
         @Test
         void moveRobot_intoPit_removesRobot() {
             world.addRobot("HAL");
+            BaseRobot bot = world.getAllRobots().get("HAL");
+            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
+            // Burn through all lives so the next pit-step is fatal (no respawn).
+            bot.decrementLives(); bot.decrementLives(); bot.decrementLives();
             world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
             world.moveRobot("HAL", 1);
             assertNull(world.getAllRobots().get("HAL"));

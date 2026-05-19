@@ -42,6 +42,14 @@ public class FireCommand extends Command {
                 if (world instanceof za.co.wethinkcode.robots.server.world.RobotWorld rw) {
                     rw.removeRobot(victimName);
                 }
+                // Notify NPC controller — resets peace timer and (if the victim is the NPC) schedules respawn.
+                var ctrl = za.co.wethinkcode.robots.services.ITCService.getInstance().getKillerController();
+                if (ctrl != null) {
+                    ctrl.recordKill();
+                    if (za.co.wethinkcode.robots.server.npc.KillerNPC.NAME.equals(victimName)) {
+                        ctrl.onNPCKilled(robot.getName());
+                    }
+                }
                 dataB.message("KILLED " + victimName + " (damage " + damage + ")")
                      .robot(victimName);
             } else {
