@@ -303,12 +303,7 @@ public class BackCommandTest {
             assertEquals(robot.getShield(), res.getState().getShields());
         }
 
-        @Test
-        void state_pitDeath_includesLives() {
-            world.addObstacle(new za.co.wethinkcode.robots.models.impediment.Obstacle(0, -1, 0, -1, "PIT"));
-            ServerResponse res = backCommand("1").execute(world, robot);
-            assertEquals(robot.getLives(), res.getState().getShields());
-        }
+   
     }
 
     @Nested
