@@ -129,4 +129,8 @@ public class ClientGui {
     public void setAllRobots(List<za.co.wethinkcode.robots.models.ServerResponseRobot> snapshot) {
         SwingUtilities.invokeLater(() -> world.setAllRobots(snapshot));
     }
+
+    public void setFog(Position selfPos, boolean lookExpanded) {
+        SwingUtilities.invokeLater(() -> world.setFog(selfPos, lookExpanded));
+    }
 }

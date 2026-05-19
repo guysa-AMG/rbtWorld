@@ -43,6 +43,7 @@ public class ITCService {
    private volatile static ITCService instance = new ITCService();
    private volatile Logger logger = LoggerFactory.getLogger(ITCService.class);
    private volatile Iworld world;
+   private volatile za.co.wethinkcode.robots.server.npc.KillerNPCController killerController;
 
     private ITCService(){
         this.threads=new HashMap<>();
@@ -55,6 +56,34 @@ public class ITCService {
 
     public void unregisterClient(String robotName) {
         if (robotName != null) this.clientWriters.remove(robotName);
+    }
+
+    /** Push a one-way event to every registered client. Used for global announcements (e.g. NPC kills). */
+    public void broadcastEvent(ServerResponse event) {
+        if (event == null) return;
+        try {
+            String json = new Protocol().encodeResponse(event);
+            for (java.io.PrintWriter w : this.clientWriters.values()) {
+                synchronized (w) {
+                    w.println(json);
+                    w.flush();
+                }
+            }
+        } catch (Exception e) {
+            this.logger.warn("broadcastEvent failed: " + e.getMessage());
+        }
+    }
+
+    public Iworld getWorld() {
+        return this.world;
+    }
+
+    public void setKillerController(za.co.wethinkcode.robots.server.npc.KillerNPCController c) {
+        this.killerController = c;
+    }
+
+    public za.co.wethinkcode.robots.server.npc.KillerNPCController getKillerController() {
+        return this.killerController;
     }
 
     /** Push a one-way event to the named client (the victim). Safe to call from any thread. */

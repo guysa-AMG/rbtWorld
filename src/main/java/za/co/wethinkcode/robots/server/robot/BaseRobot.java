@@ -27,6 +27,8 @@ public abstract class BaseRobot implements Impediments {
      private int lives;
      private int kills;
      private String killedBy;
+     private long lastMoveTimestamp;
+     private int blockedCount;
 
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
 
@@ -39,6 +41,8 @@ public abstract class BaseRobot implements Impediments {
         this.shoots = Iworld.MAG_MAX;
         this.status = OperationalMode.NORMAL;
         this.lives = DEFAULT_LIVES;
+        this.lastMoveTimestamp = System.currentTimeMillis();
+        this.blockedCount = 0;
     }
 
     
@@ -283,6 +287,15 @@ public abstract class BaseRobot implements Impediments {
     public void incrementKills() { this.kills++; }
     public String getKilledBy() { return this.killedBy; }
     public void clearKilledBy() { this.killedBy = null; }
+
+    public long getLastMoveTimestamp() { return this.lastMoveTimestamp; }
+    public void markMoved() {
+        this.lastMoveTimestamp = System.currentTimeMillis();
+        this.blockedCount = 0;
+    }
+
+    public int getBlockedCount() { return this.blockedCount; }
+    public void incrementBlocked() { this.blockedCount++; }
 
     /**
      * Apply incoming damage. Returns true if the hit was lethal (shield reached zero).
