@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import za.co.wethinkcode.robots.client.gui.ClientGui;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
+import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.ServerResponseData;
+import za.co.wethinkcode.robots.models.ServerResponseObject;
 import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
@@ -22,9 +24,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -105,10 +110,10 @@ public class RobotClient {
             Thread reader = new Thread(() -> readerLoop(gui), "server-reader");
             reader.setDaemon(true);
             reader.start();
-        } catch (java.net.UnknownHostException e) {
+        } catch (UnknownHostException e) {
             gui.setStatus("unknown host: " + host);
             gui.appendLog("Unknown host: '" + host + "' — try 'localhost' or a valid IP/hostname.");
-        } catch (java.net.ConnectException e) {
+        } catch (ConnectException e) {
             gui.setStatus("connection refused");
             gui.appendLog("Could not connect to " + host + ":" + port + " — is the server running? (" + e.getMessage() + ")");
         } catch (IOException e) {
@@ -234,8 +239,8 @@ public class RobotClient {
         if (message != null && message.startsWith("HIT_BY ")) {
             gui.appendLog("[!] " + message + " — shield now "
                     + (state != null ? state.getShields() : "?"));
-            if (state != null) gui.setHud(state.getLives(), state.getShots(),
-                    za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, state.getShields(), state.getKills());
+            if (state != null) gui.setHud(state.getShields(), state.getShots(),
+                    za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, state.getShields(), 0);
             return;
         }
 
@@ -271,13 +276,12 @@ public class RobotClient {
                 gui.setFog(state.getPosition(), this.lookExpanded);
                 gui.setStatus(this.robotName + " {" + state.getDirection() + "} ["
                         + state.getPosition().getX() + "," + state.getPosition().getY() + "]"
-                        + "  Lives:" + state.getLives()
+                       
                         + "  Bullets:" + state.getShots() + "/" + za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX
-                        + "  Shield:" + state.getShields()
-                        + "  Kills:" + state.getKills());
+                        + "  Shield:" + state.getShields());
             }
-            gui.setHud(state.getLives(), state.getShots(),
-                    za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, state.getShields(), state.getKills());
+            gui.setHud(state.getShields(), state.getShots(),
+                    za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, state.getShields(), 0);
             this.oldResponse.setState(state);
         }
         if (data != null) {
@@ -290,7 +294,7 @@ public class RobotClient {
         if ("RESPAWNED".equalsIgnoreCase(message)) {
             gui.appendLog("[*] You died but respawned at ("
                     + (state != null && state.getPosition() != null ? state.getPosition().getX() + "," + state.getPosition().getY() : "?")
-                    + "). Lives left: " + (state != null ? state.getLives() : "?"));
+                    + "). Lives left: " + (state != null ? state.getShields() : "?"));
         }
 
         if ("fire".equalsIgnoreCase(this.lastCommand) && this.robotName != null && this.oldResponse.getState() != null && data != null) {
@@ -304,7 +308,7 @@ public class RobotClient {
         }
     }
 
-    private void handleDeath(ClientGui gui, String reason, za.co.wethinkcode.robots.models.Position deathPos) {
+    private void handleDeath(ClientGui gui, String reason, Position deathPos) {
         String wasName = this.robotName;
         if (wasName != null) {
             gui.appendLog("[*] " + wasName + " " + reason
@@ -319,7 +323,7 @@ public class RobotClient {
         gui.setStatus("not launched — type <name> launch");
     }
 
-    private void renderLook(ClientGui gui, java.util.List<za.co.wethinkcode.robots.models.ServerResponseObject> objects) {
+    private void renderLook(ClientGui gui, List<ServerResponseObject> objects) {
         if (objects.isEmpty()) {
             gui.appendLog("   (nothing in sight within " + za.co.wethinkcode.robots.server.world.Iworld.lookRange + " cells)");
             return;

@@ -12,10 +12,8 @@ import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
-import za.co.wethinkcode.robots.server.npc.KillerNPCController;
 import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
 import za.co.wethinkcode.robots.server.world.Iworld;
-import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.services.ITCService;
 import za.co.wethinkcode.robots.shared.Protocol;
 
@@ -57,14 +55,14 @@ public class RobotServer {
        Thread serv_interact_thread = new Thread(new ServerCli());
         serv_interact_thread.start();
 
-       if (world instanceof RobotWorld rw) {
-           KillerNPCController npcCtrl = new KillerNPCController(rw);
-           ITCService.getInstance().setKillerController(npcCtrl);
-           Thread npcThread = new Thread(npcCtrl, "killer-npc");
-           npcThread.setDaemon(true);
-           npcThread.start();
-           System.out.println("Guyser_Thekiller NPC controller started");
-       }
+    //    if (world instanceof RobotWorld rw) {
+    //        KillerNPCController npcCtrl = new KillerNPCController(rw);
+    //        ITCService.getInstance().setKillerController(npcCtrl);
+    //        Thread npcThread = new Thread(npcCtrl, "killer-npc");
+    //        npcThread.setDaemon(true);
+    //        npcThread.start();
+    //        System.out.println("Guyser_Thekiller NPC controller started");
+    //    }
    
 
 

@@ -1,12 +1,26 @@
 package za.co.wethinkcode.robots.server.world;
 
+import java.util.ArrayList;
+
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.services.ITCService;
 
 public final class BattleArenaWorld {
 
     private BattleArenaWorld() {}
 
+     public static RobotWorld buildFromMap() {
+
+        RobotWorld world = new RobotWorld();
+        ArrayList<ArrayList<Impediments>>obj = ITCService.getInstance().parseStringMap("world.properties");
+        for (ArrayList<Impediments> rows:obj){
+            rows.get(0).getPosition().getX();
+        }
+
+        return world;
+    }
     public static RobotWorld build() {
         RobotWorld world = new RobotWorld(51, 31, 7);
 

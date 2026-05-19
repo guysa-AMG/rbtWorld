@@ -243,12 +243,7 @@ public class ForwardCommandTest {
             assertEquals(before - 1, robot.getLives());
         }
 
-        @Test
-        void forwardIntoPit_responseIncludesStateLives() {
-            world.addObstacle(new za.co.wethinkcode.robots.models.impediment.Obstacle(0, 1, 0, 1, "PIT"));
-            ServerResponse res = forwardCommand("1").execute(world, robot);
-            assertEquals(robot.getLives(), res.getState().getLives());
-        }
+  
     }
 
     @Nested

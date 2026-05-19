@@ -31,12 +31,6 @@ public class ServerResponseState {
     int shots;
 
     @JsonProperty
-    int lives;
-
-    @JsonProperty
-    int kills;
-
-    @JsonProperty
     OperationalMode status;
     public boolean equals(ServerResponseState req){
     return this.direction.equals(req.direction)&&this.position.equals(req.position)&&this.status==req.status&&this.shields==req.shields&&this.shots==req.shots;

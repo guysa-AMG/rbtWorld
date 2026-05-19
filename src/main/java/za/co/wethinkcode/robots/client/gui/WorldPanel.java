@@ -5,8 +5,6 @@ import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
-
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.BasicStroke;
@@ -17,7 +15,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

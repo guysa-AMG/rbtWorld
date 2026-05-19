@@ -20,16 +20,20 @@ import za.co.wethinkcode.robots.models.impediment.Mountain;
 import za.co.wethinkcode.robots.models.impediment.Rocks;
 import za.co.wethinkcode.robots.models.impediment.Tree;
 import za.co.wethinkcode.robots.server.commands.Command;
+import za.co.wethinkcode.robots.server.npc.KillerNPCController;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.*;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.shared.Protocol;
@@ -39,17 +43,17 @@ public class ITCService {
     //initialize all singleton instance fields using the volatile to keep values synced across all threads
     
    private volatile Map<Socket,Thread> threads;
-   private final Map<String, java.io.PrintWriter> clientWriters = new java.util.concurrent.ConcurrentHashMap<>();
+   private final Map<String, PrintWriter> clientWriters = new ConcurrentHashMap<>();
    private volatile static ITCService instance = new ITCService();
    private volatile Logger logger = LoggerFactory.getLogger(ITCService.class);
    private volatile Iworld world;
-   private volatile za.co.wethinkcode.robots.server.npc.KillerNPCController killerController;
+   private volatile KillerNPCController killerController;
 
     private ITCService(){
         this.threads=new HashMap<>();
     }
 
-    public void registerClient(String robotName, java.io.PrintWriter writer) {
+    public void registerClient(String robotName, PrintWriter writer) {
         if (robotName == null || writer == null) return;
         this.clientWriters.put(robotName, writer);
     }
@@ -63,7 +67,7 @@ public class ITCService {
         if (event == null) return;
         try {
             String json = new Protocol().encodeResponse(event);
-            for (java.io.PrintWriter w : this.clientWriters.values()) {
+            for (PrintWriter w : this.clientWriters.values()) {
                 synchronized (w) {
                     w.println(json);
                     w.flush();
@@ -78,11 +82,11 @@ public class ITCService {
         return this.world;
     }
 
-    public void setKillerController(za.co.wethinkcode.robots.server.npc.KillerNPCController c) {
+    public void setKillerController(KillerNPCController c) {
         this.killerController = c;
     }
 
-    public za.co.wethinkcode.robots.server.npc.KillerNPCController getKillerController() {
+    public KillerNPCController getKillerController() {
         return this.killerController;
     }
 
@@ -219,7 +223,6 @@ public class ITCService {
         Command com = Command.generate(req);
         ServerResponse response = this.world.perform(com);
 
-        decorateWithWorldState(response, req.getRobot());
 
         return protocol.encodeResponse(response);
     }
@@ -235,8 +238,6 @@ public class ITCService {
         Command com = Command.generate(req);
         com.setAsServerCommand();
         ServerResponse response = this.world.perform(com);
-
-
         return protocol.encodeResponse(response);
     }
 
@@ -278,8 +279,7 @@ public class ITCService {
                 state = ServerResponseState.builder().build();
                 response.setState(state);
             }
-            state.setLives(robot.getLives());
-            state.setKills(robot.getKills());
+            
             if (state.getPosition() == null) state.setPosition(robot.getPosition());
             if (state.getDirection() == null) state.setDirection(robot.getDirection());
             if (state.getShields() == 0) state.setShields(robot.getShield());

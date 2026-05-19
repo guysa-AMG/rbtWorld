@@ -65,6 +65,8 @@ public abstract class Command {
         case "fire"   -> new FireCommand( req.getArguments(), req.getRobot());
         case "forward"-> new ForwardCommand( req.getArguments(), req.getRobot());
         case "back"   -> new BackCommand( req.getArguments(), req.getRobot());
+        case "help"   -> new HelpCommand("help",req.getRobot());
+        
 
         default -> new HelpCommand("help",req.getRobot());
     };
