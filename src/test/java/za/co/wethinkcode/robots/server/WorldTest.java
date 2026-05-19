@@ -256,7 +256,10 @@ public class WorldTest {
         @Test
         void moveRobot_pastBoundary_returnsFalse() {
             world.addRobot("HAL");
-            // world is 11x11 → yLimit = 5; trying 10 steps north would exceed
+            // Spawn is random — pin HAL to centre so the boundary check is deterministic.
+            BaseRobot bot = world.getAllRobots().get("HAL");
+            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
+            // world is 11x11 → yLimit = 5; from (0,0) trying 10 steps north exits at step 6.
             assertFalse(world.moveRobot("HAL", 10));
         }
     }
