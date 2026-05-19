@@ -36,8 +36,8 @@ public class CommandTypeEnumTest {
     }
 
     @Test
-    void values_returnsThirteenCommands() {
-        assertEquals(13, CommandTypeEnum.values().length);
+    void values_returnsFourteenCommands() {
+        assertEquals(14, CommandTypeEnum.values().length);
     }
 
     @Test

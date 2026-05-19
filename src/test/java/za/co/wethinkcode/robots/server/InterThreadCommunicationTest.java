@@ -1,7 +1,7 @@
 // # Test state changes (e.g., turning left)
 package za.co.wethinkcode.robots.server;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -29,9 +29,11 @@ class InterThreadCommunicationTest {
 
         @Test
         void testOtherCommandBeforeLaunch(){
-           
+            // Responses are now decorated with pickups/robots snapshots — check the key fields
+            // instead of an exact JSON match.
             String res = ITCService.getInstance().doThisCommand("{\"robot\":\"mark\", \"command\":\"Forward\", \"arguments\":[\"10\"]}");
-            assertEquals(res, "{\"result\":\"ERROR\",\"data\":{\"message\":\"robot mark has not been launched\"}}");
+            assertTrue(res.contains("\"result\":\"ERROR\""));
+            assertTrue(res.contains("robot mark has not been launched"));
         }
 
     }

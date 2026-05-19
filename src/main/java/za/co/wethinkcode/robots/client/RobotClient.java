@@ -37,6 +37,7 @@ public class RobotClient {
     private final int port;
     private String robotName=null;
     private volatile String lastCommand = null;
+    private volatile boolean lookExpanded = false;
     private final ObjectMapper mapper = new ObjectMapper();
     private ServerResponse oldResponse;
 
@@ -214,7 +215,12 @@ public class RobotClient {
         ServerResponseState state = response.getState();
         String message = (data == null || data.getMessage() == null) ? "" : data.getMessage();
 
-        gui.appendLog("<< [" + result + "] " + message);
+        // Global NPC broadcast — keep the line distinct so it stands out.
+        if (message != null && message.startsWith("[Guyser_Thekiller]")) {
+            gui.appendLog(">>> " + message + " <<<");
+        } else {
+            gui.appendLog("<< [" + result + "] " + message);
+        }
 
         // Always push the full robot snapshot + pickups so the GUI renders everyone, even after events.
         if (data != null && data.getRobots() != null) {
@@ -252,9 +258,17 @@ public class RobotClient {
             return;
         }
 
+        // Look toggles the expanded visibility radius on the next response from the server.
+        if ("look".equalsIgnoreCase(this.lastCommand)) {
+            this.lookExpanded = true;
+        } else if ("forward".equalsIgnoreCase(this.lastCommand) || "back".equalsIgnoreCase(this.lastCommand)) {
+            this.lookExpanded = false;
+        }
+
         if (state != null) {
             if (state.getPosition() != null && this.robotName != null) {
                 gui.updateRobot(this.robotName, state.getPosition(), state.getDirection());
+                gui.setFog(state.getPosition(), this.lookExpanded);
                 gui.setStatus(this.robotName + " {" + state.getDirection() + "} ["
                         + state.getPosition().getX() + "," + state.getPosition().getY() + "]"
                         + "  Lives:" + state.getLives()
@@ -301,6 +315,7 @@ public class RobotClient {
         this.robotName = null;
         this.oldResponse.setState(null);
         gui.setSelfName(null);
+        gui.setFog(null, false);
         gui.setStatus("not launched — type <name> launch");
     }
 

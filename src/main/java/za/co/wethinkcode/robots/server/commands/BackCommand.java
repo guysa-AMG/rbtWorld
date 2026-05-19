@@ -50,6 +50,7 @@ public class BackCommand extends Command{
 
         Position endPos = robot.getPosition();
         boolean travelled = !endPos.equals(startPos);
+        if (travelled) robot.markMoved(); else robot.incrementBlocked();
         String message = (moved && travelled) ? "DONE" : "BLOCKED";
 
         ServerResponseData data = ServerResponseData.builder()

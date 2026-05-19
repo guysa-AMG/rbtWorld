@@ -38,9 +38,10 @@ public class StateCommandTest {
     @Test
     void execute_stateContainsRobotPosition() {
         ServerResponse res = stateCommand().execute(world, robot);
+        // Robots now spawn at random safe cells; we just confirm position matches the live robot.
         assertNotNull(res.getState().getPosition());
-        assertEquals(0, res.getState().getPosition().getX());
-        assertEquals(0, res.getState().getPosition().getY());
+        assertEquals(robot.getPosition().getX(), res.getState().getPosition().getX());
+        assertEquals(robot.getPosition().getY(), res.getState().getPosition().getY());
     }
 
     @Test

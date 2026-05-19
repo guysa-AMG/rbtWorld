@@ -24,7 +24,39 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldPanel extends JPanel {
 
-    private static final int CELL = 16;
+    private static final int CELL = 22;
+    private static final String KILLER_NPC_NAME = "Guyser_Thekiller";
+    private static final java.awt.image.BufferedImage KILLER_IMAGE = loadImage("/images/killer_robot.jpg");
+    private static final java.awt.image.BufferedImage PLAYER_SHEET = loadImage("/images/player_robot_motions.jpeg");
+    private static final java.util.Map<Directions, java.awt.image.BufferedImage> PLAYER_FRAMES = slicePlayerFrames();
+
+    private static java.awt.image.BufferedImage loadImage(String path) {
+        try (java.io.InputStream in = WorldPanel.class.getResourceAsStream(path)) {
+            if (in == null) return null;
+            return javax.imageio.ImageIO.read(in);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Slice the player sprite sheet into 4 directional frames. The sheet's top row has 7 cells:
+     * 1=idle-left, 2=idle-right, 3=up/back, 4=down/front (and 3 more we ignore).
+     * Crops are proportional so this still works if the sheet is later resized.
+     */
+    private static java.util.Map<Directions, java.awt.image.BufferedImage> slicePlayerFrames() {
+        java.util.Map<Directions, java.awt.image.BufferedImage> out = new java.util.EnumMap<>(Directions.class);
+        if (PLAYER_SHEET == null) return out;
+        int w = PLAYER_SHEET.getWidth();
+        int h = PLAYER_SHEET.getHeight();
+        int cellW = w / 7;
+        int cellH = h / 2;          // top row only
+        out.put(Directions.WEST,  PLAYER_SHEET.getSubimage(0 * cellW, 0, cellW, cellH));
+        out.put(Directions.EAST,  PLAYER_SHEET.getSubimage(1 * cellW, 0, cellW, cellH));
+        out.put(Directions.NORTH, PLAYER_SHEET.getSubimage(2 * cellW, 0, cellW, cellH));
+        out.put(Directions.SOUTH, PLAYER_SHEET.getSubimage(3 * cellW, 0, cellW, cellH));
+        return out;
+    }
 
     private final int worldWidth;
     private final int worldHeight;
@@ -34,7 +66,8 @@ public class WorldPanel extends JPanel {
     private String selfName;
     private volatile BulletFx bullet;
     private volatile Hud hud = new Hud(0, 0, 0, 0, 0);
-    private ImageIcon robotImg;
+    private volatile Position selfPosition;     // null until launched
+    private volatile boolean lookExpanded = false; // true between a successful look and the next move
 
     public WorldPanel() {
         RobotWorld template = BattleArenaWorld.build();
@@ -79,6 +112,26 @@ public class WorldPanel extends JPanel {
     public void setHud(int lives, int shots, int magMax, int shield, int kills) {
         this.hud = new Hud(lives, shots, magMax, shield, kills);
         repaint();
+    }
+
+    /** Centre and radius of the lit-up area. {@code selfPos == null} disables fog. */
+    public void setFog(Position selfPos, boolean lookExpanded) {
+        this.selfPosition = selfPos == null ? null : new Position(selfPos.getX(), selfPos.getY());
+        this.lookExpanded = lookExpanded;
+        repaint();
+    }
+
+    private int visibilityRadius() {
+        return lookExpanded
+                ? 2 * za.co.wethinkcode.robots.server.world.Iworld.bulletRange
+                : za.co.wethinkcode.robots.server.world.Iworld.bulletRange;
+    }
+
+    private boolean inSight(int wx, int wy) {
+        if (selfPosition == null) return true;
+        int dx = Math.abs(wx - selfPosition.getX());
+        int dy = Math.abs(wy - selfPosition.getY());
+        return Math.max(dx, dy) <= visibilityRadius();
     }
 
     /**
@@ -133,11 +186,33 @@ public class WorldPanel extends JPanel {
         drawGrid(g2);
         drawObstacles(g2);
         drawPickups(g2);
-        drawRobots(g2);
+        drawPlayerRobots(g2);   // self + other players (others filtered by visibility)
+        drawFog(g2);            // hides everything outside the visible square
+        drawNpc(g2);            // NPC always visible — drawn on top of fog
         drawBullet(g2);
         drawHud(g2);
 
         g2.dispose();
+    }
+
+    /** Heavy black mask covering everything outside the visibility square. */
+    private void drawFog(Graphics2D g2) {
+        if (selfPosition == null) return; // not launched yet — show full map
+        int radius = visibilityRadius();
+        int[] c = worldToScreen(selfPosition.getX(), selfPosition.getY());
+        int side = (2 * radius + 1) * CELL;
+        int x = c[0] - side / 2;
+        int y = c[1] - side / 2;
+
+        java.awt.geom.Area mask = new java.awt.geom.Area(new java.awt.Rectangle(0, 0, getWidth(), getHeight()));
+        mask.subtract(new java.awt.geom.Area(new java.awt.Rectangle(x, y, side, side)));
+        g2.setColor(new Color(0, 0, 0, 235));
+        g2.fill(mask);
+
+        // Subtle red border on the visible square so the player can see where the fog edge is.
+        g2.setColor(new Color(120, 30, 30, 200));
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.drawRect(x, y, side, side);
     }
 
     private void drawPickups(Graphics2D g2) {
@@ -153,7 +228,7 @@ public class WorldPanel extends JPanel {
             g2.setColor(new Color(255, 215, 80, alpha));
             g2.fillRect(s[0] - sz / 2 + 1, s[1] - sz / 2 + 1, sz - 2, sz - 2);
             g2.setColor(Color.BLACK);
-            g2.setFont(getFont().deriveFont(java.awt.Font.BOLD, 10f));
+            g2.setFont(getFont().deriveFont(java.awt.Font.BOLD, 13f));
             java.awt.FontMetrics fm = g2.getFontMetrics();
             String label = "A";
             g2.drawString(label, s[0] - fm.stringWidth(label) / 2, s[1] + fm.getAscent() / 2 - 1);
@@ -164,7 +239,7 @@ public class WorldPanel extends JPanel {
         Hud h = this.hud;
         String left = String.format("Lives: %d   Bullets: %d/%d   Shield: %d   Kills: %d",
                 h.lives, h.shots, h.magMax, h.shield, h.kills);
-        java.awt.Font f = getFont().deriveFont(java.awt.Font.BOLD, 13f);
+        java.awt.Font f = getFont().deriveFont(java.awt.Font.BOLD, 15f);
         g2.setFont(f);
         java.awt.FontMetrics fm = g2.getFontMetrics();
         int padX = 10, padY = 6;
@@ -249,27 +324,131 @@ public class WorldPanel extends JPanel {
         }
     }
 
-    private void drawRobots(Graphics2D g2) {
+    /**
+     * Draw self and other players (NOT the killer NPC). Other players are skipped unless
+     * the player has used {@code look} AND they're inside the visibility radius.
+     */
+    private void drawPlayerRobots(Graphics2D g2) {
         for (Map.Entry<String, RobotMarker> e : robots.entrySet()) {
-             RobotMarker m = e.getValue();
+            String name = e.getKey();
+            if (KILLER_NPC_NAME.equals(name)) continue;
+
+            RobotMarker m = e.getValue();
+            boolean isSelf = name.equalsIgnoreCase(selfName);
+
+            // Other players: hidden unless look-expanded AND in sight
+            if (!isSelf) {
+                if (!lookExpanded) continue;
+                if (!inSight(m.x, m.y)) continue;
+            }
+
             int[] screen = worldToScreen(m.x, m.y);
-            boolean isSelf = e.getKey().equalsIgnoreCase(selfName);
-            Color body = isSelf ? new Color(255, 215, 0) : new Color(0, 200, 255);
+            Color ring = isSelf ? new Color(255, 215, 0) : new Color(0, 200, 255);
+            Directions dir = m.dir == null ? Directions.SOUTH : m.dir;
+            java.awt.image.BufferedImage frame = PLAYER_FRAMES.get(dir);
+            int size = (int) (CELL * 1.7);
+            int half = size / 2;
 
-            Path2D.Double arrow = arrowFor(screen[0], screen[1], m.dir);
-            g2.setColor(body);
-            g2.fill(arrow);
-            g2.setColor(Color.BLACK);
-            g2.setStroke(new BasicStroke(1.2f));
-            g2.draw(arrow);
+            if (frame != null) {
+                g2.drawImage(frame, screen[0] - half, screen[1] - half, size, size, null);
+                g2.setStroke(new BasicStroke(2f));
+                g2.setColor(ring);
+                g2.drawRect(screen[0] - half, screen[1] - half, size, size);
+            } else {
+                Path2D.Double arrow = arrowFor(screen[0], screen[1], dir);
+                g2.setColor(ring);
+                g2.fill(arrow);
+                g2.setColor(Color.BLACK);
+                g2.setStroke(new BasicStroke(1.2f));
+                g2.draw(arrow);
+            }
 
-            g2.setColor(Color.WHITE);
-            g2.drawString(e.getKey(), screen[0] - (e.getKey().length() * 3), screen[1] - CELL / 2 - 2);
+            drawDirectionChip(g2, screen[0], screen[1], half, dir, ring);
 
-            // g2.drawImage(robotImg.getImage(),m.x,m.y,100,100,null);
-
-            
+            g2.setColor(isSelf ? new Color(255, 235, 130) : Color.WHITE);
+            g2.setFont(getFont().deriveFont(java.awt.Font.BOLD, 12f));
+            g2.drawString(name, screen[0] - (name.length() * 3), screen[1] - half - 4);
         }
+    }
+
+    /** The killer NPC is drawn AFTER the fog so it's always visible. */
+    private void drawNpc(Graphics2D g2) {
+        RobotMarker npc = robots.get(KILLER_NPC_NAME);
+        if (npc == null) return;
+        int[] s = worldToScreen(npc.x, npc.y);
+        drawKillerNpc(g2, s[0], s[1], npc.dir, KILLER_NPC_NAME);
+    }
+
+    /** A small filled triangle on the outside of the player's box pointing in the facing direction. */
+    private void drawDirectionChip(Graphics2D g2, int cx, int cy, int half, Directions dir, Color color) {
+        int tip = 6;     // how far outside the box the tip pokes
+        int wide = 5;    // half-width of the chip base
+        int gap = 1;     // small gap from the box edge so it doesn't overlap the ring
+        Path2D.Double chip = new Path2D.Double();
+        switch (dir) {
+            case NORTH -> {
+                int baseY = cy - half - gap;
+                chip.moveTo(cx, baseY - tip);
+                chip.lineTo(cx - wide, baseY);
+                chip.lineTo(cx + wide, baseY);
+            }
+            case SOUTH -> {
+                int baseY = cy + half + gap;
+                chip.moveTo(cx, baseY + tip);
+                chip.lineTo(cx - wide, baseY);
+                chip.lineTo(cx + wide, baseY);
+            }
+            case EAST -> {
+                int baseX = cx + half + gap;
+                chip.moveTo(baseX + tip, cy);
+                chip.lineTo(baseX, cy - wide);
+                chip.lineTo(baseX, cy + wide);
+            }
+            case WEST -> {
+                int baseX = cx - half - gap;
+                chip.moveTo(baseX - tip, cy);
+                chip.lineTo(baseX, cy - wide);
+                chip.lineTo(baseX, cy + wide);
+            }
+        }
+        chip.closePath();
+        g2.setColor(color);
+        g2.fill(chip);
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(1f));
+        g2.draw(chip);
+    }
+
+    private void drawKillerNpc(Graphics2D g2, int cx, int cy, Directions dir, String name) {
+        int size = (int) (CELL * 1.6); // big enough to spot, still fits in the grid
+
+        if (KILLER_IMAGE != null) {
+            // Rotate the image to match the NPC's facing direction.
+            double angle = switch (dir == null ? Directions.NORTH : dir) {
+                case NORTH -> 0;
+                case EAST  -> Math.PI / 2;
+                case SOUTH -> Math.PI;
+                case WEST  -> -Math.PI / 2;
+            };
+            java.awt.geom.AffineTransform old = g2.getTransform();
+            g2.rotate(angle, cx, cy);
+            g2.drawImage(KILLER_IMAGE, cx - size / 2, cy - size / 2, size, size, null);
+            g2.setTransform(old);
+        } else {
+            // Fallback if the image didn't load: red square so the NPC is still visible.
+            g2.setColor(new Color(220, 30, 30));
+            g2.fillRect(cx - size / 2, cy - size / 2, size, size);
+        }
+
+        // Red threat ring around the NPC
+        g2.setStroke(new BasicStroke(2f));
+        g2.setColor(new Color(255, 60, 60));
+        g2.drawRect(cx - size / 2, cy - size / 2, size, size);
+
+        // Name label in red so players can identify it quickly
+        g2.setColor(new Color(255, 90, 90));
+        g2.setFont(getFont().deriveFont(java.awt.Font.BOLD, 11f));
+        g2.drawString(name, cx - (name.length() * 3), cy - size / 2 - 3);
     }
 
     private Path2D.Double arrowFor(int cx, int cy, Directions dir) {
