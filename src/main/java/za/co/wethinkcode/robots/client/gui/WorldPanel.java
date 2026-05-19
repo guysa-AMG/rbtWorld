@@ -79,12 +79,9 @@ public class WorldPanel extends JPanel {
         }
         setBackground(new Color(20, 20, 25));
         setPreferredSize(new Dimension(worldWidth * CELL + 2, worldHeight * CELL + 2));
-        loadRobotImage();
+        
     }
-    protected void  loadRobotImage(){
-        this.robotImg = new ImageIcon(WorldPanel.class.getClassLoader().getResource("image/bot.png"));
-    }
-
+  
     public void setSelfName(String name) {
         this.selfName = name;
         repaint();
