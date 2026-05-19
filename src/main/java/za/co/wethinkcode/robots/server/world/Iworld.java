@@ -8,6 +8,7 @@ import java.util.Map;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
@@ -36,6 +37,9 @@ public interface Iworld {
     abstract BaseRobot getFireable(BaseRobot rbt);
 
     boolean addRobot(String name);
+
+    abstract List<Command> getHistoryOfCommands();
+
     boolean moveRobot(String name,int step);
     /**
      * Kick a robot out of the world (e.g., if they quit or die).
@@ -103,7 +107,7 @@ public interface Iworld {
     /**
      * Returns all the obstacles in the world (for the server console).
      */
-    List<Object> getObstacles();
+    List<Obstacle> getObstacles();
 
     /**
      * Executes a command within the world context.

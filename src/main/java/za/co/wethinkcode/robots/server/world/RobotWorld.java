@@ -24,12 +24,15 @@ public class RobotWorld implements Iworld {
     private ArrayList<Position> emptySpots;
     private final Map<String, BaseRobot> robots = new HashMap<>();
     private final java.util.Set<Position> ammoPickups = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private List<Command> historyOfCommands;
+
 
     public RobotWorld(int width, int height, int visibility) {
         this.width = width;
         this.height = height;
         this.visibility = visibility;
         this.obstacles= new ArrayList<Obstacle>();
+        this.historyOfCommands=new ArrayList<>();
         
     }
 
@@ -367,7 +370,7 @@ public class RobotWorld implements Iworld {
 
     @Override public int getWidth() { return width; }
     @Override public int getHeight() { return height; }
-    @Override public List<Object> getObstacles() { return new ArrayList<>(obstacles); }
+    @Override public List<Obstacle> getObstacles() { return new ArrayList<>(obstacles); }
 
     @Override public String getRobotState(String n) {
         BaseRobot robot = this.robots.get(n);
@@ -385,10 +388,12 @@ public class RobotWorld implements Iworld {
 
     @Override
     public ServerResponse perform(Command command) {
+
         BaseRobot robot = this.robots.get(command.getRobotName());
-        if (robot == null && !"launch".equals(command.getCommandName())) {
+        if (robot == null && !"launch".equals(command.getCommandName())&& command.restricted()) {
             command = new ErrorCommand("robot " + command.getRobotName() + " has not been launched", command.getRobotName());
         }
+        this.historyOfCommands.add(command);
         return command.execute(this, robot);
     }
 
@@ -500,6 +505,12 @@ public class RobotWorld implements Iworld {
      }
       return null;
 
+    }
+
+    @Override
+    public List<Command> getHistoryOfCommands() {
+        // TODO Auto-generated method stub
+        return this.historyOfCommands;
     }
 
   

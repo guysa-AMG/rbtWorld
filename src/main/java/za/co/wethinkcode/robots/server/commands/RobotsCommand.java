@@ -27,6 +27,10 @@ public class RobotsCommand extends Command {
 
     @Override
     public ServerResponse execute(Iworld world,BaseRobot robot) {
+
+      if (this.restricted){
+        return this.restrictedServerResponse();
+       }
       world.addRobot(robotName);
       Map<String,BaseRobot> robots = world.getAllRobots();
       StringBuilder listOfBots =  new StringBuilder();

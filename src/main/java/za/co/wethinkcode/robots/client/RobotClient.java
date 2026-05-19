@@ -4,9 +4,7 @@ package za.co.wethinkcode.robots.client;
 Iteration 1: simple CLI client that sends JSON strings to the server over a socket.
  */
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.EnumValues;
 
 import za.co.wethinkcode.robots.client.gui.ClientGui;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
@@ -15,6 +13,7 @@ import za.co.wethinkcode.robots.models.ServerRequest;
 import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.ServerResponseData;
 import za.co.wethinkcode.robots.models.ServerResponseState;
+import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.shared.Protocol;
 
@@ -39,8 +38,8 @@ public class RobotClient {
     private String robotName=null;
     private volatile String lastCommand = null;
     private final ObjectMapper mapper = new ObjectMapper();
-    private ServerResponseData data;
-    private ServerResponseState state;
+    private ServerResponse oldResponse;
+
     private Socket socket;
     private BufferedReader serverIn;
     private PrintWriter serverOut;
@@ -265,10 +264,10 @@ public class RobotClient {
             }
             gui.setHud(state.getLives(), state.getShots(),
                     za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, state.getShields(), state.getKills());
-            this.state = state;
+            this.oldResponse.setState(state);
         }
         if (data != null) {
-            this.data = data;
+            this.oldResponse.setData(data);
             if (data.getPickups() != null) {
                 gui.setPickups(data.getPickups());
             }
@@ -280,10 +279,10 @@ public class RobotClient {
                     + "). Lives left: " + (state != null ? state.getLives() : "?"));
         }
 
-        if ("fire".equalsIgnoreCase(this.lastCommand) && this.robotName != null && this.state != null && data != null) {
+        if ("fire".equalsIgnoreCase(this.lastCommand) && this.robotName != null && this.oldResponse.getState() != null && data != null) {
             int dist = Math.max(1, data.getDistance());
             boolean hit = "Hit".equalsIgnoreCase(message);
-            gui.flashBullet(this.robotName, this.state.getDirection(), dist, hit);
+            gui.flashBullet(this.robotName, this.oldResponse.getState().getDirection(), dist, hit);
         }
 
         if ("look".equalsIgnoreCase(this.lastCommand) && data != null && data.getObjects() != null) {
@@ -300,7 +299,7 @@ public class RobotClient {
             gui.removeRobot(wasName);
         }
         this.robotName = null;
-        this.state = null;
+        this.oldResponse.setState(null);
         gui.setSelfName(null);
         gui.setStatus("not launched — type <name> launch");
     }
@@ -414,16 +413,11 @@ public class RobotClient {
                     System.err.println("[x] Invalid Command");
                 }
                 
-                if(this.data.getMessage()=="BLOCKED"){
-                        //TODO rather call interaction into print
-                 
-                    System.out.println("\033[91m you hit a object \033[00m");
-               
-                }
-                if ( this.state !=null && this.robotName!=null){
+            
+                if ( this.oldResponse !=null && this.robotName!=null &&this.oldResponse.getState()!=null){
                     //TODO rather call interaction into print
                  
-                    System.out.printf("{%s}[%s,%s] %s > ",this.state.getDirection(),this.state.getPosition().getX(),this.state.getPosition().getY(),this.robotName);
+                    System.out.printf("{%s}[%s,%s] %s > ",this.oldResponse.getState().getDirection(),this.oldResponse.getState().getPosition().getX(),this.oldResponse.getState().getPosition().getY(),this.robotName);
                 }
                 else{
                     //TODO rather call interaction into print
@@ -462,7 +456,15 @@ public class RobotClient {
 
    
     private void handleResponse(String responseJson) {
-        ServerResponse response =new Protocol().decodeResponse(responseJson);
+        Protocol parser = new Protocol();
+        ServerResponse response =parser.decodeResponse(responseJson);
+       if (oldResponse==null){ oldResponse=response ; }
+       String message;
+       if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
+        String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
+        System.out.println(widget+message);
+       }
+        parser.updatResponse(oldResponse, response);
         if(response == null){
             //TODO rather call interaction into print
             System.out.println("Received non-JSON/invalid response: " + responseJson);
@@ -470,11 +472,8 @@ public class RobotClient {
         }
         this.log.info("client side got "+responseJson);
         String result = (response.getResult() == null ? "UNKNOWN" : response.getResult().toString());
-        String message = (response.getData().getMessage() == null ? "" : response.getData().getMessage());
-      
-        if(response.getData() != null){
-            this.data = response.getData();
-        }
+     
+       
         
     }
 

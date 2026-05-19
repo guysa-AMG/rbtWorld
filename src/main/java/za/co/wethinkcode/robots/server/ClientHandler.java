@@ -27,7 +27,7 @@ class ClientHandler implements Runnable {
         this.log = LoggerFactory.getLogger(ClientHandler.class);
         this.log.info("new connection to -> " + client);
         this.specificSock = sock;
-        System.out.println("new connection");
+    
     }
 
     @Override

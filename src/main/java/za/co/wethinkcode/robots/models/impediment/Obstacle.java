@@ -1,6 +1,8 @@
 package za.co.wethinkcode.robots.models.impediment;
 
-   public  class Obstacle implements Impediments {
+import za.co.wethinkcode.robots.models.Position;
+
+public  class Obstacle implements Impediments {
         private final int x1, y1, x2, y2;
         private final String type;
 
@@ -13,6 +15,10 @@ package za.co.wethinkcode.robots.models.impediment;
         public boolean isAt(int x, int y) {
             return (x >= x1 && x <= x2) && (y <= y1 && y >= y2);
         }
+        public Position getPos(){
+            return new Position(x1, y1);
+        } 
+        
 
         public String getType() { return type; }
     }

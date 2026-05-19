@@ -194,6 +194,22 @@ public class ITCService {
 
         return protocol.encodeResponse(response);
     }
+    
+    
+    public synchronized  String doThisCommandUnRestricted(String data){ 
+      
+        this.logger.info("Server is requesting: "+data);
+        Protocol protocol =new Protocol();
+        ServerRequest req =  protocol.decodeRequest(data);
+       
+        if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){return "off";}
+        Command com = Command.generate(req);
+        com.setAsServerCommand();
+        ServerResponse response = this.world.perform(com);
+
+
+        return protocol.encodeResponse(response);
+    }
 
     /**
      * Attach live world info (ammo pickups, robot lives) to every response,
