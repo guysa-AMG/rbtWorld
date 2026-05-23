@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
-import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
 
 public class InteractionTest {
     

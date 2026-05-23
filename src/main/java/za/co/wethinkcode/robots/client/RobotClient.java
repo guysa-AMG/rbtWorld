@@ -10,12 +10,12 @@ import za.co.wethinkcode.robots.client.gui.ClientGui;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerRequest;
-import za.co.wethinkcode.robots.models.ServerResponse;
-import za.co.wethinkcode.robots.models.ServerResponseData;
-import za.co.wethinkcode.robots.models.ServerResponseObject;
-import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.models.StatusCode;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.shared.Protocol;
 
@@ -329,12 +329,12 @@ public class RobotClient {
             return;
         }
         // Sort by direction then distance for readability
-        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<za.co.wethinkcode.robots.models.ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
+        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
         for (var o : objects) grouped.computeIfAbsent(o.getDirection(), d -> new java.util.ArrayList<>()).add(o);
         for (var dir : za.co.wethinkcode.robots.models.Directions.values()) {
             var list = grouped.get(dir);
             if (list == null) continue;
-            list.sort(java.util.Comparator.comparingInt(za.co.wethinkcode.robots.models.ServerResponseObject::getDistance));
+            list.sort(java.util.Comparator.comparingInt(za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject::getDistance));
             for (var o : list) {
                 String label = o.getName() != null ? o.getSubtype() + " " + o.getName() : o.getSubtype();
                 String posStr = o.getPosition() != null

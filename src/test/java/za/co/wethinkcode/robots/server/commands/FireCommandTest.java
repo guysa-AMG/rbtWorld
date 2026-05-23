@@ -11,12 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.models.Directions;
-import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerRequest;
-import za.co.wethinkcode.robots.models.ServerResponse;
-import za.co.wethinkcode.robots.models.StatusCode;
+import za.co.wethinkcode.robots.models.*;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;

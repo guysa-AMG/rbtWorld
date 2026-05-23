@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
@@ -47,7 +47,7 @@ public interface Iworld {
     void removeRobot(String name);
     boolean isPositionBlocked(int x, int y);
     
-    void loadMap(ArrayList<ArrayList<Impediments>> map );
+    void loadMap(List<Impediments> map );
     // Movement & Physics
 
     /**

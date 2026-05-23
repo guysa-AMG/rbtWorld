@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.StatusCode;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 
 public class ErrorCommandTest {
 

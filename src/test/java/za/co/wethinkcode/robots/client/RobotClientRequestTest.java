@@ -1,7 +1,7 @@
 package za.co.wethinkcode.robots.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
 
 import org.junit.jupiter.api.Test;
 

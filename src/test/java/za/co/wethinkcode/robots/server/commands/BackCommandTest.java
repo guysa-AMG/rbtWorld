@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerRequest;
-import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 
@@ -27,11 +27,9 @@ public class BackCommandTest {
     @BeforeEach
     void setupWorldWithEmptyMap() {
         world = new RobotWorld(11, 11, 5);
-        ArrayList<ArrayList<Impediments>> emptyMap = new ArrayList<>();
+        ArrayList<Impediments> emptyMap = new ArrayList<>();
         for (int y = 0; y < 11; y++) {
-            ArrayList<Impediments> row = new ArrayList<>();
-            for (int x = 0; x < 11; x++) row.add(null);
-            emptyMap.add(row);
+           emptyMap.add(null);
         }
         world.loadMap(emptyMap);
         world.addRobot("HAL");

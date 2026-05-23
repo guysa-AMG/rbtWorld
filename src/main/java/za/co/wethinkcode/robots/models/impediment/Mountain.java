@@ -1,26 +1,24 @@
 package za.co.wethinkcode.robots.models.impediment;
 
+import lombok.NonNull;
 import za.co.wethinkcode.robots.models.Position;
 
-public class Mountain implements Impediments {
-    private Position pos;
-     private String type;
-    
+public class Mountain extends Impediments {
 
-
-    @Override
-    public Position getPosition() {
-        return this.pos;
+    public Mountain( Position position) {
+        super(position, "MOUNTAIN");
+        
+       
     }
 
     @Override
-    public void setPosition(Position pos) {
-     this.pos=pos;
+    public void draw() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'draw'");
     }
 
-    @Override
-    public String getType() {
-        return this.type;
-    }
+
+
+
     
 }

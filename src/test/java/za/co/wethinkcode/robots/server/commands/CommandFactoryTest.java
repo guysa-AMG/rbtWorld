@@ -7,7 +7,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
+import za.co.wethinkcode.robots.server.commands.MovementCommand.BackCommand;
+import za.co.wethinkcode.robots.server.commands.MovementCommand.ForwardCommand;
+import za.co.wethinkcode.robots.server.commands.MovementCommand.TurnCommand;
+import za.co.wethinkcode.robots.server.commands.serverCommands.RobotsCommand;
 
 public class CommandFactoryTest {
 

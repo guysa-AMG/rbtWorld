@@ -1,4 +1,4 @@
-package za.co.wethinkcode.robots.models;
+package za.co.wethinkcode.robots.models.transitmodels;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

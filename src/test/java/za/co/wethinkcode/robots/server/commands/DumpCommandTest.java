@@ -8,7 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.server.commands.serverCommands.DumpCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 

@@ -1,10 +1,10 @@
 package za.co.wethinkcode.robots.models.impediment;
 import za.co.wethinkcode.robots.models.Position;
 
-public class Hole extends Impediments {
+public class EmptySpot extends Impediments {
 
-    public Hole( Position position) {
-        super(position, "HOLE");
+    public EmptySpot( Position position) {
+        super(position, "EMPTYSPOT");
     }
 
     @Override
