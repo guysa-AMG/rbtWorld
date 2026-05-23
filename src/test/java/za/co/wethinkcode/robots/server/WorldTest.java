@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
+import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
-import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 public class WorldTest {
 
@@ -39,9 +39,8 @@ public class WorldTest {
         @BeforeEach
         void setup(){
             ITCService.getInstance();
-            Iworld world = new RobotWorld();
-            var map = ITCService.getInstance().parseStringMap("\"   T    \",\"T       \"");
-            world.loadMap(map);
+            String stringMap=". . . T .";
+            WorldGenerator world = WorldGenerator.generateFromMapString(stringMap);
             ITCService.getInstance().setWorld(world);
             String data =ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"launch\",  \"arguments\" : [ \"strong\" ]}");
            

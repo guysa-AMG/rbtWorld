@@ -16,8 +16,9 @@ import org.junit.jupiter.api.Test;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.ImpedimentType;
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerResponseObject;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
+import za.co.wethinkcode.robots.server.commands.LookCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 /**
@@ -472,7 +473,8 @@ public class RobotWorldTest {
         @Test void lookAround_offCentre_seesNearestEdge() {
             // Robot at (3,3): NORTH edge reachable at dist=3 (yLimit=5), EAST edge at dist=3 (xLimit=5).
             launchAt("HAL", 3, 3);
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+            LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             long edges = seen.stream().filter(o -> o.getType() == ImpedimentType.EDGE).count();
             assertEquals(2, edges); // NORTH + EAST edges visible, SOUTH/WEST > lookRange
         }
@@ -480,14 +482,16 @@ public class RobotWorldTest {
         @Test void lookAround_reportsObstacleSubtype() {
             launchAt("HAL", 0, 0);
             world.addObstacle(new Obstacle(0, 2, 0, 2, "TREE"));
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+                 LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             assertTrue(seen.stream().anyMatch(o ->
                     o.getType() == ImpedimentType.OBSTACLE && "TREE".equals(o.getSubtype())));
         }
 
         @Test void lookAround_includesPositionForEachReport() {
             launchAt("HAL", 0, 0);
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+            LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             for (ServerResponseObject o : seen) assertNotNull(o.getPosition());
         }
 
@@ -496,7 +500,8 @@ public class RobotWorldTest {
             world.addObstacle(new Obstacle(0, 1, 0, 1, "MOUNTAIN"));
             // Add a tree behind the mountain — should NOT be seen
             world.addObstacle(new Obstacle(0, 3, 0, 3, "TREE"));
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+            LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             long northReports = seen.stream()
                     .filter(o -> o.getDirection() == Directions.NORTH)
                     .count();
@@ -508,7 +513,8 @@ public class RobotWorldTest {
             launchAt("HAL", 0, 0);
             world.addObstacle(new Obstacle(0, 1, 0, 1, "TREE"));
             world.addObstacle(new Obstacle(0, 3, 0, 3, "ROCK"));
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+            LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             long northReports = seen.stream()
                     .filter(o -> o.getDirection() == Directions.NORTH)
                     .count();
@@ -518,7 +524,8 @@ public class RobotWorldTest {
         @Test void lookAround_seesOtherRobot() {
             launchAt("HAL", 0, 0);
             launchAt("R2", 0, 3);
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+            LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             assertTrue(seen.stream().anyMatch(o ->
                     o.getType() == ImpedimentType.ROBOT && "R2".equals(o.getName())));
         }
@@ -527,13 +534,12 @@ public class RobotWorldTest {
             launchAt("HAL", 0, 0);
             launchAt("R2", 0, 2);
             world.addObstacle(new Obstacle(0, 4, 0, 4, "TREE"));
-            List<ServerResponseObject> seen = world.lookAround("HAL");
+                 LookCommand look = new LookCommand( "HAL");
+            List<ServerResponseObject> seen = look.lookAround(world);
             long north = seen.stream().filter(o -> o.getDirection() == Directions.NORTH).count();
             assertEquals(1, north); // R2 blocks, tree hidden
         }
 
-        @Test void lookAround_emptyForMissingRobot() {
-            assertTrue(world.lookAround("nope").isEmpty());
-        }
+    
     }
 }

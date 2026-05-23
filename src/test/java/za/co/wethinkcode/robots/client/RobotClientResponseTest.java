@@ -2,12 +2,11 @@ package za.co.wethinkcode.robots.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import za.co.wethinkcode.robots.models.ServerResponse;
-import za.co.wethinkcode.robots.models.ServerResponseData;
-import za.co.wethinkcode.robots.models.ServerResponseState;
+import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.StatusCode;
-import za.co.wethinkcode.robots.server.commands.OperationalMode;
-import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

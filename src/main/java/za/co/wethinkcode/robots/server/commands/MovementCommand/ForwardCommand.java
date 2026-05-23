@@ -1,30 +1,40 @@
-package za.co.wethinkcode.robots.server.commands;
+package za.co.wethinkcode.robots.server.commands.MovementCommand;
 
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerResponse;
-import za.co.wethinkcode.robots.models.ServerResponseData;
-import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.models.StatusCode;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
+import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
-public class BackCommand extends Command{
+public class ForwardCommand extends Command{
 
 
 
-    BackCommand( String[] argument, String rbtName) {
-        super("back", argument, rbtName);
-      
+    public ForwardCommand( String[] argument, String rbtName) {
+        super("forward", argument, rbtName);
+
+    }
+
+    static int parseSteps(String[] args) {
+        if (args == null || args.length == 0) return 1;
+        try {
+            return Math.max(0, Integer.parseInt(args[0]));
+        } catch (NumberFormatException e) {
+            return 1;
+        }
     }
 
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
-        int steps = ForwardCommand.parseSteps(this.argument);
+        int steps = parseSteps(this.argument);
         Position startPos = robot.getPosition().copy();
         int livesBefore = robot.getLives();
 
-        boolean moved = world.moveRobot(robot.getName(), -steps);
+        boolean moved = world.moveRobot(robot.getName(), steps);
         boolean stillAlive = world.getAllRobots().containsKey(robot.getName());
         boolean diedThisMove = robot.getLives() < livesBefore;
         if (!stillAlive) {
@@ -43,7 +53,6 @@ public class BackCommand extends Command{
                             .status(robot.getOperationState())
                             .shields(robot.getShield())
                             .shots(robot.getShoots())
-                        
                             .build())
                     .build();
         }

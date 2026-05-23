@@ -1,27 +1,31 @@
 package za.co.wethinkcode.robots.server.world;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.models.impediment.Mountain;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
-import za.co.wethinkcode.robots.services.ITCService;
+import za.co.wethinkcode.robots.models.impediment.Rocks;
+import za.co.wethinkcode.robots.models.impediment.Tree;
 
-public final class BattleArenaWorld {
+public abstract class WorldGenerator implements Iworld {
+    
+    private static int MAP_SCALE=20;
+   private static Logger log = LoggerFactory.getLogger(WorldGenerator.class);
 
-    private BattleArenaWorld() {}
+    
 
-     public static RobotWorld buildFromMap() {
-
-        RobotWorld world = new RobotWorld();
-        ArrayList<ArrayList<Impediments>>obj = ITCService.getInstance().parseStringMap("world.properties");
-        for (ArrayList<Impediments> rows:obj){
-            rows.get(0).getPosition().getX();
-        }
-
-        return world;
-    }
-    public static RobotWorld build() {
+       public static RobotWorld build() {
         RobotWorld world = new RobotWorld(51, 31, 7);
 
         // Outer mountain wall — north (4 segments, 3 passes)
@@ -126,4 +130,83 @@ public final class BattleArenaWorld {
 
         return world;
     }
+
+
+     public static RobotWorld generateFromMapString(String map){
+    RobotWorld world = new RobotWorld();
+    int row =0 ;
+    List<Impediments> objs=new ArrayList<>();
+
+    for (String data : map.split("\n")) {
+        String[] straightLineContents = data.toLowerCase().trim().split("\\s+");
+        for (int index=0;index<straightLineContents.length;index++){
+                int objX = MAP_SCALE * index;
+                int objY = MAP_SCALE * row;
+                String chr = straightLineContents[index];
+                Impediments obj = mapToImpediments(chr,objX,objY);
+                objs.add(obj);
+                
+        }
+        row++;
+    }
+    world.loadMap(objs);
+    return world;
+    }
+   
+    /**
+     * generateFromMap
+     * this method would generate a customized world by reading the map file and
+     * populating a new RobotWorld Instance.
+     * 
+     * @param  mapfile needs to be in the ~/src/main/resources/maps/mapfile 
+     * @return RobotWorld
+     */
+    public static RobotWorld generateFromMapfile(String mapfile){
+    RobotWorld world = new RobotWorld();
+     try( InputStream map =  WorldGenerator.class.getClassLoader().getResourceAsStream("maps/"+mapfile)){
+        if (map!=null){
+            List<Impediments> objs=new ArrayList<>();
+            BufferedReader buffRd = new BufferedReader(new InputStreamReader(map));
+            int row =0 ;
+            String data;
+
+            while (( data = buffRd.readLine())!=null) {
+                String[] straightLineContents = data.toLowerCase().trim().split("\\s+");
+                for (int index=0;index<straightLineContents.length;index++){
+                        int objX = MAP_SCALE * index;
+                        int objY = MAP_SCALE * row;
+                        String chr = straightLineContents[index];
+                        Impediments obj = mapToImpediments(chr,objX,objY);
+                        objs.add(obj);
+                        
+                }
+                row++;
+            }
+
+         world.loadMap(objs);
+         
+        }
+     } catch (IOException e) {
+        
+        log.error("failed to get resource stream of ["+mapfile+"] "+e.getMessage());
+    }
+    
+
+      return world;
+    }
+    private static Impediments mapToImpediments(String chr, int x, int y){
+        Position pos = new Position(x, y);
+     return switch (chr.toUpperCase()) {
+            case "T"  ->  new Tree(pos);
+
+            case "M"  -> new Mountain(pos);
+
+            case "R"  ->new  Rocks(pos);
+            case "."  ->new  EmptySpot(pos);
+
+            default->null;
+        };
+        
+    }
+
 }

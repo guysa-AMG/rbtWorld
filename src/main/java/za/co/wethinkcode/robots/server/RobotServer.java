@@ -9,11 +9,10 @@ import java.util.Scanner;
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
-import za.co.wethinkcode.robots.models.ServerRequest;
-import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
-import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
-import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
 import za.co.wethinkcode.robots.shared.Protocol;
 
@@ -48,8 +47,8 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
-       Iworld world = BattleArenaWorld.build();
-       ITCService.getInstance().loadWorld(world);
+       WorldGenerator world = WorldGenerator.build();
+       ITCService.getInstance().setWorld(world);
        System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
         
        Thread serv_interact_thread = new Thread(new ServerCli());

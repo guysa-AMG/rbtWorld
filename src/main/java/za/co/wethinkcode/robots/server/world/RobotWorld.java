@@ -4,23 +4,24 @@ package za.co.wethinkcode.robots.server.world;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.ImpedimentType;
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.ServerResponse;
-import za.co.wethinkcode.robots.models.ServerResponseObject;
+import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.ErrorCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 import java.util.*;
 
-public class RobotWorld implements Iworld {
+public class RobotWorld extends WorldGenerator {
 
     private final int width;
     private final int height;
     private final int visibility;
     private final List<Obstacle> obstacles;
-    private ArrayList<ArrayList<Impediments>> map;
+    private List<Impediments> map;
     private ArrayList<Position> emptySpots;
     private final Map<String, BaseRobot> robots = new HashMap<>();
     private final java.util.Set<Position> ammoPickups = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -31,6 +32,7 @@ public class RobotWorld implements Iworld {
         this.width = width;
         this.height = height;
         this.visibility = visibility;
+        this.map=new ArrayList<>();
         this.obstacles= new ArrayList<Obstacle>();
         this.historyOfCommands=new ArrayList<>();
         
@@ -40,7 +42,10 @@ public class RobotWorld implements Iworld {
         this(10,10,7);
         this.emptySpots=new ArrayList<>();
     }
-    public void loadMap(ArrayList<ArrayList<Impediments>> map ){
+    public List<Impediments> getMap(){
+        return Collections.unmodifiableList(this.map);
+    }
+    public void loadMap(List<Impediments> map ){
         
         this.map=map;
     }
@@ -160,60 +165,9 @@ public class RobotWorld implements Iworld {
      * Reports each visible obstacle/robot with its position.
      * MOUNTAIN/WALL block line-of-sight; PIT/LAKE/TREE/ROCK are visible but the scan continues past them.
      */
-    public List<ServerResponseObject> lookAround(String name) {
-        List<ServerResponseObject> out = new ArrayList<>();
-        BaseRobot robot = robots.get(name);
-        if (robot == null || robot.getPosition() == null) return out;
-        Position pos = robot.getPosition();
+    
 
-        int xLimit = (width - 1) / 2;
-        int yLimit = (height - 1) / 2;
-
-        for (Directions dir : Directions.values()) {
-            int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
-            int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
-            for (int dist = 1; dist <= Iworld.lookRange; dist++) {
-                int sx = pos.getX() + dx * dist;
-                int sy = pos.getY() + dy * dist;
-
-                if (sx < -xLimit || sx > xLimit || sy < -yLimit || sy > yLimit) {
-                    out.add(ServerResponseObject.builder()
-                            .direction(dir).distance(dist)
-                            .type(ImpedimentType.EDGE)
-                            .subtype("EDGE")
-                            .position(new Position(sx, sy))
-                            .build());
-                    break;
-                }
-
-                BaseRobot other = robotAtCell(sx, sy, robot);
-                if (other != null) {
-                    out.add(ServerResponseObject.builder()
-                            .direction(dir).distance(dist)
-                            .type(ImpedimentType.ROBOT)
-                            .subtype("ROBOT")
-                            .name(other.getName())
-                            .position(new Position(sx, sy))
-                            .build());
-                    break;
-                }
-
-                String hitType = obstacleTypeAt(sx, sy);
-                if (hitType != null) {
-                    out.add(ServerResponseObject.builder()
-                            .direction(dir).distance(dist)
-                            .type(ImpedimentType.OBSTACLE)
-                            .subtype(hitType)
-                            .position(new Position(sx, sy))
-                            .build());
-                    if ("MOUNTAIN".equals(hitType) || "WALL".equals(hitType)) break;
-                }
-            }
-        }
-        return out;
-    }
-
-    private BaseRobot robotAtCell(int x, int y, BaseRobot self) {
+     public BaseRobot robotAtCell(int x, int y, BaseRobot self) {
         for (BaseRobot r : robots.values()) {
             if (r == self) continue;
             Position p = r.getPosition();
@@ -222,7 +176,7 @@ public class RobotWorld implements Iworld {
         return null;
     }
 
-    private String obstacleTypeAt(int x, int y) {
+    public String obstacleTypeAt(int x, int y) {
         for (Obstacle obs : obstacles) {
             if (obs.isAt(x, y)) return obs.getType();
         }
@@ -245,9 +199,7 @@ public class RobotWorld implements Iworld {
         return false;
     }
 
-    public void addObstacle(Obstacle obstacle) {
-        this.obstacles.add(obstacle);
-    }
+    public void addObstacle(Obstacle obstacle) { this.obstacles.add(obstacle); }
 
     /**
      * Add a pickup ONLY if the cell is free of obstacles/pits and not already a pickup.
@@ -406,16 +358,14 @@ public class RobotWorld implements Iworld {
     
     @Override
     public Position newSpawnPoint() {
-     for(int i =0;i<this.map.size();i++){
-        var subArr = this.map.get(i);
-        for(int j =0;j<subArr.size();j++){
-            if (this.map.get(i).get(j)==null){
-                return new Position(i, j);
-            }
-        
-     }
-
-     }
+    var filtered= this.map.stream()
+             .filter(obj->obj instanceof EmptySpot)
+             .toList();
+    if (filtered.size()>0)
+    {Random rdm = new Random();
+    int randomIndex = rdm.nextInt(filtered.size());
+    return filtered.get(randomIndex).getPosition();
+}
      return null;
     }
 
@@ -440,12 +390,11 @@ public class RobotWorld implements Iworld {
         if (pos==null){
             return null;
         }
-        int x = pos.getX();
-        int y = pos.getY();
-        if (x<0||y<0){
-            return null;
-        }
-        return map.get(x).get(y);
+       return  this.map.stream()
+                        .filter(obj->obj.getPosition()
+                                        .equals(pos)).findFirst()
+                                                     .get();
+      
     }
     @Override
     public BaseRobot getFireable(BaseRobot rbt) {
@@ -509,9 +458,10 @@ public class RobotWorld implements Iworld {
 
     @Override
     public List<Command> getHistoryOfCommands() {
-        // TODO Auto-generated method stub
         return this.historyOfCommands;
     }
+
+   
 
   
 

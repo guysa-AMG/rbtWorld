@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
 import za.co.wethinkcode.robots.services.ITCService;
 import za.co.wethinkcode.robots.shared.Protocol;
 
