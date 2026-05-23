@@ -3,7 +3,7 @@ package za.co.wethinkcode.robots.client.gui;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
-import za.co.wethinkcode.robots.server.world.WorldGenerator;
+import za.co.wethinkcode.robots.server.world.BattleArenaWorld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -14,7 +14,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorldPanel extends JPanel {
 
     private static final int CELL = 22;
-    private static final String KILLER_NPC_NAME = "Bender";
-    private static final BufferedImage KILLER_IMAGE = loadImage("/images/killer_robot.jpg");
-    private static final BufferedImage PLAYER_SHEET = loadImage("/images/player_robot_motions.jpeg");
-    private static final java.util.Map<Directions, BufferedImage> PLAYER_FRAMES = slicePlayerFrames();
+    private static final String KILLER_NPC_NAME = "Guyser_Thekiller";
+    private static final java.awt.image.BufferedImage KILLER_IMAGE = loadImage("/images/killer_robot.jpg");
+    private static final java.awt.image.BufferedImage PLAYER_SHEET = loadImage("/images/player_robot_motions.jpeg");
+    private static final java.util.Map<Directions, java.awt.image.BufferedImage> PLAYER_FRAMES = slicePlayerFrames();
 
-    private static BufferedImage loadImage(String path) {
+    private static java.awt.image.BufferedImage loadImage(String path) {
         try (java.io.InputStream in = WorldPanel.class.getResourceAsStream(path)) {
             if (in == null) return null;
             return javax.imageio.ImageIO.read(in);
@@ -42,8 +41,8 @@ public class WorldPanel extends JPanel {
      * 1=idle-left, 2=idle-right, 3=up/back, 4=down/front (and 3 more we ignore).
      * Crops are proportional so this still works if the sheet is later resized.
      */
-    private static java.util.Map<Directions,BufferedImage> slicePlayerFrames() {
-        java.util.Map<Directions, BufferedImage> out = new java.util.EnumMap<>(Directions.class);
+    private static java.util.Map<Directions, java.awt.image.BufferedImage> slicePlayerFrames() {
+        java.util.Map<Directions, java.awt.image.BufferedImage> out = new java.util.EnumMap<>(Directions.class);
         if (PLAYER_SHEET == null) return out;
         int w = PLAYER_SHEET.getWidth();
         int h = PLAYER_SHEET.getHeight();
@@ -60,7 +59,7 @@ public class WorldPanel extends JPanel {
     private final int worldHeight;
     private final List<Obstacle> obstacles;
     private final Map<String, RobotMarker> robots = new ConcurrentHashMap<>();
-    private final java.util.Set<Position> pickups = ConcurrentHashMap.newKeySet();
+    private final java.util.Set<Position> pickups = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private String selfName;
     private volatile BulletFx bullet;
     private volatile Hud hud = new Hud(0, 0, 0, 0, 0);
@@ -68,7 +67,7 @@ public class WorldPanel extends JPanel {
     private volatile boolean lookExpanded = false; // true between a successful look and the next move
 
     public WorldPanel() {
-        RobotWorld template = WorldGenerator.build();
+        RobotWorld template = BattleArenaWorld.build();
         this.worldWidth = template.getWidth();
         this.worldHeight = template.getHeight();
         this.obstacles = new ArrayList<>();
@@ -133,7 +132,7 @@ public class WorldPanel extends JPanel {
      * Replace the entire robot list with the supplied snapshot. Robots not present in
      * the snapshot are removed (so killed/disconnected robots disappear).
      */
-    public void setAllRobots(java.util.List<za.co.wethinkcode.robots.models.transitmodels.ServerResponseRobot> snapshot) {
+    public void setAllRobots(java.util.List<za.co.wethinkcode.robots.models.ServerResponseRobot> snapshot) {
         if (snapshot == null) return;
         java.util.Set<String> seen = new java.util.HashSet<>();
         for (var r : snapshot) {

@@ -2,7 +2,6 @@ package za.co.wethinkcode.robots.client.gui;
 
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseRobot;
 
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -127,7 +126,7 @@ public class ClientGui {
         SwingUtilities.invokeLater(() -> world.setHud(lives, shots, magMax, shield, kills));
     }
 
-    public void setAllRobots(List<ServerResponseRobot> snapshot) {
+    public void setAllRobots(List<za.co.wethinkcode.robots.models.ServerResponseRobot> snapshot) {
         SwingUtilities.invokeLater(() -> world.setAllRobots(snapshot));
     }
 

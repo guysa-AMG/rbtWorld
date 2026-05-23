@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import za.co.wethinkcode.robots.models.Directions;
-import za.co.wethinkcode.robots.models.OperationalMode;
+import za.co.wethinkcode.robots.server.commands.OperationalMode;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
 public class BaseRobotTest {

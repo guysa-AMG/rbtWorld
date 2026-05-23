@@ -1,4 +1,4 @@
-package za.co.wethinkcode.robots.models;
+package za.co.wethinkcode.robots.server.commands;
 
 public enum OperationalMode {
 RELOAD ,

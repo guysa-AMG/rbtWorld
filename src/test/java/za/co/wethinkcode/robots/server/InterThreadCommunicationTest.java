@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.services.ITCService;
@@ -19,7 +18,7 @@ class InterThreadCommunicationTest {
     @BeforeEach
     void starter(){
         ITCService.getInstance();
-         WorldGenerator world = new RobotWorld();
+         Iworld world = new RobotWorld();
         ITCService.getInstance().setWorld(world);
     }
     @Disabled

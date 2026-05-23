@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerRequest;
+import za.co.wethinkcode.robots.models.ServerResponse;
 
 /**
  * Protocol 

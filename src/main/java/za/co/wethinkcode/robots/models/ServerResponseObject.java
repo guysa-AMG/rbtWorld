@@ -1,4 +1,4 @@
-package za.co.wethinkcode.robots.models.transitmodels;
+package za.co.wethinkcode.robots.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,9 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import za.co.wethinkcode.robots.models.Directions;
-import za.co.wethinkcode.robots.models.ImpedimentType;
-import za.co.wethinkcode.robots.models.Position;
 
 @Builder
 @AllArgsConstructor

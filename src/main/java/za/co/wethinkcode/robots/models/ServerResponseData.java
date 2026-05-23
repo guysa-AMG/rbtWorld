@@ -1,4 +1,4 @@
-package za.co.wethinkcode.robots.models.transitmodels;
+package za.co.wethinkcode.robots.models;
 
 import java.util.List;
 
@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import za.co.wethinkcode.robots.models.Position;
 
 @Builder
 @Data

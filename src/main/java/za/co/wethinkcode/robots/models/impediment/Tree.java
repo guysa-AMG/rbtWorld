@@ -1,20 +1,23 @@
 package za.co.wethinkcode.robots.models.impediment;
 
-import javax.swing.ImageIcon;
-
 import za.co.wethinkcode.robots.models.Position;
 
-public class Tree extends Impediments {
+public class Tree implements Impediments {
+     private Position pos;
+     private String type;
 
-   public Tree(Position position) {
-     super(position, "TREE");
-      
-   }
+     @Override
+     public Position getPosition() {
+        return this.pos;
+     }
 
-   @Override
-   public void draw() {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'draw'");
-   }
- 
+     @Override
+     public void setPosition(Position pos) {
+       this.pos=pos;
+     }
+
+     @Override
+     public String getType() {
+        return this.type;
+     }
 }

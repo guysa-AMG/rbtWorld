@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import za.co.wethinkcode.robots.models.ServerResponse;
 import za.co.wethinkcode.robots.models.StatusCode;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 
@@ -32,7 +32,7 @@ public class LookCommandTest {
 
     private LookCommand newLookCommand() {
         // LookCommand has a package-private constructor — we can call it directly here
-        return new LookCommand( "HAL");
+        return new LookCommand("look", "HAL");
     }
 
     @Test

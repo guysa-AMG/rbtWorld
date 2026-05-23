@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import za.co.wethinkcode.robots.models.Directions;
-import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.server.commands.OperationalMode;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
-public abstract class BaseRobot extends Impediments {
+public abstract class BaseRobot implements Impediments {
      public static final int DEFAULT_LIVES = 3;
 
      private String name;
-    
+     private Position position;
      private Directions direction;
      private int shield;
      private int maxShield;
      private int fireRate;
      private OperationalMode status;
+
      private int worldWidth;
      private int worldHeight;
      private OperationalMode state;
@@ -30,8 +31,8 @@ public abstract class BaseRobot extends Impediments {
      private int blockedCount;
 
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
-        super(new Position(x,y),"ROBOT");
-       
+
+        this.position= new Position(x, y);
         this.direction = Directions.NORTH;
         this.name = name;
         this.fireRate = FRate;
@@ -93,7 +94,9 @@ public abstract class BaseRobot extends Impediments {
         return this.name;
       }
 
-   
+    public Position getPosition(){
+        return this.position;
+     }
 
     public Directions getDirection() {
         return this.direction;

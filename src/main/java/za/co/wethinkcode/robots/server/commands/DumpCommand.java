@@ -1,15 +1,14 @@
-package za.co.wethinkcode.robots.server.commands.serverCommands;
+package za.co.wethinkcode.robots.server.commands;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseData;
+import za.co.wethinkcode.robots.models.ServerResponseState;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
-import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 import za.co.wethinkcode.robots.server.world.Iworld;

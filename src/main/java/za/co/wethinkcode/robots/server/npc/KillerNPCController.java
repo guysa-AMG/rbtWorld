@@ -2,9 +2,9 @@ package za.co.wethinkcode.robots.server.npc;
 
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.ServerResponse;
+import za.co.wethinkcode.robots.models.ServerResponseData;
 import za.co.wethinkcode.robots.models.StatusCode;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
