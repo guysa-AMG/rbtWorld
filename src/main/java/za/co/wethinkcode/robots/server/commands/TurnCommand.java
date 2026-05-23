@@ -20,58 +20,24 @@ public class TurnCommand extends Command{
 
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
-        Position pos = robot.getPosition();
-        Position intendedPosition = pos.copy();
-       
-    
-        String direction = this.argument[0].toLowerCase();
-        
-        switch(robot.getDirection()){
-            case Directions.NORTH -> {
-            if (direction.equals("left")){
-                robot.updateDirection(Directions.EAST);
-            }
-            if(direction.equals("right")){
-                 robot.updateDirection(Directions.WEST);
-            }
-            
-            }
-
-            case Directions.SOUTH -> {
-                if (direction.equals("left")){
-                robot.updateDirection(Directions.WEST);
-            }
-            if(direction.equals("right")){
-                 robot.updateDirection(Directions.EAST);
-            }
-       
-            }
-
-            case Directions.EAST -> {
-               if (direction.equals("left")){
-                robot.updateDirection(Directions.SOUTH);
-            }
-            if(direction.equals("right")){
-                 robot.updateDirection(Directions.NORTH);
-            }
-           
-            }
-
-            case Directions.WEST -> {
-                   if (direction.equals("left")){
-                robot.updateDirection(Directions.NORTH);
-            }
-            if(direction.equals("right")){
-                 robot.updateDirection(Directions.SOUTH);
-            }
-         
-            }
+        if (this.argument == null || this.argument.length == 0) {
+            return ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder().message("turn requires an argument: left or right").build())
+                    .build();
         }
-        
-     
-    
 
-       
+        String direction = this.argument[0].toLowerCase();
+        if (direction.equals("left")) {
+            robot.turnLeft();
+        } else if (direction.equals("right")) {
+            robot.turnRight();
+        } else {
+            return ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder().message("turn argument must be 'left' or 'right', got: " + direction).build())
+                    .build();
+        }
 
         ServerResponseData data = ServerResponseData.builder()
                                                     .message("DONE")

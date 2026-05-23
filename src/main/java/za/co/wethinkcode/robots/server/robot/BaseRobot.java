@@ -10,27 +10,39 @@ import za.co.wethinkcode.robots.server.commands.OperationalMode;
 import za.co.wethinkcode.robots.server.world.Iworld;
 
 public abstract class BaseRobot implements Impediments {
+     public static final int DEFAULT_LIVES = 3;
+
      private String name;
      private Position position;
      private Directions direction;
      private int shield;
+     private int maxShield;
      private int fireRate;
      private OperationalMode status;
-     
+
      private int worldWidth;
      private int worldHeight;
      private OperationalMode state;
      private int  shoots;
-   
+     private int lives;
+     private int kills;
+     private String killedBy;
+     private long lastMoveTimestamp;
+     private int blockedCount;
+
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
-       
+
         this.position= new Position(x, y);
         this.direction = Directions.NORTH;
         this.name = name;
         this.fireRate = FRate;
         this.shield = shield;
+        this.maxShield = shield;
         this.shoots = Iworld.MAG_MAX;
         this.status = OperationalMode.NORMAL;
+        this.lives = DEFAULT_LIVES;
+        this.lastMoveTimestamp = System.currentTimeMillis();
+        this.blockedCount = 0;
     }
 
     
@@ -236,5 +248,68 @@ public abstract class BaseRobot implements Impediments {
 
     public boolean isDead() {
         return this.status == OperationalMode.DEAD;
+    }
+
+    public int getLives() {
+        return this.lives;
+    }
+
+    /** Decrement lives by 1 and return the new value. */
+    public int decrementLives() {
+        this.lives = Math.max(0, this.lives - 1);
+        return this.lives;
+    }
+
+    public int getMaxShield() {
+        return this.maxShield;
+    }
+
+    /**
+     * Reset the robot for a respawn after death:
+     * full shield, full ammo, NORMAL status, at the given position facing NORTH.
+     * Does NOT touch lives — caller is responsible for decrementing.
+     */
+    public void respawnAt(Position pos) {
+        this.position = pos;
+        this.direction = Directions.NORTH;
+        this.shield = this.maxShield;
+        this.shoots = Iworld.MAG_MAX;
+        this.status = OperationalMode.NORMAL;
+        this.state = OperationalMode.NORMAL;
+    }
+
+    /** Refill ammo to full (used by ammo pickup and reload). */
+    public void refillAmmo() {
+        this.shoots = Iworld.MAG_MAX;
+    }
+
+    public int getKills() { return this.kills; }
+    public void incrementKills() { this.kills++; }
+    public String getKilledBy() { return this.killedBy; }
+    public void clearKilledBy() { this.killedBy = null; }
+
+    public long getLastMoveTimestamp() { return this.lastMoveTimestamp; }
+    public void markMoved() {
+        this.lastMoveTimestamp = System.currentTimeMillis();
+        this.blockedCount = 0;
+    }
+
+    public int getBlockedCount() { return this.blockedCount; }
+    public void incrementBlocked() { this.blockedCount++; }
+
+    /**
+     * Apply incoming damage. Returns true if the hit was lethal (shield reached zero).
+     * Sets killedBy if lethal.
+     */
+    public boolean takeDamage(int damage, String shooterName) {
+        if (damage <= 0) return false;
+        this.shield = Math.max(0, this.shield - damage);
+        if (this.shield <= 0) {
+            this.status = OperationalMode.DEAD;
+            this.state = OperationalMode.DEAD;
+            this.killedBy = shooterName;
+            return true;
+        }
+        return false;
     }
 }

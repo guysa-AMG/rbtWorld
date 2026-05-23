@@ -114,11 +114,29 @@ public class BaseRobotTest {
         }
 
         @Test
+        void turnRight_WestToNorth() {
+            robot.updateDirection(Directions.WEST);
+
+            robot.turnRight();
+
+            assertEquals(Directions.NORTH, robot.getDirection());
+        }
+
+        @Test
         void turnLeft_SouthToEast() {
             robot.turnLeft();
             robot.turnLeft();
             robot.turnLeft();
             assertEquals(Directions.EAST, robot.getDirection());
+        }
+
+        @Test
+        void turnRight_SouthToWest() {
+            robot.turnRight();
+            robot.turnRight();
+            robot.turnRight();
+
+            assertEquals(Directions.WEST, robot.getDirection());
         }
 
     }
@@ -173,6 +191,17 @@ public class BaseRobotTest {
         }
 
         @Test
+        void moveForward_returnsTrue() {
+            assertTrue(robot.moveForward(2));
+        }
+
+        @Test
+        void moveBack_returnsTrue() {
+            assertTrue(robot.moveBack(2));
+        }
+
+
+        @Test
         void moveBack_facingSouth_increasesY() {
             robot.updateDirection(Directions.SOUTH);
             robot.moveBack(2);
@@ -212,6 +241,24 @@ public class BaseRobotTest {
             assertEquals(0, robot.getPosition().getX());
             assertEquals(0, robot.getPosition().getY());
         }
+
+        @Test
+        void updateDirection_changesDirection() {
+            robot.updateDirection(Directions.SOUTH);
+
+            assertEquals(Directions.SOUTH, robot.getDirection());
+        }
+
+            @Test
+        void updatePosition_changesPosition() {
+            robot.updatePosition(
+                    new za.co.wethinkcode.robots.models.Position(5, -3)
+            );
+
+            assertEquals(5, robot.getPosition().getX());
+            assertEquals(-3, robot.getPosition().getY());
+        }
+
     }
 
     @Nested
@@ -281,6 +328,17 @@ public class BaseRobotTest {
             }
         }
 
+    // Ensures shield value never becomes negative after taking damage
+    @Test
+        void shield_neverDropsBelowZero() {
+            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
+            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 20);
+
+            shooter.shootRobot(target);
+
+            assertTrue(target.getShield() >= 0);
+        }
+
     }
 
     @Nested
@@ -309,6 +367,414 @@ public class BaseRobotTest {
             robot.setStatus(OperationalMode.RELOAD);
 
             assertEquals(null, robot.getOperationState());
+        }
+
+        @Test
+        void setOperationalState_updatesOperationState() {
+            robot.setOperationalState(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getOperationState()
+            );
+        }
+
+        @Test
+        void setStatus_reloadModeIsStored() {
+            robot.setStatus(OperationalMode.RELOAD);
+
+            assertEquals(
+                    OperationalMode.RELOAD,
+                    robot.getStatus()
+            );
+        }
+
+    }
+
+    // =====================================================================
+    // NEW behaviour added with the lives / kills / damage / metrics work.
+    // =====================================================================
+
+    @Nested
+    @DisplayName("lives")
+    class Lives {
+
+        @Test
+        void getLives_defaultsToDefaultLivesConstant() {
+            assertEquals(BaseRobot.DEFAULT_LIVES, robot.getLives());
+        }
+
+        @Test
+        void getLives_isPositiveByDefault() {
+            assertTrue(robot.getLives() > 0);
+        }
+
+        @Test
+        void decrementLives_reducesLivesByOne() {
+            int before = robot.getLives();
+            assertEquals(before - 1, robot.decrementLives());
+        }
+
+        @Test
+        void decrementLives_persistsTheChange() {
+            int before = robot.getLives();
+            robot.decrementLives();
+            assertEquals(before - 1, robot.getLives());
+        }
+
+        @Test
+        void decrementLives_clampsAtZero() {
+            for (int i = 0; i < 10; i++) robot.decrementLives();
+            assertEquals(0, robot.getLives());
+        }
+
+        @Test
+        void decrementLives_returnsZeroWhenExhausted() {
+            for (int i = 0; i < BaseRobot.DEFAULT_LIVES; i++) robot.decrementLives();
+            assertEquals(0, robot.decrementLives());
+        }
+
+        @Test
+        void decrementLives_neverGoesNegative() {
+            for (int i = 0; i < 100; i++) robot.decrementLives();
+            assertTrue(robot.getLives() >= 0);
+        }
+    }
+
+    @Nested
+    @DisplayName("kills")
+    class Kills {
+
+        @Test
+        void getKills_defaultsToZero() {
+            assertEquals(0, robot.getKills());
+        }
+
+        @Test
+        void incrementKills_increasesByOne() {
+            robot.incrementKills();
+            assertEquals(1, robot.getKills());
+        }
+
+        @Test
+        void incrementKills_canStackMultipleTimes() {
+            robot.incrementKills();
+            robot.incrementKills();
+            robot.incrementKills();
+            assertEquals(3, robot.getKills());
+        }
+
+        @Test
+        void incrementKills_isIndependentOfLives() {
+            robot.incrementKills();
+            assertEquals(BaseRobot.DEFAULT_LIVES, robot.getLives());
+        }
+
+        @Test
+        void incrementKills_doesNotAffectShield() {
+            int before = robot.getShield();
+            robot.incrementKills();
+            assertEquals(before, robot.getShield());
+        }
+    }
+
+    @Nested
+    @DisplayName("killedBy")
+    class KilledBy {
+
+        @Test
+        void getKilledBy_defaultsToNull() {
+            org.junit.jupiter.api.Assertions.assertNull(robot.getKilledBy());
+        }
+
+        @Test
+        void takeDamage_lethal_storesKillerName() {
+            robot.takeDamage(robot.getShield() + 10, "alice");
+            assertEquals("alice", robot.getKilledBy());
+        }
+
+        @Test
+        void takeDamage_nonLethal_doesNotSetKilledBy() {
+            robot.takeDamage(1, "alice");
+            org.junit.jupiter.api.Assertions.assertNull(robot.getKilledBy());
+        }
+
+        @Test
+        void clearKilledBy_clearsTheField() {
+            robot.takeDamage(robot.getShield() + 1, "bob");
+            robot.clearKilledBy();
+            org.junit.jupiter.api.Assertions.assertNull(robot.getKilledBy());
+        }
+    }
+
+    @Nested
+    @DisplayName("takeDamage")
+    class TakeDamage {
+
+        @Test
+        void takeDamage_reducesShield() {
+            int before = robot.getShield();
+            robot.takeDamage(1, "x");
+            assertEquals(before - 1, robot.getShield());
+        }
+
+        @Test
+        void takeDamage_lethalReturnsTrue() {
+            assertTrue(robot.takeDamage(robot.getShield() + 100, "x"));
+        }
+
+        @Test
+        void takeDamage_nonLethalReturnsFalse() {
+            assertFalse(robot.takeDamage(1, "x"));
+        }
+
+        @Test
+        void takeDamage_negativeOrZeroIsNoop() {
+            int before = robot.getShield();
+            assertFalse(robot.takeDamage(0, "x"));
+            assertFalse(robot.takeDamage(-3, "x"));
+            assertEquals(before, robot.getShield());
+        }
+
+        @Test
+        void takeDamage_neverGoesBelowZero() {
+            robot.takeDamage(9999, "x");
+            assertEquals(0, robot.getShield());
+        }
+
+        @Test
+        void takeDamage_lethalSetsStatusToDead() {
+            robot.takeDamage(robot.getShield(), "x");
+            assertEquals(OperationalMode.DEAD, robot.getStatus());
+        }
+
+        @Test
+        void takeDamage_lethalSetsOperationStateToDead() {
+            robot.takeDamage(robot.getShield(), "x");
+            assertEquals(OperationalMode.DEAD, robot.getOperationState());
+        }
+
+        @Test
+        void takeDamage_lethalSetsKilledBy() {
+            robot.takeDamage(robot.getShield(), "carol");
+            assertEquals("carol", robot.getKilledBy());
+        }
+
+        @Test
+        void takeDamage_nonLethalKeepsStatusNormal() {
+            robot.takeDamage(1, "x");
+            assertEquals(OperationalMode.NORMAL, robot.getStatus());
+        }
+    }
+
+    @Nested
+    @DisplayName("respawnAt")
+    class Respawn {
+
+        @Test
+        void respawnAt_setsPosition() {
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(7, -4));
+            assertEquals(7, robot.getPosition().getX());
+            assertEquals(-4, robot.getPosition().getY());
+        }
+
+        @Test
+        void respawnAt_facesNorth() {
+            robot.updateDirection(Directions.SOUTH);
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
+            assertEquals(Directions.NORTH, robot.getDirection());
+        }
+
+        @Test
+        void respawnAt_restoresFullShield() {
+            int max = robot.getMaxShield();
+            robot.takeDamage(max, "x"); // drain
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
+            assertEquals(max, robot.getShield());
+        }
+
+        @Test
+        void respawnAt_refillsAmmo() {
+            robot.decrementBullets();
+            robot.decrementBullets();
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
+            assertEquals(Iworld.MAG_MAX, robot.getShoots());
+        }
+
+        @Test
+        void respawnAt_setsStatusNormal() {
+            robot.takeDamage(robot.getShield(), "x"); // → DEAD
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
+            assertEquals(OperationalMode.NORMAL, robot.getStatus());
+        }
+
+        @Test
+        void respawnAt_doesNotResetLives() {
+            int before = robot.getLives();
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(2, 2));
+            assertEquals(before, robot.getLives());
+        }
+
+        @Test
+        void respawnAt_doesNotResetKills() {
+            robot.incrementKills();
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(2, 2));
+            assertEquals(1, robot.getKills());
+        }
+    }
+
+    @Nested
+    @DisplayName("ammo refill")
+    class Ammo {
+
+        @Test
+        void refillAmmo_resetsToMagMax() {
+            while (robot.getShoots() > 0) robot.decrementBullets();
+            robot.refillAmmo();
+            assertEquals(Iworld.MAG_MAX, robot.getShoots());
+        }
+
+        @Test
+        void refillAmmo_isIdempotent() {
+            robot.refillAmmo();
+            robot.refillAmmo();
+            assertEquals(Iworld.MAG_MAX, robot.getShoots());
+        }
+
+        @Test
+        void decrementBullets_reducesShoots() {
+            int before = robot.getShoots();
+            robot.decrementBullets();
+            assertEquals(before - 1, robot.getShoots());
+        }
+
+        @Test
+        void decrementBullets_returnsFalseWhenEmpty() {
+            while (robot.getShoots() > 0) robot.decrementBullets();
+            assertFalse(robot.decrementBullets());
+        }
+
+        @Test
+        void decrementBullets_returnsTrueWhenAvailable() {
+            assertTrue(robot.decrementBullets());
+        }
+    }
+
+    @Nested
+    @DisplayName("activity metrics for NPC controller")
+    class Activity {
+
+        @Test
+        void getLastMoveTimestamp_isSetAtConstruction() {
+            assertTrue(robot.getLastMoveTimestamp() > 0);
+        }
+
+        @Test
+        void getBlockedCount_defaultsToZero() {
+            assertEquals(0, robot.getBlockedCount());
+        }
+
+        @Test
+        void incrementBlocked_increasesCount() {
+            robot.incrementBlocked();
+            assertEquals(1, robot.getBlockedCount());
+        }
+
+        @Test
+        void incrementBlocked_stacks() {
+            for (int i = 0; i < 5; i++) robot.incrementBlocked();
+            assertEquals(5, robot.getBlockedCount());
+        }
+
+        @Test
+        void markMoved_resetsBlockedCount() {
+            robot.incrementBlocked();
+            robot.incrementBlocked();
+            robot.markMoved();
+            assertEquals(0, robot.getBlockedCount());
+        }
+
+        @Test
+        void markMoved_advancesLastMoveTimestamp() throws Exception {
+            long before = robot.getLastMoveTimestamp();
+            Thread.sleep(2);
+            robot.markMoved();
+            assertTrue(robot.getLastMoveTimestamp() >= before);
+        }
+    }
+
+    @Nested
+    @DisplayName("maxShield baseline")
+    class MaxShield {
+
+        @Test
+        void getMaxShield_matchesConstructorValue() {
+            BaseRobot r = new SimpleRobot("X", 0, 0, 7, 3);
+            assertEquals(7, r.getMaxShield());
+        }
+
+        @Test
+        void getMaxShield_doesNotChangeWhenTakingDamage() {
+            int max = robot.getMaxShield();
+            robot.takeDamage(2, "x");
+            assertEquals(max, robot.getMaxShield());
+        }
+
+        @Test
+        void respawnRestoresShieldToMaxShield() {
+            int max = robot.getMaxShield();
+            robot.takeDamage(max, "x");
+            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(1, 1));
+            assertEquals(max, robot.getShield());
+        }
+    }
+
+    @Nested
+    @DisplayName("turning — exhaustive direction cycles")
+    class TurningCycles {
+
+        @Test
+        void turnRight_eightTimes_returnsToOrigin() {
+            Directions start = robot.getDirection();
+            for (int i = 0; i < 8; i++) robot.turnRight();
+            assertEquals(start, robot.getDirection());
+        }
+
+        @Test
+        void turnLeft_eightTimes_returnsToOrigin() {
+            Directions start = robot.getDirection();
+            for (int i = 0; i < 8; i++) robot.turnLeft();
+            assertEquals(start, robot.getDirection());
+        }
+
+        @Test
+        void turnRight_thenLeft_returnsToOrigin() {
+            Directions start = robot.getDirection();
+            robot.turnRight();
+            robot.turnLeft();
+            assertEquals(start, robot.getDirection());
+        }
+
+        @Test
+        void turnLeft_thenRight_returnsToOrigin() {
+            Directions start = robot.getDirection();
+            robot.turnLeft();
+            robot.turnRight();
+            assertEquals(start, robot.getDirection());
+        }
+
+        @Test
+        void turnLeft_fromEast_facesNorth() {
+            robot.updateDirection(Directions.EAST);
+            robot.turnLeft();
+            assertEquals(Directions.NORTH, robot.getDirection());
+        }
+
+        @Test
+        void turnRight_fromWest_facesNorth() {
+            robot.updateDirection(Directions.WEST);
+            robot.turnRight();
+            assertEquals(Directions.NORTH, robot.getDirection());
         }
     }
 }

@@ -1,17 +1,21 @@
 
 image: eclipse-temurin:21-jdk
 
-stages:          
-  - build
+stages: 
   - test
 
 
 unit-test-job:  
+  before_script:
+    - apt-get update -y && apt-get install -y git
+    - git config --global user.email "piplineBotjhb025@student.wethinkcode.co.za"
+    - git config --global user.name "piplineBotjhb025"
   tags:
     - group20
   stage: test    
   script:
-    - ./mvnw clean test
+    - ./mvnw test
+  dependencies: []
 
 
 

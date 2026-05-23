@@ -8,6 +8,7 @@ public enum CommandTypeEnum {
     look,
     robots,
     forward,
+    dump,
     back,
     turn,
     repair,

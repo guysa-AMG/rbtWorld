@@ -25,4 +25,13 @@ public class ServerResponseObject {
     @JsonProperty
     int distance;
 
+    @JsonProperty
+    String subtype;
+
+    @JsonProperty
+    Position position;
+
+    @JsonProperty
+    String name;
+
 }

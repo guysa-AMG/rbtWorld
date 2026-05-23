@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import za.co.wethinkcode.robots.models.ServerRequest;
@@ -67,6 +68,14 @@ public class Protocol implements IProtocol {
         }
     }
 
+     public void updatResponse(ServerResponse old,ServerResponse new_data){
+        try {
+            mapper.updateValue(old,new_data);
+        } catch (JsonMappingException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     private void validateRequest(ServerRequest req) {
         if (req == null) {
