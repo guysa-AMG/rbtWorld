@@ -12,7 +12,7 @@ import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 public abstract class BaseRobot extends Impediments {
      public static final int DEFAULT_LIVES = 3;
-
+     public static final int MAX_VALUE = 3;
      private String name;
     
      private Directions direction;

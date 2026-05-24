@@ -9,7 +9,7 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
-import za.co.wethinkcode.robots.server.world.RobotWorld;
+
 
 public class LaunchCommand extends Command {
 

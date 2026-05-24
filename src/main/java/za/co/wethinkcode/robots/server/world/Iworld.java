@@ -35,7 +35,7 @@ public interface Iworld {
 
     abstract BaseRobot getFireable(BaseRobot rbt);
 
-    boolean addRobot(String name);
+    boolean addRobot(String name,int shots,int shield);
 
     abstract List<Command> getHistoryOfCommands();
 
