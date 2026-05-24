@@ -160,13 +160,15 @@ public class KillerNPCController implements Runnable {
         if (npc.getDirection() != chase) {
             rotateTowards(npc, chase);
         } else {
-            world.moveRobot(KillerNPC.NAME, 1);
+            //TODO replace this
+            // world.moveRobot(KillerNPC.NAME, 1);
         }
     }
 
     private void wander(BaseRobot npc) {
         // Just nudge forward one cell; if blocked, rotate
-        boolean moved = world.moveRobot(KillerNPC.NAME, 1);
+         //TODO replace this
+       boolean moved =false; //world.moveRobot(KillerNPC.NAME, 1);
         if (!moved) {
             rotateTowards(npc, rightOf(npc.getDirection()));
         }

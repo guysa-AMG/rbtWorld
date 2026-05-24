@@ -5,26 +5,26 @@ import java.awt.Graphics;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
-public class Water extends Impediments {
+public class Pit extends Impediments {
 
-    public Water(Position position) {
-        super(position, "WATER"," ");
-        int scale = WorldGenerator.MAP_SCALE;
-        width = scale;
-        height = scale;
+    public Pit( Position position) {
+        super(position, "HOLE");
     }
 
      @Override
     public void draw(Graphics g) {
-       g.setColor(Color.white);
+       g.setColor(new Color(150, 150, 150));
       
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
-       g.drawOval(xcord, ycord, width, height);
+       g.fillOval(xcord, ycord, scale, scale/2);
+       g.setColor(Color.BLACK);
+       g.drawRect(xcord, ycord+(scale/2), scale, scale/2);
        
     }
-   
+
+
 
     
 }

@@ -1,5 +1,6 @@
 package za.co.wethinkcode.robots.server;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,6 +15,7 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
+import za.co.wethinkcode.robots.services.gui.ServerUI;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 public class RobotServer {
@@ -47,12 +49,15 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
-       WorldGenerator world = WorldGenerator.build();
+       WorldGenerator world = WorldGenerator.generateFromMapfile("worldmap.txt");
        ITCService.getInstance().setWorld(world);
        System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
         
        Thread serv_interact_thread = new Thread(new ServerCli());
         serv_interact_thread.start();
+
+        EventQueue.invokeLater(new ServerUI());
+      
 
     //    if (world instanceof RobotWorld rw) {
     //        KillerNPCController npcCtrl = new KillerNPCController(rw);
@@ -141,3 +146,4 @@ class ServerCli implements Runnable{
     }
 
 }
+

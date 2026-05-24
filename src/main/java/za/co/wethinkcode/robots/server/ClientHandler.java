@@ -46,6 +46,7 @@ class ClientHandler implements Runnable {
                     ServerRequest req = protocol.decodeRequest(data);
                     if (req != null && "launch".equalsIgnoreCase(req.getCommand()) && req.getRobot() != null) {
                         this.robotName = req.getRobot();
+                        Thread.currentThread().setName(this.robotName);
                         ITCService.getInstance().registerClient(this.robotName, this.writer);
                     }
                 } catch (Exception ignore) { /* keep going — server still handles bad requests */ }

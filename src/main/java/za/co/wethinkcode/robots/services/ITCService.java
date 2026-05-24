@@ -105,8 +105,9 @@ public class ITCService {
      * @return boolean
      */
     public boolean terminateServerThread(Socket client){
-        
+       
         Thread thread = this.threads.get(client);
+        this.world.removeRobot(thread.getName());
         this.logger.info(client.getLocalAddress().getHostName()+" is requesting to kill its dedicated thread.");
         if(thread!=null){
             thread.interrupt();
@@ -123,7 +124,7 @@ public class ITCService {
             propLoader.load(propFd);
            return propLoader;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
             this.logger.error(e.getMessage());
             System.err.println(e);

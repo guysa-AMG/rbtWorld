@@ -5,6 +5,8 @@ import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
+
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.BasicStroke;
@@ -22,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldPanel extends JPanel {
 
-    private static final int CELL = 22;
+    private static final int CELL = 20;
     private static final String KILLER_NPC_NAME = "Bender";
     private static final BufferedImage KILLER_IMAGE = loadImage("/images/killer_robot.jpg");
     private static final BufferedImage PLAYER_SHEET = loadImage("/images/player_robot_motions.jpeg");
@@ -31,7 +33,7 @@ public class WorldPanel extends JPanel {
     private static BufferedImage loadImage(String path) {
         try (java.io.InputStream in = WorldPanel.class.getResourceAsStream(path)) {
             if (in == null) return null;
-            return javax.imageio.ImageIO.read(in);
+            return ImageIO.read(in);
         } catch (Exception e) {
             return null;
         }
@@ -42,7 +44,7 @@ public class WorldPanel extends JPanel {
      * 1=idle-left, 2=idle-right, 3=up/back, 4=down/front (and 3 more we ignore).
      * Crops are proportional so this still works if the sheet is later resized.
      */
-    private static java.util.Map<Directions,BufferedImage> slicePlayerFrames() {
+    private static Map<Directions,BufferedImage> slicePlayerFrames() {
         java.util.Map<Directions, BufferedImage> out = new java.util.EnumMap<>(Directions.class);
         if (PLAYER_SHEET == null) return out;
         int w = PLAYER_SHEET.getWidth();
@@ -68,7 +70,7 @@ public class WorldPanel extends JPanel {
     private volatile boolean lookExpanded = false; // true between a successful look and the next move
 
     public WorldPanel() {
-        RobotWorld template = WorldGenerator.build();
+        RobotWorld template = WorldGenerator.generateFromMapfile("worldmap.txt");
         this.worldWidth = template.getWidth();
         this.worldHeight = template.getHeight();
         this.obstacles = new ArrayList<>();

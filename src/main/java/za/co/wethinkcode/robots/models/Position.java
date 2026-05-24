@@ -32,6 +32,9 @@ public class Position {
       
         this.Y-=1;
     }
+    public boolean isIn(int x1, int y1, int x2, int y2){
+        return this.X>=x1 && this.Y>=y1 && this.X<=x2 && this.Y<=y2;
+    }
     public int getStraightDistance(Position other){
        Position distance= getDistance(other);
 

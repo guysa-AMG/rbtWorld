@@ -9,6 +9,7 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 public class BackCommand extends Command{
 
@@ -18,6 +19,65 @@ public class BackCommand extends Command{
         super("back", argument, rbtName);
       
     }
+       public boolean moveRobot(String name, int steps,RobotWorld world) {
+        BaseRobot robot = world.getAllRobots().get(name);
+        if (robot == null) return false;
+        Position currentPos = robot.getPosition();
+        Directions dir = robot.getDirection();
+
+        if (currentPos == null || dir == null) return false;
+        if (steps == 0) return true;
+
+        int multiplier = (steps > 0) ? 1 : -1;
+        int nextX = currentPos.getX();
+        int nextY = currentPos.getY();
+        boolean fullyMoved = true;
+
+        int xLimit = (world.getWidth() - 1) / 2;
+        int yLimit = (world.getHeight() - 1) / 2;
+
+        for (int i = 1; i <= Math.abs(steps); i++) {
+            int stepX = nextX;
+            int stepY = nextY;
+
+            if (dir == Directions.NORTH) stepY += multiplier;
+            else if (dir == Directions.SOUTH) stepY -= multiplier;
+            else if (dir == Directions.EAST) stepX += multiplier;
+            else if (dir == Directions.WEST) stepX -= multiplier;
+
+            if (stepX > xLimit || stepX < -xLimit || stepY > yLimit || stepY < -yLimit) {
+                fullyMoved = false;
+                break;
+            }
+
+            if (world.isPositionBlocked(stepX, stepY)) {
+                fullyMoved = false;
+                break;
+            }
+
+            if (world.isPositionInPit(stepX, stepY)) {
+                robot.updatePosition(new Position(stepX, stepY));
+                int remaining = robot.decrementLives();
+                if (remaining > 0) {
+                    Position spawn = world.newSpawnPoint();
+                    robot.respawnAt(spawn);
+                    world.updateRobot(name, robot);
+                } else {
+                    world.removeRobot(name);
+                }
+                return true;
+            }
+
+            nextX = stepX;
+            nextY = stepY;
+        }
+        robot.updatePosition(new Position(nextX, nextY));
+       // world.consumePickupAt(nextX, nextY, robot);
+        world.updateRobot(name, robot);
+        return fullyMoved;
+    }
+
+
 
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
@@ -25,7 +85,7 @@ public class BackCommand extends Command{
         Position startPos = robot.getPosition().copy();
         int livesBefore = robot.getLives();
 
-        boolean moved = world.moveRobot(robot.getName(), -steps);
+        boolean moved = moveRobot(robot.getName(), -steps,(RobotWorld)world);
         boolean stillAlive = world.getAllRobots().containsKey(robot.getName());
         boolean diedThisMove = robot.getLives() < livesBefore;
         if (!stillAlive) {

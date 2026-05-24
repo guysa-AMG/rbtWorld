@@ -8,6 +8,7 @@ import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 public abstract class BaseRobot extends Impediments {
      public static final int DEFAULT_LIVES = 3;
@@ -30,7 +31,7 @@ public abstract class BaseRobot extends Impediments {
      private int blockedCount;
 
      public BaseRobot(String name,int x, int y,int shield,int FRate) {
-        super(new Position(x,y),"ROBOT");
+        super(new Position(x,y),"ROBOT","cuterbt.gif");
        
         this.direction = Directions.NORTH;
         this.name = name;
@@ -42,6 +43,10 @@ public abstract class BaseRobot extends Impediments {
         this.lives = DEFAULT_LIVES;
         this.lastMoveTimestamp = System.currentTimeMillis();
         this.blockedCount = 0;
+
+        int scale = WorldGenerator.MAP_SCALE;
+        width = scale;
+        height = scale;
     }
 
     

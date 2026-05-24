@@ -1,7 +1,6 @@
 // # Interface for the world
 package za.co.wethinkcode.robots.server.world;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public interface Iworld {
     
     public Map<String,BaseRobot> getAllRobots();
     
-  
+    public abstract List<Impediments> getMap();
 
     // Robot Management
 
@@ -40,7 +39,7 @@ public interface Iworld {
 
     abstract List<Command> getHistoryOfCommands();
 
-    boolean moveRobot(String name,int step);
+  
     /**
      * Kick a robot out of the world (e.g., if they quit or die).
      */
@@ -50,11 +49,6 @@ public interface Iworld {
     void loadMap(List<Impediments> map );
     // Movement & Physics
 
-    /**
-     * Move a robot forward or backward by X steps.
-     * This needs to check the path for obstacles and the world edge.
-     */
-    boolean moveRobot(String name, Position IntendedPosition);
 
     /**
      * Turn the robot 90 degrees left or right.
@@ -112,5 +106,5 @@ public interface Iworld {
     /**
      * Executes a command within the world context.
      */
-    ServerResponse perform(za.co.wethinkcode.robots.server.commands.Command command);
+    ServerResponse perform(Command command);
 }

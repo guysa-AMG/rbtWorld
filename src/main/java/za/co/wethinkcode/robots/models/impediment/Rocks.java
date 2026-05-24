@@ -1,20 +1,33 @@
 package za.co.wethinkcode.robots.models.impediment;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 import lombok.NonNull;
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 public class Rocks extends Impediments {
 
    public Rocks(Position position) {
-      super(position, "ROCK");
+      super(position, "ROCK","cuterbt.gif");
       //TODO Auto-generated constructor stub
+        int scale = WorldGenerator.MAP_SCALE;
+        width = scale;
+        height = scale;
    }
 
    @Override
-   public void draw() {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'draw'");
-   }
+    public void draw(Graphics g) {
+       g.setColor(Color.gray);
+      
+       int scale = WorldGenerator.MAP_SCALE;
+       int xcord = scale * position.getX();
+       int ycord = scale * position.getY();
+       g.drawOval(xcord, ycord, width, height);
+       
+    }
+  
 
     
 }
