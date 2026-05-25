@@ -6,8 +6,11 @@ import java.awt.Graphics;
 import javax.swing.ImageIcon;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CannotGoThrough;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
+@CannotGoThrough
 public class Tree extends Impediments {
 
    public Tree(Position position) {

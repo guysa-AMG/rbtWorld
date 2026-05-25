@@ -24,14 +24,10 @@ public class Mountain extends Impediments {
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
        int[] xpoints = {xcord,xcord+(width/2),xcord+width };
-       int[] ypoints = {ycord,ycord-(width/2),ycord};
+       int[] ypoints = {ycord+scale,ycord,ycord+scale};
        g.fillPolygon(xpoints,ypoints , 3);
 
-         // Optional: Draw a snow cap
-        int[] snowX = {250, 300, 350};
-        int[] snowY = {175, 100, 175};
-     
-     
+      
     }
 
 

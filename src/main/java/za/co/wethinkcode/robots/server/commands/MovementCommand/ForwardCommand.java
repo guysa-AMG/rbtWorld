@@ -1,6 +1,7 @@
 package za.co.wethinkcode.robots.server.commands.MovementCommand;
 
 import za.co.wethinkcode.robots.models.Directions;
+import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
@@ -13,7 +14,8 @@ import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 public class ForwardCommand extends Command{
 
-
+   
+      String fellInto;
 
     public ForwardCommand( String[] argument, String rbtName) {
         super("forward", argument, rbtName);
@@ -77,21 +79,18 @@ public class ForwardCommand extends Command{
     }
 
     public boolean move(BaseRobot robot,int steps,RobotWorld world){
-      Position pos=  robot.getPosition().copy();
-     Position old=  robot.getPosition().copy();
-      Directions dir = robot.getDirection();
+        Directions dir = robot.getDirection();
+        Position pos=  robot.getPosition().copy();
+        Position old=  robot.getPosition().copy();
+      
      
        for (int i = 1; i <= Math.abs(steps); i++) {
         if (dir == Directions.NORTH) pos.decrementY();
             else if (dir == Directions.SOUTH) pos.incrementY();
             else if (dir == Directions.EAST) pos.incrementX();
             else if (dir == Directions.WEST) pos.decrementX();
-            if(world.isPositionAvailable(pos)){
-                world.swapePosition(pos,robot.getPosition().copy());
-            }
-            else{
-                return false;
-                }
+            if(world.isPositionAvailable(pos)){ fellInto = world.swapePosition(pos,robot.getPosition().copy());  }
+            else{  return false;  }
        }
        return !robot.getPosition().equals(old);
     }
@@ -101,7 +100,7 @@ public class ForwardCommand extends Command{
 
         boolean moved = move(robot, steps,(RobotWorld)world);
         
-        String message = moved ? "DONE" : "BLOCKED";
+        String message =fellInto !=null? "you fell into "+fellInto :moved ? "DONE" : "BLOCKED";
 
         ServerResponseData data = ServerResponseData.builder()
                                                     .message(message)
@@ -110,7 +109,7 @@ public class ForwardCommand extends Command{
         ServerResponseState state = ServerResponseState.builder()
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
-                                                       .status(robot.getOperationState())
+                                                       .status(fellInto != null ? OperationalMode.DEAD :robot.getOperationState())
                                                        .shields(robot.getShield())
                                                        .shots(robot.getShoots())
                                                        .build();

@@ -3,8 +3,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
+@CanGoThrough
 public class Pit extends Impediments {
 
     public Pit( Position position) {
@@ -18,9 +20,9 @@ public class Pit extends Impediments {
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
-       g.fillOval(xcord, ycord, scale, scale/2);
+       g.fillOval(xcord, ycord+(scale/4), scale, scale/2);
        g.setColor(Color.BLACK);
-       g.drawRect(xcord, ycord+(scale/2), scale, scale/2);
+      
        
     }
 

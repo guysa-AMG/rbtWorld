@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import za.co.wethinkcode.robots.client.gui.ClientGui;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
+import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
@@ -489,12 +490,21 @@ public class RobotClient {
     private void handleResponse(String responseJson) {
         Protocol parser = new Protocol();
         ServerResponse response =parser.decodeResponse(responseJson);
+    
        if (oldResponse==null){ oldResponse=response ; }
+    
        String message;
         if (response.getData() !=null)
       { if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
         String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
         System.out.println(widget+message);
+       }}
+         if(response.getState()!=null)
+       {
+         if (response.getState().getStatus() == OperationalMode.DEAD){
+        robotName =null;
+        oldResponse=null;
+        return;
        }}
         parser.updatResponse(oldResponse, response);
         if(response == null){

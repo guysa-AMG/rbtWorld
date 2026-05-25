@@ -6,6 +6,9 @@ import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.impediment.Pit;
+import za.co.wethinkcode.robots.models.impediment.Water;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.ErrorCommand;
@@ -141,7 +144,7 @@ public class RobotWorld extends WorldGenerator  {
         // for (Obstacle obs : obstacles) {
         //     if (!obs.getType().equals("PIT") && obs.isAt(x, y)) return true;
         // }
-      boolean inUse=  this.map.stream().anyMatch(imeds -> imeds.getPosition().equals(new Position(x, y))&& !( imeds instanceof EmptySpot));   
+      boolean inUse=  this.map.stream().anyMatch(imeds -> imeds.getPosition().equals(new Position(x, y))&& !( imeds.getClass().isAnnotationPresent(CanGoThrough.class)));   
         return inUse;
     }
 
@@ -357,15 +360,22 @@ public class RobotWorld extends WorldGenerator  {
      return null;
     }
 
-    public void swapePosition(Position intenPosition, Position old){
+    public String swapePosition(Position intenPosition, Position old){
     Impediments obj2 = getObjectsAtPosition(intenPosition);
     Impediments obj1 = getObjectsAtPosition(old);
-    if (obj1 == null || obj2 == null) return;
+    if (obj2 instanceof Pit || obj2 instanceof Water){
+        robots.remove(((BaseRobot)obj1).getName());
+        this.map.remove(obj1);
+        return obj2.getType();
+    }
+   
+   if(obj1 == null || obj2 == null) return null;
     Position intendedCopy = intenPosition.copy();
     Position oldCopy = old.copy();
     
     obj1.setPosition(intendedCopy);
     obj2.setPosition(oldCopy);
+    return null;
     
     }
 
@@ -380,7 +390,7 @@ public class RobotWorld extends WorldGenerator  {
         // if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) return false;
         // return !isPositionBlocked(x, y);
        Impediments obj = getObjectsAtPosition(intendedPos);
-        return obj instanceof EmptySpot ;
+        return obj.getClass().isAnnotationPresent(CanGoThrough.class) ;
     }
 
     Impediments getObjectsAtPosition(Position pos ){

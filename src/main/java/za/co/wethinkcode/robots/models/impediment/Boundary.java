@@ -3,8 +3,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CannotGoThrough;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
+
+@CannotGoThrough
 public class Boundary extends Impediments {
   
     public Boundary(Position position) {

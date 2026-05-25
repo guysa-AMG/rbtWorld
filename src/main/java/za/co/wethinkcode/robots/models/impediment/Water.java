@@ -3,8 +3,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
+@CanGoThrough
 public class Water extends Impediments {
 
     public Water(Position position) {
