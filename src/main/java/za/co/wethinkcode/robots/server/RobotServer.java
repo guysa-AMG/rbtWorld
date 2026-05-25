@@ -55,7 +55,7 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
-       WorldGenerator world = WorldGenerator.generateFromMapfile("map1.txt");
+       WorldGenerator world = WorldGenerator.generateFromMapfile("biggermap.txt");
        ITCService.getInstance().setWorld(world);
        System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
         
@@ -119,30 +119,25 @@ class ServerCli implements Runnable{
         String[] parts = data.split("\\s+");
         String command="";
         if(parts.length < 1){
-            //TODO rather call interaction into print
-            System.out.println("Invalid input. Use:<command>  (example:Dump)>");
+            System.out.println("Invalid input. Use:<command> [arguments....] (example: launch balanced)>");
             return null;
         }
-      else{ command = parts[0].toLowerCase();  }
+        else{
+            command = parts[0].toLowerCase();
+        }
 
-       try{  ServerCommandTypeEnum.valueOf(command);   }
-      
-       catch(IllegalArgumentException illegal){
-              throw new InvalidCommandException();
-       }
-       
-        ServerRequest req = new ServerRequest("Server", command, new String[]{});
+        try{
+            CommandTypeEnum.valueOf(command);
+        }
+        catch(IllegalArgumentException illegal){
+            throw new InvalidCommandException();
+        }
+
+        String[] arguments = (parts.length > 1) ? Arrays.copyOfRange(parts, 1, parts.length) : new String[0];
+
+        ServerRequest req = new ServerRequest("Server", command, arguments);
         Protocol parser = new Protocol();
-       return  parser.encodeRequest(req);
+        return parser.encodeRequest(req);
     }
 
-}
-
- enum ServerCommandTypeEnum {
-    shutdown,
-    off,
-    show,
-    dump,
-    robots,
-    gui
 }
