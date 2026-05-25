@@ -58,6 +58,18 @@ public class RobotServer {
        WorldGenerator world = WorldGenerator.generateFromMapfile("biggermap.txt");
        ITCService.getInstance().setWorld(world);
        System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
+
+       // Scatter ammo pickups in empty cells so players have something to reload from.
+       if (world instanceof za.co.wethinkcode.robots.server.world.RobotWorld rw) {
+           int placed = 0;
+           int attempts = 0;
+           while (placed < 15 && attempts < 200) {
+               attempts++;
+               za.co.wethinkcode.robots.models.Position p = rw.newSpawnPoint();
+               if (p != null && rw.addAmmoPickup(p)) placed++;
+           }
+           System.out.println("Placed " + placed + " ammo pickups");
+       }
         
        Thread serv_interact_thread = new Thread(new ServerCli());
         serv_interact_thread.start();
