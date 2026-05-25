@@ -27,6 +27,10 @@ public class Mountain extends Impediments {
        int[] ypoints = {ycord,ycord-(width/2),ycord};
        g.fillPolygon(xpoints,ypoints , 3);
 
+         // Optional: Draw a snow cap
+        int[] snowX = {250, 300, 350};
+        int[] snowY = {175, 100, 175};
+     
      
     }
 

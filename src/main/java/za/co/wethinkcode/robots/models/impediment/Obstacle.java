@@ -42,8 +42,11 @@ public  class Obstacle extends Impediments {
 
         @Override
         public void draw(Graphics g) {
-      
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'draw'");
         }
+
+       
 
      
     }

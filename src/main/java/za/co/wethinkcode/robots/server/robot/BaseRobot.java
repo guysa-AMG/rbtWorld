@@ -247,8 +247,8 @@ public abstract class BaseRobot extends Impediments {
     
     }
 
-    public void repair(int maxShield) {
-        this.shield = maxShield;
+    public void repair() {
+        this.shield = this.maxShield;
         this.status = OperationalMode.NORMAL;
     }
 

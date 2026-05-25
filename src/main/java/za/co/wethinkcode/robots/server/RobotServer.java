@@ -55,7 +55,7 @@ public class RobotServer {
        try{
        ServerSocket servSock =  new ServerSocket(this.port);
        boolean loop = true;
-       WorldGenerator world = WorldGenerator.generateFromMapfile("worldmap.txt");
+       WorldGenerator world = WorldGenerator.generateFromMapfile("map1.txt");
        ITCService.getInstance().setWorld(world);
        System.out.println("Loaded Battle Arena world (" + world.getWidth() + "x" + world.getHeight() + ") with " + world.getObstacles().size() + " obstacles");
         

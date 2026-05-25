@@ -26,7 +26,7 @@ public class RepairCommand extends Command {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        robot.reload();
+        robot.repair();
 
        ServerResponseState state = ServerResponseState.builder()
                                                       .status(OperationalMode.REPAIR)

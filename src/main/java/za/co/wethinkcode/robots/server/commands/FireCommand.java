@@ -34,7 +34,7 @@ public class FireCommand extends Command {
                 .distance(trace.distance);
 
         if (trace.victim != null) {
-            int damage = Math.max(1, Iworld.bulletRange - trace.distance + 1);
+            int damage = Math.max(1, Iworld.bulletRange -( trace.distance + 1));
             BaseRobot victim = trace.victim;
             String victimName = victim.getName();
             boolean lethal = victim.takeDamage(damage, robot.getName());
@@ -76,14 +76,14 @@ public class FireCommand extends Command {
         Position start = shooter.getPosition();
         Directions dir = shooter.getDirection();
         int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
-        int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
+        int dy = (dir == Directions.NORTH) ? -1 : (dir == Directions.SOUTH) ? 1 : 0;
 
         int x = start.getX();
         int y = start.getY();
         int travelled = 0;
 
-        int xLimit = (world.getWidth() - 1) / 2;
-        int yLimit = (world.getHeight() - 1) / 2;
+        int xLimit = (world.getWidth() - 1) ;
+        int yLimit = (world.getHeight() - 1) ;
 
         for (int step = 1; step <= Iworld.bulletRange; step++) {
             x += dx;

@@ -19,12 +19,12 @@ public class Tree extends Impediments {
 
      @Override
     public void draw(Graphics g) {
-       g.setColor(Color.green);
+       g.setColor(new Color(34,139,34));
       
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
-       g.drawOval(xcord, ycord, width, height);
+       g.fillOval(xcord, ycord, width, height);
        
     }
 

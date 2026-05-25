@@ -16,12 +16,12 @@ public class Water extends Impediments {
 
      @Override
     public void draw(Graphics g) {
-       g.setColor(Color.white);
+       g.setColor(new Color(54, 134, 214));
       
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
-       g.drawOval(xcord, ycord, width, height);
+       g.fillRect(xcord, ycord, width, height);
        
     }
    

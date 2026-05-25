@@ -249,7 +249,7 @@ public abstract class WorldGenerator implements Iworld  {
             case "M"  -> new Mountain(pos);
             case "P"  -> new Pit(pos);
             case "W"  -> new Water(pos);
-            case "|"  -> new Boundary(pos,true);
+            case "|"  -> new Boundary(pos);
             case "-"  -> new Boundary(pos);
             case "R"  ->new  Rocks(pos);
             case "."  ->new  EmptySpot(pos);
