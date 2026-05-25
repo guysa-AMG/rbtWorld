@@ -1,4 +1,5 @@
 package za.co.wethinkcode.robots.services;
+import za.co.wethinkcode.robots.models.StatusCode;
 /**
  * the ITCService (Inter-Thread Communication Service)
  * 
@@ -105,8 +106,9 @@ public class ITCService {
      * @return boolean
      */
     public boolean terminateServerThread(Socket client){
-        
+       
         Thread thread = this.threads.get(client);
+        this.world.removeRobot(thread.getName());
         this.logger.info(client.getLocalAddress().getHostName()+" is requesting to kill its dedicated thread.");
         if(thread!=null){
             thread.interrupt();
@@ -123,7 +125,7 @@ public class ITCService {
             propLoader.load(propFd);
            return propLoader;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
             this.logger.error(e.getMessage());
             System.err.println(e);
@@ -155,6 +157,19 @@ public class ITCService {
  
     public static  ITCService getInstance(){
         return instance;
+    }
+    public void informClients(){
+        ServerResponse res =  ServerResponse.builder().result(StatusCode.OK).data(ServerResponseData.builder().message("Server Shutting down").build()).build();
+       String data = new Protocol().encodeResponse(res)+"\n";
+        for (Socket client : threads.keySet()){
+            try{
+             client.getOutputStream().write(data.getBytes());
+          
+            }
+            catch(IOException e){
+                this.logger.info("failed to send client a good bye");
+            }
+        }
     }
    
     /**

@@ -1,7 +1,7 @@
 serve:
 	./mvnw exec:java
 connect:
-	mvn compile exec:java -Dexec.mainClass=za.co.wethinkcode.robots.client.RobotClient -Dexec.args="guysa 2146"
+	mvn compile exec:java -Dexec.mainClass=za.co.wethinkcode.robots.client.RobotClient -Dexec.args="localhost 2146"
 compile:
 	
 	./mvnw compile

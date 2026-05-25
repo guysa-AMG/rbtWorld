@@ -1,29 +1,52 @@
 package za.co.wethinkcode.robots.server.world;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.Boundary;
 import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Mountain;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.impediment.Pit;
 import za.co.wethinkcode.robots.models.impediment.Rocks;
 import za.co.wethinkcode.robots.models.impediment.Tree;
+import za.co.wethinkcode.robots.models.impediment.Water;
+import za.co.wethinkcode.robots.server.commands.Command;
+import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
-public abstract class WorldGenerator implements Iworld {
-    
-    private static int MAP_SCALE=20;
+public abstract class WorldGenerator implements Iworld  {
+    public static int MAP_SCALE=100;
+    protected  int width;
+    protected  int height;
+    protected  int visibility;
+    protected  List<Obstacle> obstacles;
+    protected List<Impediments> map;
+    protected ArrayList<Position> emptySpots;
+    protected  Map<String, BaseRobot> robots = new HashMap<>();
+    protected  java.util.Set<Position> ammoPickups = ConcurrentHashMap.newKeySet();
+    protected List<Command> historyOfCommands;
+
    private static Logger log = LoggerFactory.getLogger(WorldGenerator.class);
 
-    
+   
+
 
        public static RobotWorld build() {
         RobotWorld world = new RobotWorld(51, 31, 7);
@@ -157,33 +180,49 @@ public abstract class WorldGenerator implements Iworld {
      * generateFromMap
      * this method would generate a customized world by reading the map file and
      * populating a new RobotWorld Instance.
+     * Create your file according to
+     * this mapping
+     *       "T"  ->   Tree
+             "M"  ->  Mountain
+             "P"  ->  Pit
+             "W"  ->  Water
+             "|"  ->  Boundary
+             "-"  ->  Boundary
+             "R"  ->  Rocks
+             "."  ->  EmptySpot
      * 
      * @param  mapfile needs to be in the ~/src/main/resources/maps/mapfile 
      * @return RobotWorld
      */
     public static RobotWorld generateFromMapfile(String mapfile){
-    RobotWorld world = new RobotWorld();
+   
      try( InputStream map =  WorldGenerator.class.getClassLoader().getResourceAsStream("maps/"+mapfile)){
         if (map!=null){
             List<Impediments> objs=new ArrayList<>();
             BufferedReader buffRd = new BufferedReader(new InputStreamReader(map));
             int row =0 ;
+            int col=0;
             String data;
 
             while (( data = buffRd.readLine())!=null) {
                 String[] straightLineContents = data.toLowerCase().trim().split("\\s+");
                 for (int index=0;index<straightLineContents.length;index++){
-                        int objX = MAP_SCALE * index;
-                        int objY = MAP_SCALE * row;
+                        int objX = index;
+                        int objY =  row;
                         String chr = straightLineContents[index];
                         Impediments obj = mapToImpediments(chr,objX,objY);
                         objs.add(obj);
                         
                 }
-                row++;
-            }
 
+                row++;
+                int lineSize= straightLineContents.length;
+                if(col<lineSize){ col=lineSize; }
+            }
+        
+         RobotWorld world = new RobotWorld(col, row, WorldGenerator.lookRange); 
          world.loadMap(objs);
+         return world;
          
         }
      } catch (IOException e) {
@@ -192,15 +231,26 @@ public abstract class WorldGenerator implements Iworld {
     }
     
 
-      return world;
+      return null;
     }
+    /**
+     * mapToImpediments
+     * creates the correct object of subtype Impediments at the given coordinates (x,y)
+     * 
+     * @param chr
+     * @param x
+     * @param y
+     * @return Impediments
+     */
     private static Impediments mapToImpediments(String chr, int x, int y){
         Position pos = new Position(x, y);
      return switch (chr.toUpperCase()) {
             case "T"  ->  new Tree(pos);
-
             case "M"  -> new Mountain(pos);
-
+            case "P"  -> new Pit(pos);
+            case "W"  -> new Water(pos);
+            case "|"  -> new Boundary(pos);
+            case "-"  -> new Boundary(pos);
             case "R"  ->new  Rocks(pos);
             case "."  ->new  EmptySpot(pos);
 
@@ -208,5 +258,13 @@ public abstract class WorldGenerator implements Iworld {
         };
         
     }
+
+    @Override
+   public int getHeight(){ return this.height;}
+      @Override
+   public int getWidth(){ return this.width;}
+   
+
+  
 
 }

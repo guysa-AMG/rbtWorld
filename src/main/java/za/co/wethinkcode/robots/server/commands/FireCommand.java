@@ -6,8 +6,11 @@ import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
+import za.co.wethinkcode.robots.server.npc.KillerNPC;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
+import za.co.wethinkcode.robots.services.ITCService;
 
 public class FireCommand extends Command {
 
@@ -31,7 +34,7 @@ public class FireCommand extends Command {
                 .distance(trace.distance);
 
         if (trace.victim != null) {
-            int damage = Math.max(1, Iworld.bulletRange - trace.distance + 1);
+            int damage = Math.max(1, Iworld.bulletRange -( trace.distance + 1));
             BaseRobot victim = trace.victim;
             String victimName = victim.getName();
             boolean lethal = victim.takeDamage(damage, robot.getName());
@@ -39,14 +42,14 @@ public class FireCommand extends Command {
                 robot.incrementKills();
                 // Push to victim BEFORE removing — so the event carries their final state.
                 pushKilledEvent(victim, robot.getName(), damage);
-                if (world instanceof za.co.wethinkcode.robots.server.world.RobotWorld rw) {
+                if (world instanceof RobotWorld rw) {
                     rw.removeRobot(victimName);
                 }
                 // Notify NPC controller — resets peace timer and (if the victim is the NPC) schedules respawn.
-                var ctrl = za.co.wethinkcode.robots.services.ITCService.getInstance().getKillerController();
+                var ctrl = ITCService.getInstance().getKillerController();
                 if (ctrl != null) {
                     ctrl.recordKill();
-                    if (za.co.wethinkcode.robots.server.npc.KillerNPC.NAME.equals(victimName)) {
+                    if (KillerNPC.NAME.equals(victimName)) {
                         ctrl.onNPCKilled(robot.getName());
                     }
                 }
@@ -73,20 +76,20 @@ public class FireCommand extends Command {
         Position start = shooter.getPosition();
         Directions dir = shooter.getDirection();
         int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
-        int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
-
-        int xLimit = (world.getWidth() - 1) / 2;
-        int yLimit = (world.getHeight() - 1) / 2;
+        int dy = (dir == Directions.NORTH) ? -1 : (dir == Directions.SOUTH) ? 1 : 0;
 
         int x = start.getX();
         int y = start.getY();
         int travelled = 0;
 
+        int xLimit = (world.getWidth() - 1) ;
+        int yLimit = (world.getHeight() - 1) ;
+
         for (int step = 1; step <= Iworld.bulletRange; step++) {
             x += dx;
             y += dy;
 
-            if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) {
+            if (Math.abs(x) > xLimit || Math.abs(y) > yLimit) {
                 return new Trace(null, travelled);
             }
 

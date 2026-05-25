@@ -8,16 +8,16 @@ import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 public abstract class BaseRobot extends Impediments {
-     public static final int DEFAULT_LIVES = 3;
-
+     public static final int MAX_VALUE = 3;
      private String name;
     
      private Directions direction;
      private int shield;
      private int maxShield;
-     private int fireRate;
+     private int maxReload;
      private OperationalMode status;
      private int worldWidth;
      private int worldHeight;
@@ -29,19 +29,27 @@ public abstract class BaseRobot extends Impediments {
      private long lastMoveTimestamp;
      private int blockedCount;
 
-     public BaseRobot(String name,int x, int y,int shield,int FRate) {
-        super(new Position(x,y),"ROBOT");
+     public BaseRobot(String name,int x, int y,int shield,int shoots) {
+        super(new Position(x,y),"ROBOT","cuterbt.gif");
        
         this.direction = Directions.NORTH;
         this.name = name;
-        this.fireRate = FRate;
         this.shield = shield;
         this.maxShield = shield;
-        this.shoots = Iworld.MAG_MAX;
+        this.maxReload = shoots;
+        this.shoots = shoots;
         this.status = OperationalMode.NORMAL;
-        this.lives = DEFAULT_LIVES;
         this.lastMoveTimestamp = System.currentTimeMillis();
         this.blockedCount = 0;
+
+        // default gameplay metrics
+        this.lives = 3;
+        this.kills = 0;
+        this.killedBy = null;
+
+        int scale = WorldGenerator.MAP_SCALE;
+        width = scale;
+        height = scale;
     }
 
     
@@ -83,7 +91,7 @@ public abstract class BaseRobot extends Impediments {
         return false;
       }
       public void reloadAllBullet(){
-        this.shoots=Iworld.MAG_MAX;
+        this.shoots=this.maxReload;
       }
     
     
@@ -104,9 +112,7 @@ public abstract class BaseRobot extends Impediments {
         return this.shield;
     }
 
-    public int getFireRate() {
-        return this.fireRate;
-    }
+  
 
     public OperationalMode getStatus() {
         return this.status;
@@ -125,9 +131,12 @@ public abstract class BaseRobot extends Impediments {
         this.status = status;
     }
 
-    public static BaseRobot Builder(String name,int x, int y,int shield,int FRate){
-     
-        return new SimpleRobot(name, x,  y, shield, FRate);
+    public static BaseRobot Builder(String name,int x, int y,int shield,int shoots){
+        BaseRobot robot=null;
+        if (shield == shoots){  robot = new SimpleRobot(name, x, y);  }
+        if (shield > shoots){  robot = new DefensiveRobot(name, x, y);  }
+        if (shield < shoots){  robot = new OffensiveRobot(name, x, y);  }
+        return robot;
 
    }
 
@@ -224,22 +233,22 @@ public abstract class BaseRobot extends Impediments {
     }
 
     public boolean shootRobot(BaseRobot robot){
-        if (this.fireRate <= 0){
+        if (this.shoots <= 0){
             sendMessage("No shots remaining, please reload.");
             return false;
         }
-        this.fireRate--;
-        return robot.absorbDamage(this.fireRate);
+        this.shoots--;
+        return robot.absorbDamage(this.shoots);
 
     }
 
-    public void reload(int maxFireRate) {
-        this.fireRate = maxFireRate;
-        this.status = OperationalMode.NORMAL;
+    public void reload() {
+        this.shoots = maxReload;
+    
     }
 
-    public void repair(int maxShield) {
-        this.shield = maxShield;
+    public void repair() {
+        this.shield = this.maxShield;
         this.status = OperationalMode.NORMAL;
     }
 

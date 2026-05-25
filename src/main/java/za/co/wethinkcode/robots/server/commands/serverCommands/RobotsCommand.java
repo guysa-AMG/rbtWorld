@@ -32,7 +32,7 @@ public class RobotsCommand extends Command {
       if (this.restricted){
         return this.restrictedServerResponse();
        }
-      world.addRobot(robotName);
+      ((RobotWorld) world).addRobot(robotName);
       Map<String,BaseRobot> robots = world.getAllRobots();
       StringBuilder listOfBots =  new StringBuilder();
       listOfBots.append("Robots Connected are :   ");

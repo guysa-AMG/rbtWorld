@@ -1,6 +1,10 @@
 package za.co.wethinkcode.robots.models.impediment;
-import za.co.wethinkcode.robots.models.Position;
+import java.awt.Graphics;
 
+import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
+
+@CanGoThrough
 public class EmptySpot extends Impediments {
 
     public EmptySpot( Position position) {
@@ -8,10 +12,10 @@ public class EmptySpot extends Impediments {
     }
 
     @Override
-    public void draw() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'draw'");
+    public void draw(Graphics g) {
+       
     }
+
 
     
 }

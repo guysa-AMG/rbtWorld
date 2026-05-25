@@ -1,6 +1,7 @@
 package za.co.wethinkcode.robots.server.commands.MovementCommand;
 
 import za.co.wethinkcode.robots.models.Directions;
+import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
@@ -9,10 +10,12 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 public class ForwardCommand extends Command{
 
-
+   
+      String fellInto;
 
     public ForwardCommand( String[] argument, String rbtName) {
         super("forward", argument, rbtName);
@@ -27,40 +30,77 @@ public class ForwardCommand extends Command{
             return 1;
         }
     }
+     
+    public boolean moveRobot(String name, int steps,RobotWorld world) {
+        BaseRobot robot = world.getAllRobots().get(name);
+        if (robot == null) return false;
+        Position currentPos = robot.getPosition();
+        Directions dir = robot.getDirection();
 
+        if (currentPos == null || dir == null) return false;
+        if (steps == 0) return true;
+
+        int multiplier = (steps > 0) ? 1 : -1;
+        int nextX = currentPos.getX();
+        int nextY = currentPos.getY();
+        boolean fullyMoved = true;
+
+        int xLimit = (world.getWidth() - 1) / 2;
+        int yLimit = (world.getHeight() - 1) / 2;
+
+        for (int i = 1; i <= Math.abs(steps); i++) {
+            int stepX = nextX;
+            int stepY = nextY;
+
+            if (dir == Directions.NORTH) stepY += multiplier;
+            else if (dir == Directions.SOUTH) stepY -= multiplier;
+            else if (dir == Directions.EAST) stepX += multiplier;
+            else if (dir == Directions.WEST) stepX -= multiplier;
+
+            if (stepX > xLimit || stepX < -xLimit || stepY > yLimit || stepY < -yLimit) {
+                fullyMoved = false;
+                break;
+            }
+
+            if (world.isPositionBlocked(stepX, stepY)) {
+                fullyMoved = false;
+                break;
+            }
+
+          
+
+            nextX = stepX;
+            nextY = stepY;
+        }
+        robot.updatePosition(new Position(nextX, nextY));
+      //  world.consumePickupAt(nextX, nextY, robot);
+        world.updateRobot(name, robot);
+        return fullyMoved;
+    }
+
+    public boolean move(BaseRobot robot,int steps,RobotWorld world){
+        Directions dir = robot.getDirection();
+        Position pos=  robot.getPosition().copy();
+        Position old=  robot.getPosition().copy();
+      
+     
+       for (int i = 1; i <= Math.abs(steps); i++) {
+        if (dir == Directions.NORTH) pos.decrementY();
+            else if (dir == Directions.SOUTH) pos.incrementY();
+            else if (dir == Directions.EAST) pos.incrementX();
+            else if (dir == Directions.WEST) pos.decrementX();
+            if(world.isPositionAvailable(pos)){ fellInto = world.swapePosition(pos,robot.getPosition().copy());  }
+            else{  return false;  }
+       }
+       return !robot.getPosition().equals(old);
+    }
     @Override
     public ServerResponse execute(Iworld world, BaseRobot robot) {
         int steps = parseSteps(this.argument);
-        Position startPos = robot.getPosition().copy();
-        int livesBefore = robot.getLives();
 
-        boolean moved = world.moveRobot(robot.getName(), steps);
-        boolean stillAlive = world.getAllRobots().containsKey(robot.getName());
-        boolean diedThisMove = robot.getLives() < livesBefore;
-        if (!stillAlive) {
-            return ServerResponse.builder()
-                    .result(StatusCode.OK)
-                    .data(ServerResponseData.builder().message("FELL_IN_PIT").position(robot.getPosition()).build())
-                    .build();
-        }
-        if (diedThisMove) {
-            return ServerResponse.builder()
-                    .result(StatusCode.OK)
-                    .data(ServerResponseData.builder().message("RESPAWNED").position(robot.getPosition()).build())
-                    .state(ServerResponseState.builder()
-                            .position(robot.getPosition())
-                            .direction(robot.getDirection())
-                            .status(robot.getOperationState())
-                            .shields(robot.getShield())
-                            .shots(robot.getShoots())
-                            .build())
-                    .build();
-        }
-
-        Position endPos = robot.getPosition();
-        boolean travelled = !endPos.equals(startPos);
-        if (travelled) robot.markMoved(); else robot.incrementBlocked();
-        String message = (moved && travelled) ? "DONE" : "BLOCKED";
+        boolean moved = move(robot, steps,(RobotWorld)world);
+        
+        String message =fellInto !=null? "you fell into "+fellInto :moved ? "DONE" : "BLOCKED";
 
         ServerResponseData data = ServerResponseData.builder()
                                                     .message(message)
@@ -69,8 +109,9 @@ public class ForwardCommand extends Command{
         ServerResponseState state = ServerResponseState.builder()
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
-                                                       .status(robot.getOperationState())
+                                                       .status(fellInto != null ? OperationalMode.DEAD :robot.getOperationState())
                                                        .shields(robot.getShield())
+                                                       .shots(robot.getShoots())
                                                        .build();
 
         ServerResponse res = ServerResponse.builder()

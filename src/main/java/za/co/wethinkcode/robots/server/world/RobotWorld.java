@@ -2,46 +2,59 @@
 
 package za.co.wethinkcode.robots.server.world;
 import za.co.wethinkcode.robots.models.Directions;
-import za.co.wethinkcode.robots.models.ImpedimentType;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.models.impediment.Pit;
+import za.co.wethinkcode.robots.models.impediment.Water;
+import za.co.wethinkcode.robots.models.impediment.ImpedimentsType.CanGoThrough;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.ErrorCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
+import za.co.wethinkcode.robots.server.robot.SimpleRobot;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class RobotWorld extends WorldGenerator {
+public class RobotWorld extends WorldGenerator  {
 
-    private final int width;
-    private final int height;
-    private final int visibility;
-    private final List<Obstacle> obstacles;
-    private List<Impediments> map;
-    private ArrayList<Position> emptySpots;
-    private final Map<String, BaseRobot> robots = new HashMap<>();
-    private final java.util.Set<Position> ammoPickups = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    private List<Command> historyOfCommands;
+    private final java.util.Set<Position> ammoPickups = ConcurrentHashMap.newKeySet();
+  
 
 
     public RobotWorld(int width, int height, int visibility) {
+        super();
         this.width = width;
         this.height = height;
         this.visibility = visibility;
-        this.map=new ArrayList<>();
         this.obstacles= new ArrayList<Obstacle>();
         this.historyOfCommands=new ArrayList<>();
-        
+        // populate map with EmptySpot instances so tests see empty cells by default
+        populateEmptyMap();
+    }
+
+    private void populateEmptyMap() {
+        this.map = new ArrayList<>();
+        this.emptySpots = new ArrayList<>();
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+        for (int x = -xLimit; x <= xLimit; x++) {
+            for (int y = -yLimit; y <= yLimit; y++) {
+                Position p = new Position(x, y);
+                EmptySpot e = new EmptySpot(p);
+                this.map.add(e);
+                this.emptySpots.add(p);
+            }
+        }
     }
 
     public RobotWorld() {
         this(10,10,7);
-        this.emptySpots=new ArrayList<>();
     }
+
+    @Override
     public List<Impediments> getMap(){
         return Collections.unmodifiableList(this.map);
     }
@@ -52,64 +65,7 @@ public class RobotWorld extends WorldGenerator {
     public void setEmptySlots(ArrayList<Position> empties){
         this.emptySpots=empties;
     }
-    @Override
-    public boolean moveRobot(String name, int steps) {
-        BaseRobot robot = robots.get(name);
-        if (robot == null) return false;
-        Position currentPos = robot.getPosition();
-        Directions dir = robot.getDirection();
-
-        if (currentPos == null || dir == null) return false;
-        if (steps == 0) return true;
-
-        int multiplier = (steps > 0) ? 1 : -1;
-        int nextX = currentPos.getX();
-        int nextY = currentPos.getY();
-        boolean fullyMoved = true;
-
-        int xLimit = (width - 1) / 2;
-        int yLimit = (height - 1) / 2;
-
-        for (int i = 1; i <= Math.abs(steps); i++) {
-            int stepX = nextX;
-            int stepY = nextY;
-
-            if (dir == Directions.NORTH) stepY += multiplier;
-            else if (dir == Directions.SOUTH) stepY -= multiplier;
-            else if (dir == Directions.EAST) stepX += multiplier;
-            else if (dir == Directions.WEST) stepX -= multiplier;
-
-            if (stepX > xLimit || stepX < -xLimit || stepY > yLimit || stepY < -yLimit) {
-                fullyMoved = false;
-                break;
-            }
-
-            if (isPositionBlocked(stepX, stepY)) {
-                fullyMoved = false;
-                break;
-            }
-
-            if (isPositionInPit(stepX, stepY)) {
-                robot.updatePosition(new Position(stepX, stepY));
-                int remaining = robot.decrementLives();
-                if (remaining > 0) {
-                    Position spawn = findSafeSpawn();
-                    robot.respawnAt(spawn);
-                    updateRobot(name, robot);
-                } else {
-                    removeRobot(name);
-                }
-                return true;
-            }
-
-            nextX = stepX;
-            nextY = stepY;
-        }
-        robot.updatePosition(new Position(nextX, nextY));
-        consumePickupAt(nextX, nextY, robot);
-        updateRobot(name, robot);
-        return fullyMoved;
-    }
+  
 
     @Override
     public List<Object> look(String name) {
@@ -185,10 +141,11 @@ public class RobotWorld extends WorldGenerator {
 
     @Override
     public boolean isPositionBlocked(int x, int y) {
-        for (Obstacle obs : obstacles) {
-            if (!obs.getType().equals("PIT") && obs.isAt(x, y)) return true;
-        }
-        return false;
+        // for (Obstacle obs : obstacles) {
+        //     if (!obs.getType().equals("PIT") && obs.isAt(x, y)) return true;
+        // }
+      boolean inUse=  this.map.stream().anyMatch(imeds -> imeds.getPosition().equals(new Position(x, y))&& !( imeds.getClass().isAnnotationPresent(CanGoThrough.class)));   
+        return inUse;
     }
 
     @Override
@@ -199,7 +156,16 @@ public class RobotWorld extends WorldGenerator {
         return false;
     }
 
-    public void addObstacle(Obstacle obstacle) { this.obstacles.add(obstacle); }
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
+        // ensure the world map reflects the obstacle at that position
+        Impediments existing = getObjectsAtPosition(obstacle.getPosition());
+        if (existing != null) {
+            this.map.remove(existing);
+        }
+        this.map.add(obstacle);
+        this.emptySpots.remove(obstacle.getPosition());
+    }
 
     /**
      * Add a pickup ONLY if the cell is free of obstacles/pits and not already a pickup.
@@ -223,35 +189,35 @@ public class RobotWorld extends WorldGenerator {
     }
 
     /** Find a safe spawn cell: in-bounds, not blocked, not a pit, not occupied, optionally far from {@code avoid}. */
-    public Position findSafeSpawn(List<Position> avoid, int minDistance) {
-        int xLimit = (width - 1) / 2;
-        int yLimit = (height - 1) / 2;
-        java.util.Random rnd = new java.util.Random();
-        for (int attempt = 0; attempt < 500; attempt++) {
-            int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
-            int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
-            if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
-            if (robotAtCell(x, y, null) != null) continue;
-            // Avoid pickups and avoid-list cells
-            if (cellInList(x, y, getAmmoPickups(), 0)) continue;
-            if (avoid != null && !avoid.isEmpty() && cellInList(x, y, avoid, minDistance)) continue;
-            return new Position(x, y);
-        }
-        // Fallback: relax the minDistance constraint
-        for (int attempt = 0; attempt < 100; attempt++) {
-            int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
-            int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
-            if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
-            if (robotAtCell(x, y, null) != null) continue;
-            if (cellInList(x, y, getAmmoPickups(), 0)) continue;
-            return new Position(x, y);
-        }
-        return new Position(0, 0);
-    }
+    // public Position findSafeSpawn(List<Position> avoid, int minDistance) {
+    //     int xLimit = (width - 1) / 2;
+    //     int yLimit = (height - 1) / 2;
+    //     java.util.Random rnd = new java.util.Random();
+    //     for (int attempt = 0; attempt < 500; attempt++) {
+    //         int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
+    //         int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
+    //         if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
+    //         if (robotAtCell(x, y, null) != null) continue;
+    //         // Avoid pickups and avoid-list cells
+    //         if (cellInList(x, y, getAmmoPickups(), 0)) continue;
+    //         if (avoid != null && !avoid.isEmpty() && cellInList(x, y, avoid, minDistance)) continue;
+    //         return new Position(x, y);
+    //     }
+    //     // Fallback: relax the minDistance constraint
+    //     for (int attempt = 0; attempt < 100; attempt++) {
+    //         int x = rnd.nextInt(2 * xLimit + 1) - xLimit;
+    //         int y = rnd.nextInt(2 * yLimit + 1) - yLimit;
+    //         if (isPositionBlocked(x, y) || isPositionInPit(x, y)) continue;
+    //         if (robotAtCell(x, y, null) != null) continue;
+    //         if (cellInList(x, y, getAmmoPickups(), 0)) continue;
+    //         return new Position(x, y);
+    //     }
+    //     return new Position(0, 0);
+    // }
 
-    public Position findSafeSpawn() {
-        return findSafeSpawn(null, 0);
-    }
+    // public Position findSafeSpawn() {
+    //     return findSafeSpawn(null, 0);
+    // }
 
     private boolean cellInList(int x, int y, List<Position> list, int minDistance) {
         for (Position p : list) {
@@ -262,37 +228,62 @@ public class RobotWorld extends WorldGenerator {
         return false;
     }
 
-    private void consumePickupAt(int x, int y, BaseRobot robot) {
-        Position match = null;
-        for (Position p : this.ammoPickups) {
-            if (p.getX() == x && p.getY() == y) { match = p; break; }
-        }
-        if (match != null) {
-            this.ammoPickups.remove(match);
-            robot.refillAmmo();
-            // Respawn a fresh pickup elsewhere, at least 6 cells away from the picker.
-            Position fresh = findSafeSpawn(List.of(robot.getPosition()), 6);
-            addAmmoPickup(fresh);
-        }
-    }
+    // public void consumePickupAt(int x, int y, BaseRobot robot) {
+    //     Position match = null;
+    //     for (Position p : this.ammoPickups) {
+    //         if (p.getX() == x && p.getY() == y) { match = p; break; }
+    //     }
+    //     if (match != null) {
+    //         this.ammoPickups.remove(match);
+    //         robot.refillAmmo();
+    //         // Respawn a fresh pickup elsewhere, at least 6 cells away from the picker.
+    //         Position fresh = findSafeSpawn(List.of(robot.getPosition()), 6);
+    //         addAmmoPickup(fresh);
+    //     }
+    // }
 
     // OTHER INTERFACE METHODS
     @Override
-     public boolean addRobot(String name) {
+     public boolean addRobot(String name,int shield,int shoots) {
         if (robots.containsKey(name)) return false;
+    
         List<Position> others = new ArrayList<>();
         for (BaseRobot r : robots.values()) {
             if (r.getPosition() != null) others.add(r.getPosition());
         }
-        Position spawn = findSafeSpawn(others, 8);
-        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), 3, 2);
+        // Position spawn = findSafeSpawn(others, 8);
+        Position spawn = newSpawnPoint();
+        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots);
         robots.put(name, robot);
+        this.map.remove(getObjectsAtPosition(spawn));
+        this.map.add(robot);
+        // maintain emptySpots list
+        this.emptySpots.remove(spawn);
         return true;
     }
+     public boolean addRobot(String name) {
+      return addRobot(name,1,1);
+    }
+   
 
     @Override
      public void removeRobot(String name) {
-        robots.remove(name);
+        try{
+       robots.remove(name);
+       Impediments bots  = this.map.stream()
+                                    .filter(imped -> imped instanceof BaseRobot)
+                                    .filter(bot -> ((BaseRobot)bot).getName().toLowerCase().equals(name))
+                                    .findFirst()
+                                    .get();
+        Position pos = bots.getPosition();
+        this.map.add(new EmptySpot(pos));
+        this.map.remove(bots);
+       
+        }
+        catch(NoSuchElementException e){
+            
+        }
+       
 
     }
 
@@ -315,13 +306,12 @@ public class RobotWorld extends WorldGenerator {
         robot.updateDirection(next);
         updateRobot(name, robot);
     }
-    private void updateRobot(String name,BaseRobot robot){
+    public void updateRobot(String name,BaseRobot robot){
         this.robots.put(name, robot);
 
     }
 
-    @Override public int getWidth() { return width; }
-    @Override public int getHeight() { return height; }
+ 
     @Override public List<Obstacle> getObstacles() { return new ArrayList<>(obstacles); }
 
     @Override public String getRobotState(String n) {
@@ -361,6 +351,7 @@ public class RobotWorld extends WorldGenerator {
     var filtered= this.map.stream()
              .filter(obj->obj instanceof EmptySpot)
              .toList();
+    
     if (filtered.size()>0)
     {Random rdm = new Random();
     int randomIndex = rdm.nextInt(filtered.size());
@@ -369,31 +360,52 @@ public class RobotWorld extends WorldGenerator {
      return null;
     }
 
-	@Override
-	public boolean moveRobot(String name, Position IntendedPosition) {
-        return true;
-
+    public String swapePosition(Position intenPosition, Position old){
+    Impediments obj2 = getObjectsAtPosition(intenPosition);
+    Impediments obj1 = getObjectsAtPosition(old);
+    if (obj2 instanceof Pit || obj2 instanceof Water){
+        robots.remove(((BaseRobot)obj1).getName());
+        this.map.remove(obj1);
+        return obj2.getType();
+    }
+   
+   if(obj1 == null || obj2 == null) return null;
+    Position intendedCopy = intenPosition.copy();
+    Position oldCopy = old.copy();
+    
+    obj1.setPosition(intendedCopy);
+    obj2.setPosition(oldCopy);
+    return null;
+    
     }
 
 	@Override
 	public boolean isPositionAvailable(Position intendedPos) {
-        if (intendedPos == null) return false;
-        int x = intendedPos.getX();
-        int y = intendedPos.getY();
-        int xLimit = (width - 1) / 2;
-        int yLimit = (height - 1) / 2;
-        if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) return false;
-        return !isPositionBlocked(x, y);
+         if (intendedPos == null || !intendedPos.isIn(0,0,width,height)) return false;
+
+        // int x = intendedPos.getX();
+        // int y = intendedPos.getY();
+        // int xLimit = (width - 1) / 2;
+        // int yLimit = (height - 1) / 2;
+        // if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) return false;
+        // return !isPositionBlocked(x, y);
+       Impediments obj = getObjectsAtPosition(intendedPos);
+        return obj.getClass().isAnnotationPresent(CanGoThrough.class) ;
     }
 
     Impediments getObjectsAtPosition(Position pos ){
         if (pos==null){
             return null;
         }
+        try{
        return  this.map.stream()
                         .filter(obj->obj.getPosition()
                                         .equals(pos)).findFirst()
                                                      .get();
+        }
+        catch(NoSuchElementException ex){
+            return null;
+        }
       
     }
     @Override
@@ -461,9 +473,9 @@ public class RobotWorld extends WorldGenerator {
         return this.historyOfCommands;
     }
 
+
    
 
-  
 
   
 }

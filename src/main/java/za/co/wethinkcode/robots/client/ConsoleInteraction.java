@@ -21,7 +21,7 @@ public class ConsoleInteraction {
    // The ascii art that will appear client side will be here
 
     public String getBenderAscii() {
-        return """
+        return ANSI_CYAN + """
                  *Queue Dramatic music*
                                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
                                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⢊⣤⣄⣀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
@@ -38,7 +38,8 @@ public class ConsoleInteraction {
                                 ⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⣿⣾⣭⣽⣟⣛⣛⣛⣻⣥⣿⣿⣿⣦⠀⠀⠀⠀
                                 ⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀
                                 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠿⠿⠿⣿⣿⣿⣿⣿⣿⠿⠿⠓⠀⠀
-                                It's 3027
+                            """+ANSI_RESET +"""
+                                 ;    It's 3027
                 During the wake of the new world, after the robot uprising led by the one, the only me,
                 the handsome devil you see looking right at you. Anyway Welcome new bot to ROBOT WORLDS !
           

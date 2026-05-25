@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import za.co.wethinkcode.robots.client.gui.ClientGui;
 import za.co.wethinkcode.robots.errors.InvalidCommandException;
 import za.co.wethinkcode.robots.models.IpAddr;
+import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerRequest;
@@ -16,7 +17,9 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
+import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
+import za.co.wethinkcode.robots.server.commands.QuitCommand;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 import java.io.BufferedReader;
@@ -346,6 +349,7 @@ public class RobotClient {
     }
 
     public void start() {
+
           boolean run=true;
 
         try{
@@ -364,6 +368,14 @@ public class RobotClient {
             System.out.println(ui.getBenderAscii());
 
             Scanner scan = new Scanner(System.in);
+
+            
+            Runtime.getRuntime().addShutdownHook(new Thread(()->{
+                System.out.print("\nshutting down please be patient ...");
+                ServerRequest req= new ServerRequest(robotName, "quit");
+               String quitReq = new Protocol().encodeRequest(req).toString();
+               serverOut.println(quitReq);
+            }));
           while (run) {
             //TODO rather call interaction into print 
             System.out.println("Type: <robotName> <command> [arguments....] (example: HAL launch)");
@@ -448,6 +460,7 @@ public class RobotClient {
             //TODO rather call interaction into print
             System.out.println(" \0x33[91m I/O error in client loop ("+ e.getMessage()+")");
         }
+        
     }
 
     public static ServerRequest toRequest(String userLine) throws InvalidCommandException  {
@@ -477,12 +490,22 @@ public class RobotClient {
     private void handleResponse(String responseJson) {
         Protocol parser = new Protocol();
         ServerResponse response =parser.decodeResponse(responseJson);
+    
        if (oldResponse==null){ oldResponse=response ; }
+    
        String message;
-       if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
+        if (response.getData() !=null)
+      { if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
         String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
         System.out.println(widget+message);
-       }
+       }}
+         if(response.getState()!=null)
+       {
+         if (response.getState().getStatus() == OperationalMode.DEAD){
+        robotName =null;
+        oldResponse=null;
+        return;
+       }}
         parser.updatResponse(oldResponse, response);
         if(response == null){
             //TODO rather call interaction into print

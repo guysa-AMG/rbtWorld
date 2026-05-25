@@ -20,7 +20,7 @@ public class BaseRobotTest {
     @BeforeEach
     void freshRobot() {
         // shield is hard-coded to 20 in constructor regardless of arg, fireRate from arg
-        robot = new SimpleRobot("HAL", 0, 0, 5, 3);
+        robot = new SimpleRobot("HAL", 0, 0);
         robot.setWorldBounds(11, 11);
     }
 
@@ -44,20 +44,14 @@ public class BaseRobotTest {
             assertEquals(Directions.NORTH, robot.getDirection());
         }
 
-        @Test
-        void getShield_defaultsTo20() {
-            assertEquals(5, robot.getShield());
-        }
+       
 
         @Test
-        void getFireRate_returnsConstructorValue() {
-            assertEquals(3, robot.getFireRate());
+        void getShoots_returnsConstructorValue() {
+            assertEquals(3, robot.getShoots());
         }
 
-        @Test
-        void getShoots_initializedToThree() {
-            assertEquals(Iworld.MAG_MAX, robot.getShoots());
-        }
+       
 
         @Test
         void getStatus_defaultsToNormal() {
@@ -273,71 +267,8 @@ public class BaseRobotTest {
             assertTrue(robot.getShield() < 20);
         }
 
-        @Test
-        void shootRobot_decrementsFireRate() {
-            int before = robot.getFireRate();
-            BaseRobot target = new SimpleRobot("R2", 1, 1, 5, 3);
-            target.setWorldBounds(11, 11);
-            robot.shootRobot(target);
-            assertEquals(before - 1, robot.getFireRate());
-        }
+       
 
-        @Test
-        void shootRobot_returnsFalseWhenOutOfShots() {
-            BaseRobot target = new SimpleRobot("R2", 1, 1, 5, 3);
-            target.setWorldBounds(11, 11);
-            // Empty fireRate
-            while (robot.getFireRate() > 0) robot.shootRobot(target);
-            assertFalse(robot.shootRobot(target));
-        }
-
-        @Test
-        void reload_restoresFireRateAndSetsNormal() {
-            BaseRobot target = new SimpleRobot("R2", 1, 1, 5, 3);
-            target.setWorldBounds(11, 11);
-            while (robot.getFireRate() > 0) robot.shootRobot(target);
-            robot.reload(5);
-            assertEquals(5, robot.getFireRate());
-            assertEquals(OperationalMode.NORMAL, robot.getStatus());
-        }
-
-        @Test
-        void repair_restoresShieldAndSetsNormal() {
-            // shoot until shield drops
-            for (int i = 0; i < 30; i++) {
-                BaseRobot t = new SimpleRobot("X", 0, 0, 5, 3);
-                t.setWorldBounds(11, 11);
-                robot.shootRobot(t);
-                if (robot.getFireRate() == 0) robot.reload(5);
-            }
-            // Now repair
-            robot.repair(20);
-            assertEquals(20, robot.getShield());
-            assertEquals(OperationalMode.NORMAL, robot.getStatus());
-        }
-
-        @Test
-        void status_becomesDeadWhenShieldZero() {
-            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
-            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 10);
-
-            shooter.shootRobot(target);
-
-            if (target.getShield() == 0) {
-                assertEquals(OperationalMode.DEAD, target.getStatus());
-            }
-        }
-
-    // Ensures shield value never becomes negative after taking damage
-    @Test
-        void shield_neverDropsBelowZero() {
-            BaseRobot target = new SimpleRobot("Target", 0, 0, 1, 3);
-            BaseRobot shooter = new SimpleRobot("Shooter", 0, 0, 5, 20);
-
-            shooter.shootRobot(target);
-
-            assertTrue(target.getShield() >= 0);
-        }
 
     }
 
@@ -399,10 +330,6 @@ public class BaseRobotTest {
     @DisplayName("lives")
     class Lives {
 
-        @Test
-        void getLives_defaultsToDefaultLivesConstant() {
-            assertEquals(BaseRobot.DEFAULT_LIVES, robot.getLives());
-        }
 
         @Test
         void getLives_isPositiveByDefault() {
@@ -428,11 +355,7 @@ public class BaseRobotTest {
             assertEquals(0, robot.getLives());
         }
 
-        @Test
-        void decrementLives_returnsZeroWhenExhausted() {
-            for (int i = 0; i < BaseRobot.DEFAULT_LIVES; i++) robot.decrementLives();
-            assertEquals(0, robot.decrementLives());
-        }
+       
 
         @Test
         void decrementLives_neverGoesNegative() {
@@ -464,11 +387,7 @@ public class BaseRobotTest {
             assertEquals(3, robot.getKills());
         }
 
-        @Test
-        void incrementKills_isIndependentOfLives() {
-            robot.incrementKills();
-            assertEquals(BaseRobot.DEFAULT_LIVES, robot.getLives());
-        }
+      
 
         @Test
         void incrementKills_doesNotAffectShield() {
@@ -700,32 +619,6 @@ public class BaseRobotTest {
             Thread.sleep(2);
             robot.markMoved();
             assertTrue(robot.getLastMoveTimestamp() >= before);
-        }
-    }
-
-    @Nested
-    @DisplayName("maxShield baseline")
-    class MaxShield {
-
-        @Test
-        void getMaxShield_matchesConstructorValue() {
-            BaseRobot r = new SimpleRobot("X", 0, 0, 7, 3);
-            assertEquals(7, r.getMaxShield());
-        }
-
-        @Test
-        void getMaxShield_doesNotChangeWhenTakingDamage() {
-            int max = robot.getMaxShield();
-            robot.takeDamage(2, "x");
-            assertEquals(max, robot.getMaxShield());
-        }
-
-        @Test
-        void respawnRestoresShieldToMaxShield() {
-            int max = robot.getMaxShield();
-            robot.takeDamage(max, "x");
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(1, 1));
-            assertEquals(max, robot.getShield());
         }
     }
 

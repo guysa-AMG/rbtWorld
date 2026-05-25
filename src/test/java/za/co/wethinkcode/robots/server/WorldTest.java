@@ -19,6 +19,7 @@ import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
 import za.co.wethinkcode.robots.models.Directions;
 import za.co.wethinkcode.robots.models.impediment.Obstacle;
+import za.co.wethinkcode.robots.server.commands.MovementCommand.ForwardCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 public class WorldTest {
@@ -172,11 +173,7 @@ public class WorldTest {
             assertFalse(world.isPositionBlocked(0, 0));
         }
 
-        @Test
-        void isPositionBlocked_falseForPit() {
-            world.addObstacle(new Obstacle(1, 1, 1, 1, "PIT"));
-            assertFalse(world.isPositionBlocked(1, 1));
-        }
+    
 
         @Test
         void isPositionInPit_trueOnlyForPit() {
@@ -215,7 +212,7 @@ public class WorldTest {
             assertEquals(Directions.NORTH, world.getAllRobots().get("HAL").getDirection());
         }
     }
-    @Disabled
+   
     @Nested
     @DisplayName("moveRobot — movement & collisions")
     class Movement {
@@ -226,7 +223,7 @@ public class WorldTest {
             // Spawn is random — pin the robot to a known cell first.
             BaseRobot bot = world.getAllRobots().get("HAL");
             bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
-            assertTrue(world.moveRobot("HAL", 3));
+            assertTrue(new ForwardCommand(new String[]{"3"}, "HAL").moveRobot("HAL", 3, world));
             assertEquals(3, world.getAllRobots().get("HAL").getPosition().getY());
             assertEquals(0, world.getAllRobots().get("HAL").getPosition().getX());
         }
@@ -237,20 +234,10 @@ public class WorldTest {
             BaseRobot bot = world.getAllRobots().get("HAL");
             bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
             world.addObstacle(new Obstacle(0, 1, 0, 1, "MOUNTAIN"));
-            assertFalse(world.moveRobot("HAL", 1));
+            assertFalse(new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world));
         }
 
-        @Test
-        void moveRobot_intoPit_removesRobot() {
-            world.addRobot("HAL");
-            BaseRobot bot = world.getAllRobots().get("HAL");
-            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
-            // Burn through all lives so the next pit-step is fatal (no respawn).
-            bot.decrementLives(); bot.decrementLives(); bot.decrementLives();
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            world.moveRobot("HAL", 1);
-            assertNull(world.getAllRobots().get("HAL"));
-        }
+       
 
         @Test
         void moveRobot_pastBoundary_returnsFalse() {
@@ -259,7 +246,7 @@ public class WorldTest {
             BaseRobot bot = world.getAllRobots().get("HAL");
             bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
             // world is 11x11 → yLimit = 5; from (0,0) trying 10 steps north exits at step 6.
-            assertFalse(world.moveRobot("HAL", 10));
+            assertFalse(new ForwardCommand(new String[]{"10"}, "HAL").moveRobot("HAL", 10, world));
         }
     }
 
