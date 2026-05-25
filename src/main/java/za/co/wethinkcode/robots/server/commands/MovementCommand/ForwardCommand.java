@@ -79,18 +79,21 @@ public class ForwardCommand extends Command{
     }
 
     public boolean move(BaseRobot robot,int steps,RobotWorld world){
+        fellInto = null;
         Directions dir = robot.getDirection();
         Position pos=  robot.getPosition().copy();
         Position old=  robot.getPosition().copy();
-      
-     
+
        for (int i = 1; i <= Math.abs(steps); i++) {
         if (dir == Directions.NORTH) pos.decrementY();
             else if (dir == Directions.SOUTH) pos.incrementY();
             else if (dir == Directions.EAST) pos.incrementX();
             else if (dir == Directions.WEST) pos.decrementX();
-            if(world.isPositionAvailable(pos)){ fellInto = world.swapePosition(pos,robot.getPosition().copy());  }
-            else{  return false;  }
+            if(world.isPositionAvailable(pos)){
+                fellInto = world.swapePosition(pos,robot.getPosition().copy());
+                if (fellInto != null) return false;
+            }
+            else{  return !robot.getPosition().equals(old);  }
        }
        return !robot.getPosition().equals(old);
     }

@@ -51,7 +51,13 @@ class ClientHandler implements Runnable {
                     }
                 } catch (Exception ignore) { /* keep going — server still handles bad requests */ }
 
-                String sendableData = ITCService.getInstance().doThisCommand(data);
+                String sendableData;
+                try {
+                    sendableData = ITCService.getInstance().doThisCommand(data);
+                } catch (Exception ex) {
+                    this.log.error("Unexpected error processing command from " + client + ": " + ex.getMessage());
+                    sendableData = "{\"result\":\"ERROR\",\"data\":{\"message\":\"Something went wrong on our side. Your connection is still open — try another command.\"}}";
+                }
                 if ("off".equals(sendableData)) {
                     this.specificSock.close();
                     ITCService.getInstance().terminateServerThread(specificSock);

@@ -13,7 +13,7 @@ import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 public class BackCommand extends Command{
 
-
+    String fellInto;
 
     public BackCommand( String[] argument, String rbtName) {
         super("back", argument, rbtName);
@@ -77,19 +77,21 @@ public class BackCommand extends Command{
     }
 
     public boolean move(BaseRobot robot,int steps,RobotWorld world){
+      fellInto = null;
       Position pos=  robot.getPosition().copy();
-     Position old=  robot.getPosition().copy();
+      Position old=  robot.getPosition().copy();
       Directions dir = robot.getDirection();
-     
+
        for (int i = 1; i <= Math.abs(steps); i++) {
         if (dir == Directions.NORTH) pos.incrementY();
             else if (dir == Directions.SOUTH) pos.decrementY();
             else if (dir == Directions.EAST) pos.decrementX();
             else if (dir == Directions.WEST) pos.incrementX();
             if(world.isPositionAvailable(pos)){
-                world.swapePosition(pos,robot.getPosition().copy());
+                fellInto = world.swapePosition(pos,robot.getPosition().copy());
+                if (fellInto != null) return false;
             }
-            else{ return false; }
+            else{ return !robot.getPosition().equals(old); }
        }
        return !robot.getPosition().equals(old);
     }
@@ -98,8 +100,8 @@ public class BackCommand extends Command{
         int steps = parseSteps(this.argument);
 
         boolean moved = move(robot, steps,(RobotWorld)world);
-        
-        String message = moved ? "DONE" : "BLOCKED";
+
+        String message = fellInto != null ? "you fell into " + fellInto : moved ? "DONE" : "BLOCKED";
 
         ServerResponseData data = ServerResponseData.builder()
                                                     .message(message)
@@ -108,7 +110,7 @@ public class BackCommand extends Command{
         ServerResponseState state = ServerResponseState.builder()
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
-                                                       .status(robot.getOperationState())
+                                                       .status(fellInto != null ? za.co.wethinkcode.robots.models.OperationalMode.DEAD : robot.getOperationState())
                                                        .shields(robot.getShield())
                                                        .shots(robot.getShoots())
                                                        .build();

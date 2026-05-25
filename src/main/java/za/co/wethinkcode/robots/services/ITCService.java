@@ -228,10 +228,21 @@ public class ITCService {
      * @return ServerResponse as Json string 
      */
     public synchronized  String doThisCommand(String data){
-
-        this.logger.info("Command recieved: "+data);
-        Protocol protocol =new Protocol();
-        ServerRequest req =  protocol.decodeRequest(data);
+        Protocol protocol = new Protocol();
+        ServerRequest req;
+        try {
+            this.logger.info("Command recieved: "+data);
+            req = protocol.decodeRequest(data);
+        } catch (Exception e) {
+            this.logger.warn("Could not decode request: " + e.getMessage());
+            ServerResponse err = ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder()
+                            .message("I could not understand that. Use: <robot> <command> [args]   e.g.  HAL launch balanced")
+                            .build())
+                    .build();
+            return protocol.encodeResponse(err);
+        }
 
         if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){return "off";}
 
@@ -256,7 +267,18 @@ public class ITCService {
         }
 
         Command com = Command.generate(req);
-        ServerResponse response = this.world.perform(com);
+        ServerResponse response;
+        try {
+            response = this.world.perform(com);
+        } catch (Exception e) {
+            this.logger.warn("Command execution failed: " + e.getMessage());
+            response = ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder()
+                            .message("That move could not be completed. Try 'state' to see where you are or 'look' to scan around.")
+                            .build())
+                    .build();
+        }
 
         // Anything that went through the world may have changed it — let subscribers refresh.
         broadcastWorldState();

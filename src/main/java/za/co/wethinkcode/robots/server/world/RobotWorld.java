@@ -363,20 +363,22 @@ public class RobotWorld extends WorldGenerator  {
     public String swapePosition(Position intenPosition, Position old){
     Impediments obj2 = getObjectsAtPosition(intenPosition);
     Impediments obj1 = getObjectsAtPosition(old);
+    if (obj1 == null || obj2 == null) return null;
     if (obj2 instanceof Pit || obj2 instanceof Water){
-        robots.remove(((BaseRobot)obj1).getName());
+        if (obj1 instanceof BaseRobot) {
+            robots.remove(((BaseRobot)obj1).getName());
+        }
         this.map.remove(obj1);
         return obj2.getType();
     }
-   
-   if(obj1 == null || obj2 == null) return null;
+
     Position intendedCopy = intenPosition.copy();
     Position oldCopy = old.copy();
-    
+
     obj1.setPosition(intendedCopy);
     obj2.setPosition(oldCopy);
     return null;
-    
+
     }
 
 	@Override
