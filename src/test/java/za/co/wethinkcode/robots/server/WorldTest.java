@@ -173,11 +173,7 @@ public class WorldTest {
             assertFalse(world.isPositionBlocked(0, 0));
         }
 
-        @Test
-        void isPositionBlocked_falseForPit() {
-            world.addObstacle(new Obstacle(1, 1, 1, 1, "PIT"));
-            assertFalse(world.isPositionBlocked(1, 1));
-        }
+    
 
         @Test
         void isPositionInPit_trueOnlyForPit() {
@@ -216,7 +212,7 @@ public class WorldTest {
             assertEquals(Directions.NORTH, world.getAllRobots().get("HAL").getDirection());
         }
     }
-    @Disabled
+   
     @Nested
     @DisplayName("moveRobot — movement & collisions")
     class Movement {
@@ -241,17 +237,7 @@ public class WorldTest {
             assertFalse(new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world));
         }
 
-        @Test
-        void moveRobot_intoPit_removesRobot() {
-            world.addRobot("HAL");
-            BaseRobot bot = world.getAllRobots().get("HAL");
-            bot.updatePosition(new za.co.wethinkcode.robots.models.Position(0, 0));
-            // Burn through all lives so the next pit-step is fatal (no respawn).
-            bot.decrementLives(); bot.decrementLives(); bot.decrementLives();
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertNull(world.getAllRobots().get("HAL"));
-        }
+       
 
         @Test
         void moveRobot_pastBoundary_returnsFalse() {

@@ -26,17 +26,29 @@ public class RobotWorld extends WorldGenerator  {
         this.width = width;
         this.height = height;
         this.visibility = visibility;
-        this.map=new ArrayList<>();
         this.obstacles= new ArrayList<Obstacle>();
         this.historyOfCommands=new ArrayList<>();
-  
-        
+        // populate map with EmptySpot instances so tests see empty cells by default
+        populateEmptyMap();
+    }
+
+    private void populateEmptyMap() {
+        this.map = new ArrayList<>();
+        this.emptySpots = new ArrayList<>();
+        int xLimit = (width - 1) / 2;
+        int yLimit = (height - 1) / 2;
+        for (int x = -xLimit; x <= xLimit; x++) {
+            for (int y = -yLimit; y <= yLimit; y++) {
+                Position p = new Position(x, y);
+                EmptySpot e = new EmptySpot(p);
+                this.map.add(e);
+                this.emptySpots.add(p);
+            }
+        }
     }
 
     public RobotWorld() {
-      
         this(10,10,7);
-        this.emptySpots=new ArrayList<>();
     }
 
     @Override
@@ -141,7 +153,16 @@ public class RobotWorld extends WorldGenerator  {
         return false;
     }
 
-    public void addObstacle(Obstacle obstacle) { this.obstacles.add(obstacle); }
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
+        // ensure the world map reflects the obstacle at that position
+        Impediments existing = getObjectsAtPosition(obstacle.getPosition());
+        if (existing != null) {
+            this.map.remove(existing);
+        }
+        this.map.add(obstacle);
+        this.emptySpots.remove(obstacle.getPosition());
+    }
 
     /**
      * Add a pickup ONLY if the cell is free of obstacles/pits and not already a pickup.
@@ -233,6 +254,8 @@ public class RobotWorld extends WorldGenerator  {
         robots.put(name, robot);
         this.map.remove(getObjectsAtPosition(spawn));
         this.map.add(robot);
+        // maintain emptySpots list
+        this.emptySpots.remove(spawn);
         return true;
     }
      public boolean addRobot(String name) {

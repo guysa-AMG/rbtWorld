@@ -82,9 +82,7 @@ public class LookCommand extends Command {
         List<ServerResponseObject> objects;
         if (world instanceof RobotWorld rw) {
             objects = lookAround((RobotWorld)world);
-        } else {
-            objects = List.of();
-        }
+        } else { objects = List.of();  }
 
         ServerResponseData data = ServerResponseData.builder()
                 .message(objects.isEmpty() ? "Nothing in sight" : "OK")

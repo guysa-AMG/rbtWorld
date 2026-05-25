@@ -36,10 +36,10 @@ public class LaunchCommand extends Command {
        }
        if (argument.length==1){
       String kind =  argument[0].toLowerCase();
-      switch (kind) {
+      switch (kind.toLowerCase()) {
         case "balanced" ->  world.addRobot(robotName,6,6);
-        case "offensive" -> world.addRobot(robotName,9,3);
-        case "defensive" -> world.addRobot(robotName,3,9);
+        case "offensive" -> world.addRobot(robotName,3,9);
+        case "defensive" -> world.addRobot(robotName,9,3);
         default -> world.addRobot(robotName,6,6);
       }
        }

@@ -42,6 +42,11 @@ public abstract class BaseRobot extends Impediments {
         this.lastMoveTimestamp = System.currentTimeMillis();
         this.blockedCount = 0;
 
+        // default gameplay metrics
+        this.lives = 3;
+        this.kills = 0;
+        this.killedBy = null;
+
         int scale = WorldGenerator.MAP_SCALE;
         width = scale;
         height = scale;

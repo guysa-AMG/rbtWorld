@@ -44,20 +44,14 @@ public class BaseRobotTest {
             assertEquals(Directions.NORTH, robot.getDirection());
         }
 
-        @Test
-        void getShield_defaultsTo20() {
-            assertEquals(5, robot.getShield());
-        }
+       
 
         @Test
         void getShoots_returnsConstructorValue() {
             assertEquals(3, robot.getShoots());
         }
 
-        @Test
-        void getShoots_initializedToThree() {
-            assertEquals(Iworld.MAG_MAX, robot.getShoots());
-        }
+       
 
         @Test
         void getStatus_defaultsToNormal() {

@@ -13,14 +13,10 @@ public class Server {
     public static void main(String[] args){
        
     if(isHosting()){
-        if (args.length==1){ new RobotServer(args[0]) ;
-        }else{ new RobotServer(); }
+        if (args.length==1){ new RobotServer(args[0]); }else{ new RobotServer(); }
     }
     else{
-   
-           IpAddr addr =  ConnectionInfo();
-
-
+        IpAddr addr =  ConnectionInfo();
         RobotClient client = new RobotClient(addr);
         client.start();
     }
@@ -38,7 +34,6 @@ public class Server {
         String ip = scan.nextLine();
         System.out.print("port: ");
         String port = scan.nextLine();
-        
         
         return new IpAddr(ip, Integer.parseInt(port));
     }

@@ -11,7 +11,7 @@ public class SimpleRobot extends BaseRobot {
     
     
     public SimpleRobot(String name, int x, int y) {
-        super(name, x, y, BaseRobot.MAX_VALUE*2,BaseRobot.MAX_VALUE*2);
+        super(name, x, y, BaseRobot.MAX_VALUE, BaseRobot.MAX_VALUE);
 
     }
 

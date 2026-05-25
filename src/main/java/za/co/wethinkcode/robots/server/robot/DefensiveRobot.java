@@ -19,7 +19,7 @@ public class DefensiveRobot extends BaseRobot {
     public void draw(Graphics g) {
        String label =this.getName();
        String facing = this.getDirection().toString();
-       g.setColor(Color.WHITE);
+       g.setColor(Color.BLUE);
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX() +scale/4;
        int ycord = scale * position.getY()+scale/4;

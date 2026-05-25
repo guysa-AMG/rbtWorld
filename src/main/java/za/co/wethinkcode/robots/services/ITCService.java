@@ -17,7 +17,6 @@ import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;

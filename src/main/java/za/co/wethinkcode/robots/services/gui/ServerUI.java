@@ -28,11 +28,9 @@ public class ServerUI implements Runnable {
     frame= new JFrame("Our World");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
    
-    // 2. Add the world to the center position to stretch across all boundaries
     frame.add(world);
     frame.pack();
     frame.setLocationRelativeTo(null);
- 
     frame.setVisible(true);
     }
    

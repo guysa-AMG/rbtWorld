@@ -89,7 +89,7 @@ public class BackCommand extends Command{
             if(world.isPositionAvailable(pos)){
                 world.swapePosition(pos,robot.getPosition().copy());
             }
-            else{break;}
+            else{ return false; }
        }
        return !robot.getPosition().equals(old);
     }

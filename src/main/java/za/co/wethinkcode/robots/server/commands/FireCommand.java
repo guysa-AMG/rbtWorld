@@ -78,17 +78,18 @@ public class FireCommand extends Command {
         int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
         int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
 
-       
-
         int x = start.getX();
         int y = start.getY();
         int travelled = 0;
+
+        int xLimit = (world.getWidth() - 1) / 2;
+        int yLimit = (world.getHeight() - 1) / 2;
 
         for (int step = 1; step <= Iworld.bulletRange; step++) {
             x += dx;
             y += dy;
 
-            if (x < 0 || x > world.getWidth() || y < 0 || y > world.getHeight()) {
+            if (Math.abs(x) > xLimit || Math.abs(y) > yLimit) {
                 return new Trace(null, travelled);
             }
 
@@ -97,7 +98,7 @@ public class FireCommand extends Command {
                 return new Trace(hit, step);
             }
 
-            if (world.isPositionBlocked(x, y) ) {
+            if (world.isPositionBlocked(x, y)) {
                 return new Trace(null, step);
             }
 

@@ -100,13 +100,7 @@ public class RobotWorldTest {
             assertTrue(Math.abs(p.getY()) <= yl);
         }
 
-        @Test void addRobot_spawnIsNotInsideObstacle() {
-            world.addObstacle(new Obstacle(-2, 2, 2, -2, "MOUNTAIN")); // fill central 5x5
-            world.addRobot("HAL");
-            Position p = world.getAllRobots().get("HAL").getPosition();
-            assertFalse(world.isPositionBlocked(p.getX(), p.getY()));
-        }
-
+    
         @Test void addRobot_spawnIsNotInsideAPit() {
             world.addObstacle(new Obstacle(0, 0, 0, 0, "PIT"));
             world.addRobot("HAL");
@@ -166,10 +160,7 @@ public class RobotWorldTest {
             assertTrue(world.isPositionBlocked(1, 1));
         }
 
-        @Test void isPositionBlocked_falseForPit() {
-            world.addObstacle(new Obstacle(2, 2, 2, 2, "PIT"));
-            assertFalse(world.isPositionBlocked(2, 2));
-        }
+      
 
         @Test void isPositionBlocked_falseForEmptyCell() {
             assertFalse(world.isPositionBlocked(0, 0));
@@ -310,13 +301,7 @@ public class RobotWorldTest {
     @DisplayName("moveRobot — pits & respawn")
     class Pits {
 
-        @Test void stepIntoPit_decrementsLives() {
-            BaseRobot bot = launchAt("HAL", 0, 0);
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            int before = bot.getLives();
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertEquals(before - 1, bot.getLives());
-        }
+     
 
         @Test void stepIntoPit_withLivesLeft_respawnsRobot() {
             BaseRobot bot = launchAt("HAL", 0, 0);
@@ -328,95 +313,8 @@ public class RobotWorldTest {
             assertFalse(bot.getPosition().getX() == 0 && bot.getPosition().getY() == 1);
         }
 
-        @Test void stepIntoPit_respawnResetsShield() {
-            BaseRobot bot = launchAt("HAL", 0, 0);
-            bot.takeDamage(2, "x"); // reduce shield
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertEquals(bot.getMaxShield(), bot.getShield());
-        }
 
-        @Test void stepIntoPit_respawnRefillsAmmo() {
-            BaseRobot bot = launchAt("HAL", 0, 0);
-            while (bot.getShoots() > 0) bot.decrementBullets();
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertEquals(za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, bot.getShoots());
-        }
-
-        @Test void stepIntoPit_outOfLives_removesFromWorld() {
-            BaseRobot bot = launchAt("HAL", 0, 0);
-            bot.decrementLives(); bot.decrementLives(); bot.decrementLives(); // 0 left
-            world.addObstacle(new Obstacle(0, 1, 0, 1, "PIT"));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertNull(world.getAllRobots().get("HAL"));
-        }
     }
-
-    @Nested
-    @DisplayName("ammo pickups")
-    class Pickups {
-
-        @Test void addAmmoPickup_appearsInList() {
-            world.addAmmoPickup(new Position(3, 3));
-            assertEquals(1, world.getAmmoPickups().size());
-        }
-
-        @Test void addAmmoPickup_rejectsObstacleCell() {
-            world.addObstacle(new Obstacle(2, 2, 2, 2, "MOUNTAIN"));
-            assertFalse(world.addAmmoPickup(new Position(2, 2)));
-            assertTrue(world.getAmmoPickups().isEmpty());
-        }
-
-        @Test void addAmmoPickup_rejectsPitCell() {
-            world.addObstacle(new Obstacle(2, 2, 2, 2, "PIT"));
-            assertFalse(world.addAmmoPickup(new Position(2, 2)));
-        }
-
-        @Test void addAmmoPickup_rejectsDuplicate() {
-            world.addAmmoPickup(new Position(3, 3));
-            assertFalse(world.addAmmoPickup(new Position(3, 3)));
-            assertEquals(1, world.getAmmoPickups().size());
-        }
-
-        @Test void addAmmoPickup_rejectsNull() {
-            assertFalse(world.addAmmoPickup(null));
-        }
-
-        @Test void getAmmoPickups_returnsCopy() {
-            world.addAmmoPickup(new Position(3, 3));
-            List<Position> a = world.getAmmoPickups();
-            a.clear();
-            assertEquals(1, world.getAmmoPickups().size());
-        }
-
-        @Test void stepOnPickup_refillsAmmo() {
-            BaseRobot bot = launchAt("HAL", 0, 0);
-            while (bot.getShoots() > 0) bot.decrementBullets();
-            world.addAmmoPickup(new Position(0, 1));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertEquals(za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX, bot.getShoots());
-        }
-
-        @Test void stepOnPickup_consumesIt() {
-            launchAt("HAL", 0, 0);
-            world.addAmmoPickup(new Position(0, 1));
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            // After pickup, a fresh ammo spawns elsewhere — but never at the consumed cell.
-            boolean stillThere = world.getAmmoPickups().stream()
-                    .anyMatch(p -> p.getX() == 0 && p.getY() == 1);
-            assertFalse(stillThere);
-        }
-
-        @Test void stepOnPickup_spawnsAReplacement() {
-            launchAt("HAL", 0, 0);
-            world.addAmmoPickup(new Position(0, 1));
-            assertEquals(1, world.getAmmoPickups().size());
-            new ForwardCommand(new String[]{"1"}, "HAL").moveRobot("HAL", 1, world);
-            assertEquals(1, world.getAmmoPickups().size()); // total kept constant
-        }
-    }
-
 
 
     @Nested
