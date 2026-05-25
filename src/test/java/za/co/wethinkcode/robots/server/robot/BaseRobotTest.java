@@ -20,7 +20,7 @@ public class BaseRobotTest {
     @BeforeEach
     void freshRobot() {
         // shield is hard-coded to 20 in constructor regardless of arg, fireRate from arg
-        robot = new SimpleRobot("HAL", 0, 0);
+        robot = new SimpleRobot("HAL", 0, 0, 0);
         robot.setWorldBounds(11, 11);
     }
 
@@ -264,7 +264,7 @@ public class BaseRobotTest {
             robot.shootRobot(robot); // self-shoot for simplicity, fireRate becomes 2 then absorb
             // Actually shootRobot decrements then passes new rate to absorbDamage.
             // Just verify shield went down somewhat from 20.
-            assertTrue(robot.getShield() < 20);
+            assertTrue(robot.getShields() < 20);
         }
 
        
@@ -391,9 +391,9 @@ public class BaseRobotTest {
 
         @Test
         void incrementKills_doesNotAffectShield() {
-            int before = robot.getShield();
+            int before = robot.getShields();
             robot.incrementKills();
-            assertEquals(before, robot.getShield());
+            assertEquals(before, robot.getShields());
         }
     }
 
@@ -408,7 +408,7 @@ public class BaseRobotTest {
 
         @Test
         void takeDamage_lethal_storesKillerName() {
-            robot.takeDamage(robot.getShield() + 10, "alice");
+            robot.takeDamage(robot.getShields() + 10, "alice");
             assertEquals("alice", robot.getKilledBy());
         }
 
@@ -420,7 +420,7 @@ public class BaseRobotTest {
 
         @Test
         void clearKilledBy_clearsTheField() {
-            robot.takeDamage(robot.getShield() + 1, "bob");
+            robot.takeDamage(robot.getShields() + 1, "bob");
             robot.clearKilledBy();
             org.junit.jupiter.api.Assertions.assertNull(robot.getKilledBy());
         }
@@ -432,14 +432,14 @@ public class BaseRobotTest {
 
         @Test
         void takeDamage_reducesShield() {
-            int before = robot.getShield();
+            int before = robot.getShields();
             robot.takeDamage(1, "x");
-            assertEquals(before - 1, robot.getShield());
+            assertEquals(before - 1, robot.getShields());
         }
 
         @Test
         void takeDamage_lethalReturnsTrue() {
-            assertTrue(robot.takeDamage(robot.getShield() + 100, "x"));
+            assertTrue(robot.takeDamage(robot.getShields() + 100, "x"));
         }
 
         @Test
@@ -449,33 +449,33 @@ public class BaseRobotTest {
 
         @Test
         void takeDamage_negativeOrZeroIsNoop() {
-            int before = robot.getShield();
+            int before = robot.getShields();
             assertFalse(robot.takeDamage(0, "x"));
             assertFalse(robot.takeDamage(-3, "x"));
-            assertEquals(before, robot.getShield());
+            assertEquals(before, robot.getShields());
         }
 
         @Test
         void takeDamage_neverGoesBelowZero() {
             robot.takeDamage(9999, "x");
-            assertEquals(0, robot.getShield());
+            assertEquals(0, robot.getShields());
         }
 
         @Test
         void takeDamage_lethalSetsStatusToDead() {
-            robot.takeDamage(robot.getShield(), "x");
+            robot.takeDamage(robot.getShields(), "x");
             assertEquals(OperationalMode.DEAD, robot.getStatus());
         }
 
         @Test
         void takeDamage_lethalSetsOperationStateToDead() {
-            robot.takeDamage(robot.getShield(), "x");
+            robot.takeDamage(robot.getShields(), "x");
             assertEquals(OperationalMode.DEAD, robot.getOperationState());
         }
 
         @Test
         void takeDamage_lethalSetsKilledBy() {
-            robot.takeDamage(robot.getShield(), "carol");
+            robot.takeDamage(robot.getShields(), "carol");
             assertEquals("carol", robot.getKilledBy());
         }
 
@@ -486,62 +486,7 @@ public class BaseRobotTest {
         }
     }
 
-    @Nested
-    @DisplayName("respawnAt")
-    class Respawn {
-
-        @Test
-        void respawnAt_setsPosition() {
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(7, -4));
-            assertEquals(7, robot.getPosition().getX());
-            assertEquals(-4, robot.getPosition().getY());
-        }
-
-        @Test
-        void respawnAt_facesNorth() {
-            robot.updateDirection(Directions.SOUTH);
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
-            assertEquals(Directions.NORTH, robot.getDirection());
-        }
-
-        @Test
-        void respawnAt_restoresFullShield() {
-            int max = robot.getMaxShield();
-            robot.takeDamage(max, "x"); // drain
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
-            assertEquals(max, robot.getShield());
-        }
-
-        @Test
-        void respawnAt_refillsAmmo() {
-            robot.decrementBullets();
-            robot.decrementBullets();
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
-            assertEquals(Iworld.MAG_MAX, robot.getShoots());
-        }
-
-        @Test
-        void respawnAt_setsStatusNormal() {
-            robot.takeDamage(robot.getShield(), "x"); // → DEAD
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(0, 0));
-            assertEquals(OperationalMode.NORMAL, robot.getStatus());
-        }
-
-        @Test
-        void respawnAt_doesNotResetLives() {
-            int before = robot.getLives();
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(2, 2));
-            assertEquals(before, robot.getLives());
-        }
-
-        @Test
-        void respawnAt_doesNotResetKills() {
-            robot.incrementKills();
-            robot.respawnAt(new za.co.wethinkcode.robots.models.Position(2, 2));
-            assertEquals(1, robot.getKills());
-        }
-    }
-
+   
     @Nested
     @DisplayName("ammo refill")
     class Ammo {

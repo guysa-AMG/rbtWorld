@@ -21,7 +21,7 @@ public  class Obstacle extends Impediments {
             return (x >= x1 && x <= x2) && (y <= y1 && y >= y2);
         }
         public Position getPos(){
-            return new Position(x1, y1);
+            return getPosition();
         } 
         
 

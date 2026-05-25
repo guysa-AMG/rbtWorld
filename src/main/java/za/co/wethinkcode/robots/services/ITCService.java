@@ -11,10 +11,10 @@ import za.co.wethinkcode.robots.models.StatusCode;
 */
 import za.co.wethinkcode.robots.models.transitmodels.*;
 import za.co.wethinkcode.robots.server.commands.Command;
-import za.co.wethinkcode.robots.server.npc.KillerNPCController;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.*;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
+import za.co.wethinkcode.robots.services.gui.ServerUI;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 public class ITCService {
@@ -37,7 +38,7 @@ public class ITCService {
    private volatile static ITCService instance = new ITCService();
    private volatile Logger logger = LoggerFactory.getLogger(ITCService.class);
    private volatile WorldGenerator world;
-   private volatile KillerNPCController killerController;
+
 
     private ITCService(){
         this.threads=new HashMap<>();
@@ -72,13 +73,6 @@ public class ITCService {
         return this.world;
     }
 
-    public void setKillerController(KillerNPCController c) {
-        this.killerController = c;
-    }
-
-    public KillerNPCController getKillerController() {
-        return this.killerController;
-    }
 
     /** Push a one-way event to the named client (the victim). Safe to call from any thread. */
     public void pushEvent(String robotName, ServerResponse event) {
@@ -181,7 +175,7 @@ public class ITCService {
      * @param data
      * @return ServerResponse as Json string 
      */
-    public synchronized  String doThisCommand(String data){ 
+    public synchronized  String doThisCommand(String data,Socket sk){ 
         
         this.logger.info("Command recieved: "+data);
         Protocol protocol =new Protocol();
@@ -189,20 +183,26 @@ public class ITCService {
        
         if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){return "off";}
         Command com = Command.generate(req);
+        if (sk != null){ com.setExecutorId(sk.hashCode());}
         ServerResponse response = this.world.perform(com);
 
 
         return protocol.encodeResponse(response);
     }
-    
+    private void initServerUI(){
+
+        EventQueue.invokeLater(new ServerUI());
+    }
     
     public synchronized  String doThisCommandUnRestricted(String data){ 
       
         this.logger.info("Server is requesting: "+data);
         Protocol protocol =new Protocol();
         ServerRequest req =  protocol.decodeRequest(data);
-       
-        if ((req.getCommand().equals("off"))||(req.getCommand().equals("shutdown"))||(req.getCommand().equals("quit"))){return "off";}
+       if (req.getCommand().toLowerCase().equals("gui")||req.getCommand().toLowerCase().equals("show")){
+        initServerUI();
+        return null;
+       }
         Command com = Command.generate(req);
         com.setAsServerCommand();
         ServerResponse response = this.world.perform(com);
@@ -232,7 +232,7 @@ public class ITCService {
                         .position(r.getPosition())
                         .direction(r.getDirection())
                         .lives(r.getLives())
-                        .shields(r.getShield())
+                        .shields(r.getShields())
                         .shots(r.getShoots())
                         .kills(r.getKills())
                         .status(r.getOperationState())
@@ -250,7 +250,7 @@ public class ITCService {
             
             if (state.getPosition() == null) state.setPosition(robot.getPosition());
             if (state.getDirection() == null) state.setDirection(robot.getDirection());
-            if (state.getShields() == 0) state.setShields(robot.getShield());
+            if (state.getShields() == 0) state.setShields(robot.getShields());
             if (state.getShots() == 0) state.setShots(robot.getShoots());
         }
     }

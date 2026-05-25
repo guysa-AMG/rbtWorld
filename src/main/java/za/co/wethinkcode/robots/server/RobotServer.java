@@ -62,19 +62,7 @@ public class RobotServer {
        Thread serv_interact_thread = new Thread(new ServerCli());
         serv_interact_thread.start();
 
-        EventQueue.invokeLater(new ServerUI());
       
-
-    //    if (world instanceof RobotWorld rw) {
-    //        KillerNPCController npcCtrl = new KillerNPCController(rw);
-    //        ITCService.getInstance().setKillerController(npcCtrl);
-    //        Thread npcThread = new Thread(npcCtrl, "killer-npc");
-    //        npcThread.setDaemon(true);
-    //        npcThread.start();
-    //        System.out.println("Guyser_Thekiller NPC controller started");
-    //    }
-   
-
 
        while(loop){
        // System.out.println("...listening to incoming connection");
@@ -113,8 +101,11 @@ class ServerCli implements Runnable{
             try{
            parsedReq = parseServerSideCommand(req);
            String res =  ITCService.getInstance().doThisCommandUnRestricted(parsedReq);
+            
+           if(res!=null){
            ServerResponse resObj = new Protocol().decodeResponse(res);
            System.out.println(resObj.getData().getMessage());}
+        }
            catch(InvalidCommandException ex){
             System.out.println("[x] Invalid Command");
            }
@@ -129,27 +120,29 @@ class ServerCli implements Runnable{
         String command="";
         if(parts.length < 1){
             //TODO rather call interaction into print
-            System.out.println("Invalid input. Use:<command> [arguments....] (example: HAL launch)>");
+            System.out.println("Invalid input. Use:<command>  (example:Dump)>");
             return null;
         }
-        else{
-            command = parts[0].toLowerCase();
-        }
+      else{ command = parts[0].toLowerCase();  }
 
-       
-       try{
-        CommandTypeEnum.valueOf(command);
-       }
+       try{  ServerCommandTypeEnum.valueOf(command);   }
+      
        catch(IllegalArgumentException illegal){
               throw new InvalidCommandException();
        }
-        
-        String[] arguments = (parts.length > 1) ? Arrays.copyOfRange(parts, 1, parts.length) : new String[0];
-
-        ServerRequest req = new ServerRequest("Server", command, arguments);
+       
+        ServerRequest req = new ServerRequest("Server", command, new String[]{});
         Protocol parser = new Protocol();
        return  parser.encodeRequest(req);
     }
 
 }
 
+ enum ServerCommandTypeEnum {
+    shutdown,
+    off,
+    show,
+    dump,
+    robots,
+    gui
+}

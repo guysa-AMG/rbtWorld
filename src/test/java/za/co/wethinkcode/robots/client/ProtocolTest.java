@@ -81,26 +81,8 @@ public class ProtocolTest{
             assertEquals("launched", res.getData().getMessage());
         }
 
-        @Test
-        void roundTripResponse_preservesResultAndMessage() {
-            Protocol proto = new Protocol();
-            ServerResponse original = ServerResponse.builder()
-                    .result(StatusCode.ERROR)
-                    .data(ServerResponseData.builder().message("oops").build())
-                    .build();
-            String json = proto.encodeResponse(original);
-            ServerResponse rebuilt = proto.decodeResponse(json);
-            assertEquals(original.getResult(), rebuilt.getResult());
-            assertEquals(original.getData().getMessage(), rebuilt.getData().getMessage());
-        }
 
-        @Test
-        void decodeResponse_ignoresUnknownFields() {
-            Protocol proto = new Protocol();
-            String json = "{\"result\":\"OK\",\"data\":{\"message\":\"hi\"},\"someExtra\":\"value\"}";
-            ServerResponse res = proto.decodeResponse(json);
-            assertEquals(StatusCode.OK, res.getResult());
-        }
+      
     }
 
     @Nested

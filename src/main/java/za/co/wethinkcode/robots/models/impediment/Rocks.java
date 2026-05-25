@@ -27,7 +27,7 @@ public class Rocks extends Impediments {
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX();
        int ycord = scale * position.getY();
-       g.fillRoundRect(xcord, ycord, width, height,5,5);
+       g.fillRoundRect(xcord+(scale/4), ycord+(scale/4), width, height,5,5);
        
     }
   

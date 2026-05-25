@@ -32,15 +32,15 @@ public class LaunchCommand extends Command {
        {
         int shield = Integer.parseInt(argument[0]);
         int shoots = Integer.parseInt(argument[1]);
-        world.addRobot(robotName,shield,shoots);
+        world.addRobot(robotName,shield,shoots,this.id);
        }
        if (argument.length==1){
       String kind =  argument[0].toLowerCase();
       switch (kind.toLowerCase()) {
-        case "balanced" ->  world.addRobot(robotName,6,6);
-        case "offensive" -> world.addRobot(robotName,3,9);
-        case "defensive" -> world.addRobot(robotName,9,3);
-        default -> world.addRobot(robotName,6,6);
+        case "balanced" ->  world.addRobot(robotName,6,6,this.id);
+        case "offensive" -> world.addRobot(robotName,3,9,this.id);
+        case "defensive" -> world.addRobot(robotName,9,3,this.id);
+        default -> world.addRobot(robotName,6,6,this.id);
       }
        }
       robot = world.getAllRobots().get(robotName);
@@ -50,14 +50,14 @@ public class LaunchCommand extends Command {
                                                    .visibility(Iworld.visibleDistance)
                                                    .reload(Iworld.RELOAD_TIME)
                                                    .repair(Iworld.REPAIR_TIME)
-                                                   .shields(robot.getShield())
+                                                   .shields(robot.getShields())
                                                    .build();
 
                                         
       ServerResponseState state = ServerResponseState.builder()
                                                      .position(robot.getPosition())
                                                      .direction(robot.getDirection())
-                                                     .shields(robot.getShield())
+                                                     .shields(robot.getShields())
                                                      .shots(robot.getShoots())
                                                      .status(OperationalMode.NORMAL)
                                                      .build();
