@@ -1,16 +1,9 @@
 package za.co.wethinkcode.robots.server.commands.serverCommands;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import javax.swing.plaf.nimbus.State;
-
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject;
-import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
@@ -32,7 +25,7 @@ public class RobotsCommand extends Command {
       if (this.restricted){
         return this.restrictedServerResponse();
        }
-      ((RobotWorld) world).addRobot(robotName);
+
       Map<String,BaseRobot> robots = world.getAllRobots();
       StringBuilder listOfBots =  new StringBuilder();
       listOfBots.append("Robots Connected are :   ");

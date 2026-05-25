@@ -14,5 +14,13 @@ public enum CommandTypeEnum {
     repair,
     reload,
     fire,
-    state
+    state;
+
+    public static boolean contains(String token) {
+        if (token == null) return false;
+        for (CommandTypeEnum c : values()) {
+            if (c.name().equalsIgnoreCase(token)) return true;
+        }
+        return false;
+    }
 }

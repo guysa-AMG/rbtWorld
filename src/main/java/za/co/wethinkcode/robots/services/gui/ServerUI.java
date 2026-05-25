@@ -11,10 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import za.co.wethinkcode.robots.client.gui.WorldPanel;
 import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
-import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
 

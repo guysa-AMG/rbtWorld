@@ -8,10 +8,8 @@ import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 public class SimpleRobot extends BaseRobot {
 
-    
-    
-    public SimpleRobot(String name, int x, int y) {
-        super(name, x, y, BaseRobot.MAX_VALUE, BaseRobot.MAX_VALUE);
+    public SimpleRobot(String name, int x, int y, int id) {
+        super(name, x, y, BaseRobot.MAX_VALUE, BaseRobot.MAX_VALUE,id);
 
     }
 
@@ -19,6 +17,7 @@ public class SimpleRobot extends BaseRobot {
     public void draw(Graphics g) {
        String label =this.getName();
        String facing = this.getDirection().toString();
+       String values = this.getShields()+" / "+this.getShoots();
        g.setColor(Color.WHITE);
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX() +scale/4;
@@ -28,7 +27,6 @@ public class SimpleRobot extends BaseRobot {
       g.drawString(facing, xcord, ycord-20);
        g.fillOval(xcord,ycord,width/2,height/2);
     }
-
 
     
 }

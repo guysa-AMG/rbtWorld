@@ -55,7 +55,4 @@ public class Position {
      public Position copy(){
           return new Position(this.X,this.Y);
      }
-     public boolean equals(Position pos){
-        return this.X==pos.X&&this.Y==pos.Y;
-     }
 }

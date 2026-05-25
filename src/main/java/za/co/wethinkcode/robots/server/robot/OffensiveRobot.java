@@ -10,8 +10,8 @@ public class OffensiveRobot extends BaseRobot {
 
     
     
-    public OffensiveRobot(String name, int x, int y) {
-        super(name, x, y, BaseRobot.MAX_VALUE, BaseRobot.MAX_VALUE*3);
+    public OffensiveRobot(String name, int x, int y, int id) {
+        super(name, x, y, BaseRobot.MAX_VALUE, BaseRobot.MAX_VALUE*3, id);
 
     }
 
@@ -19,14 +19,18 @@ public class OffensiveRobot extends BaseRobot {
     public void draw(Graphics g) {
        String label =this.getName();
        String facing = this.getDirection().toString();
+       String values = this.getShields()+" / "+this.getShoots();
        g.setColor(Color.RED);
        int scale = WorldGenerator.MAP_SCALE;
        int xcord = scale * position.getX() +scale/4;
        int ycord = scale * position.getY()+scale/4;
-       g.setFont(new Font("Monospaced", Font.CENTER_BASELINE, 11));
-      g.drawString(label, xcord, ycord-30);
-      g.drawString(facing, xcord, ycord-20);
-       g.fillOval(xcord,ycord,width/2,height/2);
+        g.fillOval(xcord,ycord,width/2,height/2);
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Monospaced", Font.CENTER_BASELINE, 11));
+        g.drawString(label, xcord, ycord-30);
+        g.drawString(facing, xcord, ycord-20);
+        g.drawString(values, xcord, ycord-10);
+      
     }
 
 

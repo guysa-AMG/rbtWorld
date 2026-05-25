@@ -32,7 +32,7 @@ class InterThreadCommunicationTest {
         void testOtherCommandBeforeLaunch(){
             // Responses are now decorated with pickups/robots snapshots — check the key fields
             // instead of an exact JSON match.
-            String res = ITCService.getInstance().doThisCommand("{\"robot\":\"mark\", \"command\":\"Forward\", \"arguments\":[\"10\"]}");
+            String res = ITCService.getInstance().doThisCommand("{\"robot\":\"mark\", \"command\":\"Forward\", \"arguments\":[\"10\"]}",null);
             assertTrue(res.contains("\"result\":\"ERROR\""));
             assertTrue(res.contains("robot mark has not been launched"));
         }

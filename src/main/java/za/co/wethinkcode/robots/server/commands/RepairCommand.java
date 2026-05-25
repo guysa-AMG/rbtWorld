@@ -22,7 +22,8 @@ public class RepairCommand extends Command {
     public ServerResponse execute(Iworld world, BaseRobot robot) {
      
         try {
-            Thread.currentThread().sleep((long)world.REPAIR_TIME);
+            
+            Thread.sleep((long)Iworld.REPAIR_TIME*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -38,6 +39,9 @@ public class RepairCommand extends Command {
       ServerResponseData data = ServerResponseData.builder()
                                                   .message("DONE")
                                                   .state(state)
+                                                  .visibility(Iworld.visibleDistance)
+                                                  .reload(Iworld.RELOAD_TIME)
+                                                  .repair(Iworld.REPAIR_TIME)
                                                   .build();
       return ServerResponse.builder()
                            .result(StatusCode.OK)

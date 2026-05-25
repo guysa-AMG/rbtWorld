@@ -20,6 +20,7 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.server.commands.QuitCommand;
+import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 import java.io.BufferedReader;
@@ -190,12 +191,7 @@ public class RobotClient {
     }
 
     private static boolean isCommandKeyword(String token) {
-        try {
-            CommandTypeEnum.valueOf(token.toLowerCase());
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return CommandTypeEnum.contains(token);
     }
 
     private void readerLoop(ClientGui gui) {
@@ -280,7 +276,7 @@ public class RobotClient {
                 gui.setStatus(this.robotName + " {" + state.getDirection() + "} ["
                         + state.getPosition().getX() + "," + state.getPosition().getY() + "]"
                        
-                        + "  Bullets:" + state.getShots() + "/" + za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX
+                        + "  Bullets:" + state.getShots() + "/" + Iworld.MAG_MAX
                         + "  Shield:" + state.getShields());
             }
             gui.setHud(state.getShields(), state.getShots(),
@@ -328,16 +324,16 @@ public class RobotClient {
 
     private void renderLook(ClientGui gui, List<ServerResponseObject> objects) {
         if (objects.isEmpty()) {
-            gui.appendLog("   (nothing in sight within " + za.co.wethinkcode.robots.server.world.Iworld.lookRange + " cells)");
+            gui.appendLog("   (nothing in sight within " + Iworld.lookRange + " cells)");
             return;
         }
         // Sort by direction then distance for readability
-        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
+        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
         for (var o : objects) grouped.computeIfAbsent(o.getDirection(), d -> new java.util.ArrayList<>()).add(o);
         for (var dir : za.co.wethinkcode.robots.models.Directions.values()) {
             var list = grouped.get(dir);
             if (list == null) continue;
-            list.sort(java.util.Comparator.comparingInt(za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject::getDistance));
+            list.sort(java.util.Comparator.comparingInt(ServerResponseObject::getDistance));
             for (var o : list) {
                 String label = o.getName() != null ? o.getSubtype() + " " + o.getName() : o.getSubtype();
                 String posStr = o.getPosition() != null
@@ -499,16 +495,10 @@ public class RobotClient {
         String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
         System.out.println(widget+message);
        }}
-         if(response.getState()!=null)
-       {
-         if (response.getState().getStatus() == OperationalMode.DEAD){
-        robotName =null;
-        oldResponse=null;
-        return;
-       }}
+      
         parser.updatResponse(oldResponse, response);
         if(response == null){
-            //TODO rather call interaction into print
+            
             System.out.println("Received non-JSON/invalid response: " + responseJson);
             return;
         }

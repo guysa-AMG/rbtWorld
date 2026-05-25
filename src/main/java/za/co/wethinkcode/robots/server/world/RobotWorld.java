@@ -244,7 +244,7 @@ public class RobotWorld extends WorldGenerator  {
 
     // OTHER INTERFACE METHODS
     @Override
-     public boolean addRobot(String name,int shield,int shoots) {
+     public boolean addRobot(String name,int shield,int shoots, int id) {
         if (robots.containsKey(name)) return false;
     
         List<Position> others = new ArrayList<>();
@@ -253,7 +253,7 @@ public class RobotWorld extends WorldGenerator  {
         }
         // Position spawn = findSafeSpawn(others, 8);
         Position spawn = newSpawnPoint();
-        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots);
+        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots,id);
         robots.put(name, robot);
         this.map.remove(getObjectsAtPosition(spawn));
         this.map.add(robot);
@@ -262,7 +262,7 @@ public class RobotWorld extends WorldGenerator  {
         return true;
     }
      public boolean addRobot(String name) {
-      return addRobot(name,1,1);
+      return addRobot(name,1,1,0);
     }
    
 
@@ -316,8 +316,9 @@ public class RobotWorld extends WorldGenerator  {
 
     @Override public String getRobotState(String n) {
         BaseRobot robot = this.robots.get(n);
-        Position p = robot.getPosition();
         if (robot == null) return "Robot not found";
+        Position p = robot.getPosition();
+        if (p == null) return "Position: [?,?], Direction: " + robot.getDirection();
         return "Position: [" + p.getX() + "," + p.getY() + "], Direction: " + robot.getDirection();
     }
 
@@ -390,6 +391,7 @@ public class RobotWorld extends WorldGenerator  {
         // if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) return false;
         // return !isPositionBlocked(x, y);
        Impediments obj = getObjectsAtPosition(intendedPos);
+        if (obj == null) return false;
         return obj.getClass().isAnnotationPresent(CanGoThrough.class) ;
     }
 
@@ -397,16 +399,10 @@ public class RobotWorld extends WorldGenerator  {
         if (pos==null){
             return null;
         }
-        try{
-       return  this.map.stream()
-                        .filter(obj->obj.getPosition()
-                                        .equals(pos)).findFirst()
-                                                     .get();
-        }
-        catch(NoSuchElementException ex){
-            return null;
-        }
-      
+        return this.map.stream()
+                        .filter(obj->obj.getPosition().equals(pos))
+                        .findFirst()
+                        .orElse(null);
     }
     @Override
     public BaseRobot getFireable(BaseRobot rbt) {
@@ -467,15 +463,8 @@ public class RobotWorld extends WorldGenerator  {
       return null;
 
     }
-
     @Override
     public List<Command> getHistoryOfCommands() {
         return this.historyOfCommands;
     }
-
-
-   
-
-
-  
 }

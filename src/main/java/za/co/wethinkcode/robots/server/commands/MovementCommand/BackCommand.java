@@ -109,7 +109,7 @@ public class BackCommand extends Command{
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
                                                        .status(robot.getOperationState())
-                                                       .shields(robot.getShield())
+                                                       .shields(robot.getShields())
                                                        .shots(robot.getShoots())
                                                        .build();
 
