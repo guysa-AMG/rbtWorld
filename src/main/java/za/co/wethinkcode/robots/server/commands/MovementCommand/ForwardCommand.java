@@ -85,9 +85,9 @@ public class ForwardCommand extends Command{
         if (dir == Directions.NORTH) pos.decrementY();
             else if (dir == Directions.SOUTH) pos.incrementY();
             else if (dir == Directions.EAST) pos.incrementX();
-            else if (dir == Directions.WEST) pos.decrementY();
+            else if (dir == Directions.WEST) pos.decrementX();
             if(world.isPositionAvailable(pos)){
-                world.swapePosition(pos,robot.getPosition());
+                world.swapePosition(pos,robot.getPosition().copy());
             }
             else{break;}
        }
@@ -110,6 +110,7 @@ public class ForwardCommand extends Command{
                                                        .direction(robot.getDirection())
                                                        .status(robot.getOperationState())
                                                        .shields(robot.getShield())
+                                                       .shots(robot.getShoots())
                                                        .build();
 
         ServerResponse res = ServerResponse.builder()

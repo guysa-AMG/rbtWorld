@@ -65,6 +65,8 @@ public abstract class Command {
         case "turn"   -> new TurnCommand( req.getArguments(), req.getRobot());
         case "look"   -> new LookCommand(req.getRobot());
         case "dump"   -> new DumpCommand(req.getRobot());
+        case "reload"   -> new ReloadCommand(req.getRobot());
+        case "repair"   -> new RepairCommand(req.getRobot());
         case "fire"   -> new FireCommand( req.getArguments(), req.getRobot());
         case "forward"-> new ForwardCommand( req.getArguments(), req.getRobot());
         case "back"   -> new BackCommand( req.getArguments(), req.getRobot());

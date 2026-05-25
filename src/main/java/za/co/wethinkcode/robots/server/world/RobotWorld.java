@@ -10,7 +10,7 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.ErrorCommand;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
-
+import za.co.wethinkcode.robots.server.robot.SimpleRobot;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,7 +129,7 @@ public class RobotWorld extends WorldGenerator  {
         // for (Obstacle obs : obstacles) {
         //     if (!obs.getType().equals("PIT") && obs.isAt(x, y)) return true;
         // }
-      boolean inUse=  this.map.stream().anyMatch(imeds -> imeds.getPosition().equals(new Position(x, y)));   
+      boolean inUse=  this.map.stream().anyMatch(imeds -> imeds.getPosition().equals(new Position(x, y))&& !( imeds instanceof EmptySpot));   
         return inUse;
     }
 
@@ -220,20 +220,25 @@ public class RobotWorld extends WorldGenerator  {
 
     // OTHER INTERFACE METHODS
     @Override
-     public boolean addRobot(String name) {
+     public boolean addRobot(String name,int shield,int shoots) {
         if (robots.containsKey(name)) return false;
+    
         List<Position> others = new ArrayList<>();
         for (BaseRobot r : robots.values()) {
             if (r.getPosition() != null) others.add(r.getPosition());
         }
         // Position spawn = findSafeSpawn(others, 8);
         Position spawn = newSpawnPoint();
-        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), 3, 2);
+        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots);
         robots.put(name, robot);
         this.map.remove(getObjectsAtPosition(spawn));
         this.map.add(robot);
         return true;
     }
+     public boolean addRobot(String name) {
+      return addRobot(name,1,1);
+    }
+   
 
     @Override
      public void removeRobot(String name) {
@@ -241,7 +246,7 @@ public class RobotWorld extends WorldGenerator  {
        robots.remove(name);
        Impediments bots  = this.map.stream()
                                     .filter(imped -> imped instanceof BaseRobot)
-                                    .filter(bot -> bot.getName().toLowerCase().equals(name))
+                                    .filter(bot -> ((BaseRobot)bot).getName().toLowerCase().equals(name))
                                     .findFirst()
                                     .get();
         Position pos = bots.getPosition();
@@ -332,8 +337,12 @@ public class RobotWorld extends WorldGenerator  {
     public void swapePosition(Position intenPosition, Position old){
     Impediments obj2 = getObjectsAtPosition(intenPosition);
     Impediments obj1 = getObjectsAtPosition(old);
-    obj1.setPosition(intenPosition);
-    obj2.setPosition(old);
+    if (obj1 == null || obj2 == null) return;
+    Position intendedCopy = intenPosition.copy();
+    Position oldCopy = old.copy();
+    
+    obj1.setPosition(intendedCopy);
+    obj2.setPosition(oldCopy);
     
     }
 

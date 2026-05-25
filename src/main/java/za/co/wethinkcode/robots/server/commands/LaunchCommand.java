@@ -23,14 +23,33 @@ public class LaunchCommand extends Command {
 
     @Override
     public ServerResponse execute(Iworld world,BaseRobot robot) {
-      world.addRobot(robotName);
+        if (argument.length==0){
+            ServerResponseData data = ServerResponseData.builder().message("please provide robot kind [offensive, defensive, balanced] or shield and shots").build();
+            ServerResponse res = ServerResponse.builder().result(StatusCode.ERROR).data(data).build();
+            return res;
+        }
+       if( argument.length >1)
+       {
+        int shield = Integer.parseInt(argument[0]);
+        int shoots = Integer.parseInt(argument[1]);
+        world.addRobot(robotName,shield,shoots);
+       }
+       if (argument.length==1){
+      String kind =  argument[0].toLowerCase();
+      switch (kind) {
+        case "balanced" ->  world.addRobot(robotName,6,6);
+        case "offensive" -> world.addRobot(robotName,9,3);
+        case "defensive" -> world.addRobot(robotName,3,9);
+        default -> world.addRobot(robotName,6,6);
+      }
+       }
       robot = world.getAllRobots().get(robotName);
         
       ServerResponseData data  = ServerResponseData.builder()
                                                    .position(robot.getPosition())
                                                    .visibility(Iworld.visibleDistance)
-                                                   .reload(Iworld.reloadTime)
-                                                   .repair(Iworld.repairTime)
+                                                   .reload(Iworld.RELOAD_TIME)
+                                                   .repair(Iworld.REPAIR_TIME)
                                                    .shields(robot.getShield())
                                                    .build();
 

@@ -6,8 +6,11 @@ import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
+import za.co.wethinkcode.robots.server.npc.KillerNPC;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
+import za.co.wethinkcode.robots.services.ITCService;
 
 public class FireCommand extends Command {
 
@@ -39,14 +42,14 @@ public class FireCommand extends Command {
                 robot.incrementKills();
                 // Push to victim BEFORE removing — so the event carries their final state.
                 pushKilledEvent(victim, robot.getName(), damage);
-                if (world instanceof za.co.wethinkcode.robots.server.world.RobotWorld rw) {
+                if (world instanceof RobotWorld rw) {
                     rw.removeRobot(victimName);
                 }
                 // Notify NPC controller — resets peace timer and (if the victim is the NPC) schedules respawn.
-                var ctrl = za.co.wethinkcode.robots.services.ITCService.getInstance().getKillerController();
+                var ctrl = ITCService.getInstance().getKillerController();
                 if (ctrl != null) {
                     ctrl.recordKill();
-                    if (za.co.wethinkcode.robots.server.npc.KillerNPC.NAME.equals(victimName)) {
+                    if (KillerNPC.NAME.equals(victimName)) {
                         ctrl.onNPCKilled(robot.getName());
                     }
                 }
@@ -75,8 +78,7 @@ public class FireCommand extends Command {
         int dx = (dir == Directions.EAST) ? 1 : (dir == Directions.WEST) ? -1 : 0;
         int dy = (dir == Directions.NORTH) ? 1 : (dir == Directions.SOUTH) ? -1 : 0;
 
-        int xLimit = (world.getWidth() - 1) / 2;
-        int yLimit = (world.getHeight() - 1) / 2;
+       
 
         int x = start.getX();
         int y = start.getY();
@@ -86,7 +88,7 @@ public class FireCommand extends Command {
             x += dx;
             y += dy;
 
-            if (x < -xLimit || x > xLimit || y < -yLimit || y > yLimit) {
+            if (x < 0 || x > world.getWidth() || y < 0 || y > world.getHeight()) {
                 return new Trace(null, travelled);
             }
 
@@ -95,7 +97,7 @@ public class FireCommand extends Command {
                 return new Trace(hit, step);
             }
 
-            if (world.isPositionBlocked(x, y)) {
+            if (world.isPositionBlocked(x, y) ) {
                 return new Trace(null, step);
             }
 

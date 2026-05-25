@@ -491,10 +491,11 @@ public class RobotClient {
         ServerResponse response =parser.decodeResponse(responseJson);
        if (oldResponse==null){ oldResponse=response ; }
        String message;
-       if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
+        if (response.getData() !=null)
+      { if((message = response.getData().getMessage())!=null && response.getData().getMessage() !="DONE"){
         String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
         System.out.println(widget+message);
-       }
+       }}
         parser.updatResponse(oldResponse, response);
         if(response == null){
             //TODO rather call interaction into print

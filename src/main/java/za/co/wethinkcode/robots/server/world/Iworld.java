@@ -12,8 +12,8 @@ import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 
 public interface Iworld {
-    public final static float reloadTime=5f;
-    public final static float repairTime=3f;
+    public final static float RELOAD_TIME=5f;
+    public final static float REPAIR_TIME=3f;
     public final static int visibleDistance=3;
     public final static int MAG_MAX=5;
     public final static int bulletRange=5;

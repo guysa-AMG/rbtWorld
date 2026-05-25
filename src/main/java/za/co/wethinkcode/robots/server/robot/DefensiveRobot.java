@@ -6,12 +6,12 @@ import java.awt.Graphics;
 
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
-public class SimpleRobot extends BaseRobot {
+public class DefensiveRobot extends BaseRobot {
 
     
     
-    public SimpleRobot(String name, int x, int y) {
-        super(name, x, y, BaseRobot.MAX_VALUE*2,BaseRobot.MAX_VALUE*2);
+    public DefensiveRobot(String name, int x, int y) {
+        super(name, x, y, BaseRobot.MAX_VALUE*3, BaseRobot.MAX_VALUE);
 
     }
 

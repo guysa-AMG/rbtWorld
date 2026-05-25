@@ -40,8 +40,14 @@ public class RobotServer {
      public RobotServer(){
 
         this("2146");
-
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+                System.out.print("\nshutting down please be patient ...");
+                initiateSafeShutdown();
+            }));
         
+    }
+   private void initiateSafeShutdown(){
+        ITCService.getInstance().informClients();
     }
 
     public void init(){

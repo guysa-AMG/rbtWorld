@@ -18,7 +18,7 @@ import za.co.wethinkcode.robots.models.Position;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 
 @Data
- public abstract class  Impediments extends JPanel {
+ public abstract class  Impediments  {
   @NonNull
   protected Position position;
   @NonNull

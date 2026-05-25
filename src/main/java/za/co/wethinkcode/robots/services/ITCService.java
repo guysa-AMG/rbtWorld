@@ -1,4 +1,5 @@
 package za.co.wethinkcode.robots.services;
+import za.co.wethinkcode.robots.models.StatusCode;
 /**
  * the ITCService (Inter-Thread Communication Service)
  * 
@@ -16,6 +17,7 @@ import za.co.wethinkcode.robots.server.world.RobotWorld;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -156,6 +158,19 @@ public class ITCService {
  
     public static  ITCService getInstance(){
         return instance;
+    }
+    public void informClients(){
+        ServerResponse res =  ServerResponse.builder().result(StatusCode.OK).data(ServerResponseData.builder().message("Server Shutting down").build()).build();
+       String data = new Protocol().encodeResponse(res)+"\n";
+        for (Socket client : threads.keySet()){
+            try{
+             client.getOutputStream().write(data.getBytes());
+          
+            }
+            catch(IOException e){
+                this.logger.info("failed to send client a good bye");
+            }
+        }
     }
    
     /**
