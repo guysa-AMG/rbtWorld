@@ -21,17 +21,17 @@ public class RobotKindsTest {
     @DisplayName("Builder factory chooses subtype from shield/shoots ratio")
     class Builder {
         @Test void equalShieldAndShootsYieldsSimple() {
-            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 5, 5, 1);
+            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 5, 5);
             assertTrue(r instanceof SimpleRobot);
         }
 
         @Test void higherShieldYieldsDefensive() {
-            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 9, 3, 2);
+            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 9, 3);
             assertTrue(r instanceof DefensiveRobot);
         }
 
         @Test void higherShootsYieldsOffensive() {
-            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 3, 9, 3);
+            BaseRobot r = BaseRobot.Builder("HAL", 0, 0, 3, 9);
             assertTrue(r instanceof OffensiveRobot);
         }
     }
@@ -39,27 +39,27 @@ public class RobotKindsTest {
     @Nested
     @DisplayName("Subclasses each draw without exception")
     class Drawing {
-        @Test void simpleDraws()    { new SimpleRobot("S", 0, 0, 1).draw(graphics()); }
-        @Test void offensiveDraws() { new OffensiveRobot("O", 0, 0, 2).draw(graphics()); }
-        @Test void defensiveDraws() { new DefensiveRobot("D", 0, 0, 3).draw(graphics()); }
+        @Test void simpleDraws()    { new SimpleRobot("S", 0, 0).draw(graphics()); }
+        @Test void offensiveDraws() { new OffensiveRobot("O", 0, 0).draw(graphics()); }
+        @Test void defensiveDraws() { new DefensiveRobot("D", 0, 0).draw(graphics()); }
     }
 
     @Nested
     @DisplayName("Subclasses inherit shield/shots correctly")
     class Stats {
         @Test void offensiveHasMoreShotsThanShield() {
-            OffensiveRobot r = new OffensiveRobot("O", 0, 0, 1);
-            assertTrue(r.getShoots() > r.getShields());
+            OffensiveRobot r = new OffensiveRobot("O", 0, 0);
+            assertTrue(r.getShoots() > r.getShield());
         }
 
         @Test void defensiveHasMoreShieldThanShots() {
-            DefensiveRobot r = new DefensiveRobot("D", 0, 0, 2);
-            assertTrue(r.getShields() > r.getShoots());
+            DefensiveRobot r = new DefensiveRobot("D", 0, 0);
+            assertTrue(r.getShield() > r.getShoots());
         }
 
         @Test void simpleHasEqualShieldShots() {
-            SimpleRobot r = new SimpleRobot("S", 0, 0, 3);
-            assertEquals(r.getShields(), r.getShoots());
+            SimpleRobot r = new SimpleRobot("S", 0, 0);
+            assertEquals(r.getShield(), r.getShoots());
         }
     }
 
@@ -67,7 +67,7 @@ public class RobotKindsTest {
     @DisplayName("Names and positions persist through constructor")
     class Identity {
         @Test void offensiveStoresNameAndPos() {
-            OffensiveRobot r = new OffensiveRobot("HAL", 3, 4, 1);
+            OffensiveRobot r = new OffensiveRobot("HAL", 3, 4);
             assertEquals("HAL", r.getName());
             assertNotNull(r.getPosition());
             assertEquals(3, r.getPosition().getX());
@@ -75,15 +75,15 @@ public class RobotKindsTest {
         }
 
         @Test void defensiveStoresNameAndPos() {
-            DefensiveRobot r = new DefensiveRobot("R2", -1, -2, 2);
+            DefensiveRobot r = new DefensiveRobot("R2", -1, -2);
             assertEquals("R2", r.getName());
             assertEquals(-1, r.getPosition().getX());
             assertEquals(-2, r.getPosition().getY());
         }
 
         @Test void differentInstancesAreDistinct() {
-            assertNotEquals(new SimpleRobot("A", 0, 0, 1).getName(),
-                            new SimpleRobot("B", 0, 0, 2).getName());
+            assertNotEquals(new SimpleRobot("A", 0, 0).getName(),
+                            new SimpleRobot("B", 0, 0).getName());
         }
     }
 }

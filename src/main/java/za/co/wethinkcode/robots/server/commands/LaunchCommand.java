@@ -1,7 +1,5 @@
 package za.co.wethinkcode.robots.server.commands;
 
-import javax.swing.plaf.nimbus.State;
-
 import za.co.wethinkcode.robots.models.OperationalMode;
 import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
@@ -24,24 +22,37 @@ public class LaunchCommand extends Command {
     @Override
     public ServerResponse execute(Iworld world,BaseRobot robot) {
         if (argument.length==0){
-            ServerResponseData data = ServerResponseData.builder().message("please provide robot kind [offensive, defensive, balanced] or shield and shots").build();
+            ServerResponseData data = ServerResponseData.builder()
+                    .message("Launch needs arguments. Use one of:\n"
+                            + "  <name> launch <kind>                e.g. HAL launch balanced\n"
+                            + "  <name> launch <shield> <shots>      e.g. HAL launch 6 6\n"
+                            + "  <name> launch <kind> <shield> <shots>\n"
+                            + "Kinds: balanced (6,6), offensive (3,9), defensive (9,3)")
+                    .build();
             ServerResponse res = ServerResponse.builder().result(StatusCode.ERROR).data(data).build();
             return res;
         }
-       if( argument.length >1)
-       {
-        int shield = Integer.parseInt(argument[0]);
-        int shoots = Integer.parseInt(argument[1]);
-        world.addRobot(robotName,shield,shoots,this.id);
+       // Accept any of:  <kind>  |  <shield> <shots>  |  <kind> <shield> <shots>
+       // Always take the LAST two args as shield/shots if they parse as ints, else fall back to kind.
+       boolean launched = false;
+       if (argument.length >= 2) {
+           try {
+               int shield = Integer.parseInt(argument[argument.length - 2]);
+               int shoots = Integer.parseInt(argument[argument.length - 1]);
+               world.addRobot(robotName, shield, shoots);
+               launched = true;
+           } catch (NumberFormatException ignored) {
+               // last two args weren't numeric — try treating arg[0] as a kind name below
+           }
        }
-       if (argument.length==1){
-      String kind =  argument[0].toLowerCase();
-      switch (kind.toLowerCase()) {
-        case "balanced" ->  world.addRobot(robotName,6,6,this.id);
-        case "offensive" -> world.addRobot(robotName,3,9,this.id);
-        case "defensive" -> world.addRobot(robotName,9,3,this.id);
-        default -> world.addRobot(robotName,6,6,this.id);
-      }
+       if (!launched) {
+           String kind = argument[0].toLowerCase();
+           switch (kind) {
+               case "balanced"  -> world.addRobot(robotName, 6, 6);
+               case "offensive" -> world.addRobot(robotName, 3, 9);
+               case "defensive" -> world.addRobot(robotName, 9, 3);
+               default          -> world.addRobot(robotName, 6, 6);
+           }
        }
       robot = world.getAllRobots().get(robotName);
         
@@ -50,14 +61,14 @@ public class LaunchCommand extends Command {
                                                    .visibility(Iworld.visibleDistance)
                                                    .reload(Iworld.RELOAD_TIME)
                                                    .repair(Iworld.REPAIR_TIME)
-                                                   .shields(robot.getShields())
+                                                   .shields(robot.getShield())
                                                    .build();
 
                                         
       ServerResponseState state = ServerResponseState.builder()
                                                      .position(robot.getPosition())
                                                      .direction(robot.getDirection())
-                                                     .shields(robot.getShields())
+                                                     .shields(robot.getShield())
                                                      .shots(robot.getShoots())
                                                      .status(OperationalMode.NORMAL)
                                                      .build();

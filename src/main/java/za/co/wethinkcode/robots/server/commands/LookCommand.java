@@ -94,7 +94,7 @@ public class LookCommand extends Command {
         ServerResponseState state = ServerResponseState.builder()
                 .position(robot.getPosition())
                 .direction(robot.getDirection())
-                .shields(robot.getShields())
+                .shields(robot.getShield())
                 .shots(robot.getShoots())
                 .status(robot.getOperationState() == null ? OperationalMode.NORMAL : robot.getOperationState())
                 .build();

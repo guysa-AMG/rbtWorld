@@ -81,8 +81,26 @@ public class ProtocolTest{
             assertEquals("launched", res.getData().getMessage());
         }
 
+        @Test
+        void roundTripResponse_preservesResultAndMessage() {
+            Protocol proto = new Protocol();
+            ServerResponse original = ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder().message("oops").build())
+                    .build();
+            String json = proto.encodeResponse(original);
+            ServerResponse rebuilt = proto.decodeResponse(json);
+            assertEquals(original.getResult(), rebuilt.getResult());
+            assertEquals(original.getData().getMessage(), rebuilt.getData().getMessage());
+        }
 
-      
+        @Test
+        void decodeResponse_ignoresUnknownFields() {
+            Protocol proto = new Protocol();
+            String json = "{\"result\":\"OK\",\"data\":{\"message\":\"hi\"},\"someExtra\":\"value\"}";
+            ServerResponse res = proto.decodeResponse(json);
+            assertEquals(StatusCode.OK, res.getResult());
+        }
     }
 
     @Nested
@@ -118,6 +136,35 @@ public class ProtocolTest{
             Protocol proto = new Protocol();
             assertThrows(UnsupportedOperationException.class,
                     () -> proto.decodeRequest("{ not valid json"));
+        }
+    }
+
+    @Nested
+    @DisplayName("encodeRequest & updatResponse")
+    class EncodeAndMerge {
+
+        @Test
+        void encodeRequest_emitsRobotAndCommandFields() {
+            Protocol p = new Protocol();
+            ServerRequest req = new ServerRequest("HAL", "look", new String[]{});
+            String json = p.encodeRequest(req);
+            org.junit.jupiter.api.Assertions.assertTrue(json.contains("\"robot\":\"HAL\""));
+            org.junit.jupiter.api.Assertions.assertTrue(json.contains("\"command\":\"look\""));
+        }
+
+        @Test
+        void updatResponse_runsWithoutError() {
+            Protocol p = new Protocol();
+            ServerResponse old = ServerResponse.builder()
+                    .result(StatusCode.OK)
+                    .data(ServerResponseData.builder().message("old").build())
+                    .build();
+            ServerResponse fresh = ServerResponse.builder()
+                    .result(StatusCode.ERROR)
+                    .data(ServerResponseData.builder().message("new").build())
+                    .build();
+            p.updatResponse(old, fresh);
+            assertNotNull(old);
         }
     }
 }

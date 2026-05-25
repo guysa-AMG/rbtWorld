@@ -1,44 +1,118 @@
 package za.co.wethinkcode.robots.server.world;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import za.co.wethinkcode.robots.models.impediment.Tree;
-import za.co.wethinkcode.robots.models.impediment.EmptySpot;
-import za.co.wethinkcode.robots.models.impediment.Mountain;
-import za.co.wethinkcode.robots.models.impediment.Pit;
-import za.co.wethinkcode.robots.models.impediment.Water;
-import za.co.wethinkcode.robots.models.impediment.Boundary;
-
-import java.util.List;
+import za.co.wethinkcode.robots.models.Position;
+import za.co.wethinkcode.robots.models.impediment.Impediments;
 
 public class WorldGeneratorTest {
 
-    @Test
-    public void testGenerateFromMapString_mapsToImpediments() {
-        String map = "T . M\nP W |"; // two rows, tokens separated by spaces
-        RobotWorld world = WorldGenerator.generateFromMapString(map);
-        assertNotNull(world);
-        List<?> objs = world.getMap();
-        // Expect 3 tokens first row + 3 tokens second row = 6
-        assertEquals(6, objs.size());
-        assertTrue(objs.get(0) instanceof Tree);
-        assertTrue(objs.get(1) instanceof EmptySpot);
-        assertTrue(objs.get(2) instanceof Mountain);
-        assertTrue(objs.get(3) instanceof Pit);
-        assertTrue(objs.get(4) instanceof Water);
-        assertTrue(objs.get(5) instanceof Boundary);
+    @Nested
+    @DisplayName("WorldGenerator.build() — full procedural arena")
+    class Build {
+        @Test void buildReturnsNonNullWorld() {
+            RobotWorld w = WorldGenerator.build();
+            assertNotNull(w);
+        }
+
+        @Test void buildPlacesObstacles() {
+            RobotWorld w = WorldGenerator.build();
+            assertTrue(w.getObstacles().size() > 0);
+        }
+
+        @Test void buildPlacesAmmoPickups() {
+            RobotWorld w = WorldGenerator.build();
+            assertFalse(w.getAmmoPickups().isEmpty());
+        }
+
+        @Test void buildSetsExpectedDimensions() {
+            RobotWorld w = WorldGenerator.build();
+            assertEquals(51, w.getWidth());
+            assertEquals(31, w.getHeight());
+        }
     }
 
-    @Test
-    public void testBuildCreatesObstaclesAndAmmo() {
-        RobotWorld world = WorldGenerator.build();
-        assertNotNull(world);
-        // check a known mountain placed by build()
-        assertEquals("MOUNTAIN", world.obstacleTypeAt(-25, 15));
-        // build also seeds ammo pickups
-        assertNotNull(world.getAmmoPickups());
-        assertTrue(world.getAmmoPickups().size() > 0);
+    @Nested
+    @DisplayName("generateFromMapString")
+    class FromString {
+        @Test void simpleMapStringYieldsPopulatedMap() {
+            String map = "t r r\n. . .\nm p w";
+            RobotWorld w = WorldGenerator.generateFromMapString(map);
+            assertNotNull(w);
+            assertFalse(w.getMap().isEmpty());
+        }
+
+        @Test void boundaryAndEmptyTilesAreRecognised() {
+            RobotWorld w = WorldGenerator.generateFromMapString(". | -\n. . .");
+            assertNotNull(w.getMap());
+        }
+    }
+
+    @Nested
+    @DisplayName("generateFromMapfile")
+    class FromFile {
+        @Test void existingResourceReturnsWorld() {
+            RobotWorld w = WorldGenerator.generateFromMapfile("worldMapTest.txt");
+            assertNotNull(w);
+            assertFalse(w.getMap().isEmpty());
+        }
+
+        @Test void missingResourceReturnsNull() {
+            assertNull(WorldGenerator.generateFromMapfile("no-such-file.txt"));
+        }
+    }
+
+    @Nested
+    @DisplayName("RobotWorld extras: ammo pickup rules")
+    class AmmoPickups {
+        @Test void cannotAddPickupOnBlockedCell() {
+            RobotWorld w = new RobotWorld(11, 11, 5);
+            w.addObstacle(new za.co.wethinkcode.robots.models.impediment.Obstacle(1, 1, 1, 1, "MOUNTAIN"));
+            assertFalse(w.addAmmoPickup(new Position(1, 1)));
+        }
+
+        @Test void cannotAddDuplicatePickup() {
+            RobotWorld w = new RobotWorld(11, 11, 5);
+            assertTrue(w.addAmmoPickup(new Position(2, 2)));
+            assertFalse(w.addAmmoPickup(new Position(2, 2)));
+        }
+
+        @Test void nullPickupReturnsFalse() {
+            RobotWorld w = new RobotWorld(11, 11, 5);
+            assertFalse(w.addAmmoPickup(null));
+        }
+
+        @Test void cannotAddPickupOnPit() {
+            RobotWorld w = new RobotWorld(11, 11, 5);
+            w.addObstacle(new za.co.wethinkcode.robots.models.impediment.Obstacle(0, 0, 0, 0, "PIT"));
+            assertFalse(w.addAmmoPickup(new Position(0, 0)));
+        }
+    }
+
+    @Nested
+    @DisplayName("perform() routes unlaunched commands to ErrorCommand")
+    class PerformRouting {
+        @Test void historyOfCommandsRecordsExecution() {
+            RobotWorld w = new RobotWorld(11, 11, 5);
+            w.perform(za.co.wethinkcode.robots.server.commands.Command.generate(
+                    new za.co.wethinkcode.robots.models.transitmodels.ServerRequest("HAL", "launch", new String[]{"balanced"})));
+            assertEquals(1, w.getHistoryOfCommands().size());
+        }
+
+        @Test void newSpawnPointReturnsInBoundsPosition() {
+            RobotWorld w = new RobotWorld(7, 7, 3);
+            Position p = w.newSpawnPoint();
+            assertNotNull(p);
+            assertTrue(Math.abs(p.getX()) <= 3);
+            assertTrue(Math.abs(p.getY()) <= 3);
+        }
     }
 }

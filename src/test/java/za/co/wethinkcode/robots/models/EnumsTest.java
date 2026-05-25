@@ -59,8 +59,8 @@ public class EnumsTest {
         @Test void containsExpectedMembers() {
             assertNotNull(CommandTypeEnum.valueOf("launch"));
             assertNotNull(CommandTypeEnum.valueOf("fire"));
-            assertNotNull(CommandTypeEnum.valueOf("forward"));
-            assertNotNull(CommandTypeEnum.valueOf("back"));
+            assertNotNull(CommandTypeEnum.valueOf("subscribe"));
+            assertNotNull(CommandTypeEnum.valueOf("unsubscribe"));
         }
         @Test void hasShutdownMember() { assertNotNull(CommandTypeEnum.valueOf("shutdown")); }
     }

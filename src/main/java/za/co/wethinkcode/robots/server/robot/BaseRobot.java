@@ -17,7 +17,6 @@ public abstract class BaseRobot extends Impediments {
      private Directions direction;
      private int shield;
      private int maxShield;
-     protected final int id;
      private int maxReload;
      private OperationalMode status;
      private int worldWidth;
@@ -30,9 +29,9 @@ public abstract class BaseRobot extends Impediments {
      private long lastMoveTimestamp;
      private int blockedCount;
 
-     public BaseRobot(String name,int x, int y,int shield,int shoots, int id) {
+     public BaseRobot(String name,int x, int y,int shield,int shoots) {
         super(new Position(x,y),"ROBOT","cuterbt.gif");
-       this.id =id;
+       
         this.direction = Directions.NORTH;
         this.name = name;
         this.shield = shield;
@@ -62,10 +61,28 @@ public abstract class BaseRobot extends Impediments {
      return this.state;
     }
 
-  
+    public int getShield(){
+     return this.shield;
+    }
+    public boolean inflictDamage(int shieldDamage){ 
+        if (this.shield<0){
+        this.shield-=shieldDamage;
+        return true;
+    }
+    return false;
+    }
+    
+    public List<BaseRobot> getRobotInSight(BaseRobot robot){
+        List<BaseRobot> bots = new ArrayList<>();
+        switch(robot.direction){
+           
+        
+        }
+        return null;
+    }  
    
    
-    public boolean decrementBullets()
+      public boolean decrementBullets()
       {
         if (this.shoots!=0){
             this.shoots-=1;
@@ -73,39 +90,37 @@ public abstract class BaseRobot extends Impediments {
         }
         return false;
       }
-     
-    public void reloadAllBullet(){  this.shoots=this.maxReload;  }
+      public void reloadAllBullet(){
+        this.shoots=this.maxReload;
+      }
     
-    public String getName(){   return this.name;  }
+    
+    
 
-    public Directions getDirection() {  return this.direction; }
+    public String getName(){
+        return this.name;
+      }
 
-    public int getShields(){  return this.shield;  }
- 
-    public OperationalMode getStatus() {   return this.status;   }
+   
 
-    public void setOperationalState(OperationalMode state){  this.state=state;  }
+    public Directions getDirection() {
+        return this.direction;
+    }
 
-     public int getMaxShield() { return this.maxShield; }
 
-    public void reload() {  this.shoots = maxReload;   }
+    public int getShields() {
+        return this.shield;
+    }
 
-    public boolean isDead() { return this.status == OperationalMode.DEAD; }
+  
 
-    public int getLives() {   return this.lives;  }
- 
-    /** Refill ammo to full (used by ammo pickup and reload). */
-    public void refillAmmo() { this.shoots = Iworld.MAG_MAX; }
+    public OperationalMode getStatus() {
+        return this.status;
+    }
 
-    public int getKills() { return this.kills; }
-
-    public void incrementKills() { this.kills++; }
-
-    public String getKilledBy() { return this.killedBy; }
-
-    public void clearKilledBy() { this.killedBy = null; }
-
-    public long getLastMoveTimestamp() { return this.lastMoveTimestamp; }
+    public void setOperationalState(OperationalMode state){
+        this.state=state;
+    }
 
     public void setWorldBounds(int width, int height) {
         this.worldWidth = width;
@@ -116,11 +131,11 @@ public abstract class BaseRobot extends Impediments {
         this.status = status;
     }
 
-    public static BaseRobot Builder(String name,int x, int y,int shield,int shoots, int id){
+    public static BaseRobot Builder(String name,int x, int y,int shield,int shoots){
         BaseRobot robot=null;
-        if (shield == shoots){  robot = new SimpleRobot(name, x, y,id);  }
-        if (shield > shoots){  robot = new DefensiveRobot(name, x, y, id);  }
-        if (shield < shoots){  robot = new OffensiveRobot(name, x, y, id);  }
+        if (shield == shoots){  robot = new SimpleRobot(name, x, y);  }
+        if (shield > shoots){  robot = new DefensiveRobot(name, x, y);  }
+        if (shield < shoots){  robot = new OffensiveRobot(name, x, y);  }
         return robot;
 
    }
@@ -227,12 +242,23 @@ public abstract class BaseRobot extends Impediments {
 
     }
 
-  
+    public void reload() {
+        this.shoots = maxReload;
+    
+    }
+
     public void repair() {
         this.shield = this.maxShield;
         this.status = OperationalMode.NORMAL;
     }
-  
+
+    public boolean isDead() {
+        return this.status == OperationalMode.DEAD;
+    }
+
+    public int getLives() {
+        return this.lives;
+    }
 
     /** Decrement lives by 1 and return the new value. */
     public int decrementLives() {
@@ -240,7 +266,35 @@ public abstract class BaseRobot extends Impediments {
         return this.lives;
     }
 
-   
+    public int getMaxShield() {
+        return this.maxShield;
+    }
+
+    /**
+     * Reset the robot for a respawn after death:
+     * full shield, full ammo, NORMAL status, at the given position facing NORTH.
+     * Does NOT touch lives — caller is responsible for decrementing.
+     */
+    public void respawnAt(Position pos) {
+        this.position = pos;
+        this.direction = Directions.NORTH;
+        this.shield = this.maxShield;
+        this.shoots = Iworld.MAG_MAX;
+        this.status = OperationalMode.NORMAL;
+        this.state = OperationalMode.NORMAL;
+    }
+
+    /** Refill ammo to full (used by ammo pickup and reload). */
+    public void refillAmmo() {
+        this.shoots = Iworld.MAG_MAX;
+    }
+
+    public int getKills() { return this.kills; }
+    public void incrementKills() { this.kills++; }
+    public String getKilledBy() { return this.killedBy; }
+    public void clearKilledBy() { this.killedBy = null; }
+
+    public long getLastMoveTimestamp() { return this.lastMoveTimestamp; }
     public void markMoved() {
         this.lastMoveTimestamp = System.currentTimeMillis();
         this.blockedCount = 0;

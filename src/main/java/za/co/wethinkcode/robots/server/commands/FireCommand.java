@@ -6,6 +6,7 @@ import za.co.wethinkcode.robots.models.StatusCode;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponse;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseData;
 import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
+import za.co.wethinkcode.robots.server.npc.KillerNPC;
 import za.co.wethinkcode.robots.server.robot.BaseRobot;
 import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.server.world.RobotWorld;
@@ -44,7 +45,14 @@ public class FireCommand extends Command {
                 if (world instanceof RobotWorld rw) {
                     rw.removeRobot(victimName);
                 }
-           
+                // Notify NPC controller — resets peace timer and (if the victim is the NPC) schedules respawn.
+                var ctrl = ITCService.getInstance().getKillerController();
+                if (ctrl != null) {
+                    ctrl.recordKill();
+                    if (KillerNPC.NAME.equals(victimName)) {
+                        ctrl.onNPCKilled(robot.getName());
+                    }
+                }
                 dataB.message("KILLED " + victimName + " (damage " + damage + ")")
                      .robot(victimName);
             } else {
@@ -118,7 +126,7 @@ public class FireCommand extends Command {
                         .build())
                 .state(stateOf(victim))
                 .build();
-        ITCService.getInstance().pushEvent(victim.getName(), evt);
+        za.co.wethinkcode.robots.services.ITCService.getInstance().pushEvent(victim.getName(), evt);
     }
 
     private void pushKilledEvent(BaseRobot victim, String shooter, int damage) {
@@ -131,14 +139,14 @@ public class FireCommand extends Command {
                         .build())
                 .state(stateOf(victim))
                 .build();
-       ITCService.getInstance().pushEvent(victim.getName(), evt);
+        za.co.wethinkcode.robots.services.ITCService.getInstance().pushEvent(victim.getName(), evt);
     }
 
     private ServerResponseState stateOf(BaseRobot r) {
         return ServerResponseState.builder()
                 .position(r.getPosition())
                 .direction(r.getDirection())
-                .shields(r.getShields())
+                .shields(r.getShield())
                 .shots(r.getShoots())
                 .status(r.getOperationState())
                 .build();

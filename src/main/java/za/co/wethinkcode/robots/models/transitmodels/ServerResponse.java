@@ -22,7 +22,10 @@ import za.co.wethinkcode.robots.models.StatusCode;
 @NoArgsConstructor
 @JsonInclude(value=Include.NON_NULL)
 public class ServerResponse {
-    
+
+    @JsonProperty
+    private String type;
+
     @JsonProperty(required = true)
     private StatusCode result;
 

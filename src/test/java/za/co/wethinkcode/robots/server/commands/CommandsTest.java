@@ -122,7 +122,7 @@ public class CommandsTest {
         @Test void launchWithNoArgsReturnsError() {
             ServerResponse res = world.perform(Command.generate(req("launch","HAL")));
             assertEquals(StatusCode.ERROR, res.getResult());
-            assertNotNull(res.getData().getMessage());
+            assertTrue(res.getData().getMessage().contains("Launch needs arguments"));
         }
 
         @Test void launchUnknownKindStillSpawns() {
@@ -165,8 +165,8 @@ public class CommandsTest {
             assertNull(world.getAllRobots().get("HAL"));
         }
 
-        @Test void quitConstructorWithName() {
-            QuitCommand q = new QuitCommand("HAL");
+        @Test void quitConstructorWithArgs() {
+            QuitCommand q = new QuitCommand(new String[]{}, "HAL");
             assertEquals("quit", q.getCommandName());
         }
     }

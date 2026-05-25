@@ -6,18 +6,17 @@ import za.co.wethinkcode.robots.server.world.Iworld;
 
 public class QuitCommand extends Command {
 
-    public QuitCommand(String robotName) {
-        super("quit",robotName);
+    public QuitCommand(String[] args, String rbtName) {
+        super("quit", args, rbtName);
     }
 
-  
+    public QuitCommand(String rbtName) {
+        super("quit", rbtName);
+    }
+
     @Override
-    public ServerResponse execute(Iworld world, BaseRobot target){
-
-        world.removeRobot(target.getName());
-
-        System.out.println("Robot " + target.getName() + " has quit.");
+    public ServerResponse execute(Iworld world, BaseRobot robot) {
+        world.removeRobot(robot.getName());
         return null;
     }
-
 }

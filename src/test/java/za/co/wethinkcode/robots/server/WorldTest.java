@@ -43,7 +43,7 @@ public class WorldTest {
             String stringMap=". . . T .";
             WorldGenerator world = WorldGenerator.generateFromMapString(stringMap);
             ITCService.getInstance().setWorld(world);
-            String data =ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"launch\",  \"arguments\" : [ \"strong\" ]}",null);
+            String data =ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"launch\",  \"arguments\" : [ \"strong\" ]}");
            
            
         }
@@ -52,8 +52,8 @@ public class WorldTest {
         @Test
         void turnAndForwardunObstructedTest(){
     
-           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}",null);
-           String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"2\" ]}",null);
+           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}");
+           String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"2\" ]}");
 
             assertEquals("{\"result\":\"OK\",\"data\":{\"message\":\"DONE\"},\"state\":{\"position\":{\"x\":2,\"y\":0},\"direction\":\"EAST\",\"shields\":20,\"shots\":0}}",res);
 
@@ -65,9 +65,9 @@ public class WorldTest {
         @Test
         void turnAndbackwardunObstructedTest(){
     
-           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}",null);
-           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"2\" ]}",null);
-          String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"back\",  \"arguments\" : [ \"1\" ]}",null);
+           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}");
+           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"2\" ]}");
+          String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"back\",  \"arguments\" : [ \"1\" ]}");
 
             assertEquals("{\"result\":\"OK\",\"data\":{\"message\":\"DONE\"},\"state\":{\"position\":{\"x\":1,\"y\":0},\"direction\":\"EAST\",\"shields\":20,\"shots\":0}}",res);
 
@@ -78,9 +78,9 @@ public class WorldTest {
          @DisplayName("Test if Robot can turn right and move backward into a obstructed.")
         @Test
         void forwardObstructedTest(){
-           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"right\" ]}",null);
+           ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"right\" ]}");
         
-           String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"back\",  \"arguments\" : [ \"100\" ]}",null);
+           String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"back\",  \"arguments\" : [ \"100\" ]}");
 
             assertEquals("{\"result\":\"OK\",\"data\":{\"message\":\"BLOCKED\"},\"state\":{\"position\":{\"x\":2,\"y\":0},\"direction\":\"WEST\",\"shields\":20,\"shots\":0}}",res);
 
@@ -91,8 +91,8 @@ public class WorldTest {
          @DisplayName("Test if Robot can turn and move forward into an obstructed.")
         @Test
         void backwardObstructedTest(){
-          ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}",null);
-          String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"5\" ]}",null);
+          ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"turn\",  \"arguments\" : [ \"left\" ]}");
+          String res = ITCService.getInstance().doThisCommand("{  \"robot\" : \"mark\",  \"command\" : \"forward\",  \"arguments\" : [ \"5\" ]}");
 
             assertEquals("{\"result\":\"OK\",\"data\":{\"message\":\"BLOCKED\"},\"state\":{\"position\":{\"x\":2,\"y\":0},\"direction\":\"EAST\",\"shields\":20,\"shots\":0}}",res);
 

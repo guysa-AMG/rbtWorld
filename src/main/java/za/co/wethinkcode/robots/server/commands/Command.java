@@ -19,7 +19,6 @@ public abstract class Command {
     protected String robotName;
     protected String CommandName;
     protected String[] argument;
-    protected int id;
     protected String attribute;
     protected boolean restricted =true;
     public String getCommandName(){
@@ -51,7 +50,6 @@ public abstract class Command {
     Command(String[] argument,String rbtNameString){
         this(null,argument,rbtNameString);
     }
-    public  void setExecutorId(int id){ this.id=id ;}
    
     protected Command(String name,String rbtNameString){
         this(name,null,rbtNameString);

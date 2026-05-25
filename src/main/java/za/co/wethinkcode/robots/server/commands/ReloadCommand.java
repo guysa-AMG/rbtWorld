@@ -24,7 +24,7 @@ public class ReloadCommand extends Command {
     public ServerResponse execute(Iworld world, BaseRobot robot) {
      
         try {
-            Thread.sleep((long)world.RELOAD_TIME*1000);
+            Thread.sleep((long)world.RELOAD_TIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -39,9 +39,6 @@ public class ReloadCommand extends Command {
                                                       .build();
       ServerResponseData data = ServerResponseData.builder()
                                                   .message("DONE")
-                                                  .visibility(Iworld.visibleDistance)
-                                                  .reload(Iworld.RELOAD_TIME)
-                                                  .repair(Iworld.REPAIR_TIME)
                                                   .state(state)
                                                   .build();
       return ServerResponse.builder()

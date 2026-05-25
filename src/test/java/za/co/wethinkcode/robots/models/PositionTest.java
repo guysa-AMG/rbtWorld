@@ -149,4 +149,41 @@ public class PositionTest {
             assertFalse(a.equals(b));
         }
     }
+
+    @Nested
+    @DisplayName("isIn & distance helpers")
+    class DistanceAndBounds {
+
+        @Test
+        void isIn_trueWhenInsideBox() {
+            assertTrue(new Position(2, 3).isIn(0, 0, 5, 5));
+        }
+
+        @Test
+        void isIn_falseWhenOutsideBox() {
+            assertFalse(new Position(7, 3).isIn(0, 0, 5, 5));
+        }
+
+        @Test
+        void getDistance_returnsAbsoluteDelta() {
+            Position d = new Position(0, 0).getDistance(new Position(-3, 4));
+            assertEquals(3, d.getX());
+            assertEquals(4, d.getY());
+        }
+
+        @Test
+        void getStraightDistance_sameRow() {
+            assertEquals(3, new Position(0, 5).getStraightDistance(new Position(3, 5)));
+        }
+
+        @Test
+        void getStraightDistance_sameColumn() {
+            assertEquals(7, new Position(2, 0).getStraightDistance(new Position(2, 7)));
+        }
+
+        @Test
+        void getStraightDistance_diagonalReturnsMinusOne() {
+            assertEquals(-1, new Position(0, 0).getStraightDistance(new Position(2, 2)));
+        }
+    }
 }

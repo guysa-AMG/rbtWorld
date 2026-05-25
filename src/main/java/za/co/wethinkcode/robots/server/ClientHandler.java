@@ -51,7 +51,7 @@ class ClientHandler implements Runnable {
                     }
                 } catch (Exception ignore) { /* keep going — server still handles bad requests */ }
 
-                String sendableData = ITCService.getInstance().doThisCommand(data,this.specificSock);
+                String sendableData = ITCService.getInstance().doThisCommand(data);
                 if ("off".equals(sendableData)) {
                     this.specificSock.close();
                     ITCService.getInstance().terminateServerThread(specificSock);

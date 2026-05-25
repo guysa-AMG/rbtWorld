@@ -14,7 +14,9 @@ public enum CommandTypeEnum {
     repair,
     reload,
     fire,
-    state;
+    state,
+    subscribe,
+    unsubscribe;
 
     public static boolean contains(String token) {
         if (token == null) return false;

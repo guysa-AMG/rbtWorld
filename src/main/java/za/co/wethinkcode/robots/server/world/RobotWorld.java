@@ -244,7 +244,7 @@ public class RobotWorld extends WorldGenerator  {
 
     // OTHER INTERFACE METHODS
     @Override
-     public boolean addRobot(String name,int shield,int shoots, int id) {
+     public boolean addRobot(String name,int shield,int shoots) {
         if (robots.containsKey(name)) return false;
     
         List<Position> others = new ArrayList<>();
@@ -253,7 +253,7 @@ public class RobotWorld extends WorldGenerator  {
         }
         // Position spawn = findSafeSpawn(others, 8);
         Position spawn = newSpawnPoint();
-        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots,id);
+        BaseRobot robot = BaseRobot.Builder(name, spawn.getX(), spawn.getY(), shield, shoots);
         robots.put(name, robot);
         this.map.remove(getObjectsAtPosition(spawn));
         this.map.add(robot);
@@ -262,7 +262,7 @@ public class RobotWorld extends WorldGenerator  {
         return true;
     }
      public boolean addRobot(String name) {
-      return addRobot(name,1,1,0);
+      return addRobot(name,1,1);
     }
    
 
@@ -316,9 +316,8 @@ public class RobotWorld extends WorldGenerator  {
 
     @Override public String getRobotState(String n) {
         BaseRobot robot = this.robots.get(n);
-        if (robot == null) return "Robot not found";
         Position p = robot.getPosition();
-        if (p == null) return "Position: [?,?], Direction: " + robot.getDirection();
+        if (robot == null) return "Robot not found";
         return "Position: [" + p.getX() + "," + p.getY() + "], Direction: " + robot.getDirection();
     }
 
@@ -399,10 +398,16 @@ public class RobotWorld extends WorldGenerator  {
         if (pos==null){
             return null;
         }
-        return this.map.stream()
-                        .filter(obj->obj.getPosition().equals(pos))
-                        .findFirst()
-                        .orElse(null);
+        try{
+       return  this.map.stream()
+                        .filter(obj->obj.getPosition()
+                                        .equals(pos)).findFirst()
+                                                     .get();
+        }
+        catch(NoSuchElementException ex){
+            return null;
+        }
+      
     }
     @Override
     public BaseRobot getFireable(BaseRobot rbt) {
@@ -463,8 +468,15 @@ public class RobotWorld extends WorldGenerator  {
       return null;
 
     }
+
     @Override
     public List<Command> getHistoryOfCommands() {
         return this.historyOfCommands;
     }
+
+
+   
+
+
+  
 }

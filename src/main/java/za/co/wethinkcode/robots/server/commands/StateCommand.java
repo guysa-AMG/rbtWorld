@@ -17,7 +17,7 @@ public class StateCommand extends Command {
     public ServerResponse execute(Iworld world, BaseRobot robot) {
         ServerResponseState state = ServerResponseState.builder()
                                                         .position(robot.getPosition())
-                                                        .shields(robot.getShields())
+                                                        .shields(robot.getShield())
                                                         .shots(robot.getShoots())
                                                         .status(robot.getOperationState())
                                                         .build();

@@ -114,14 +114,14 @@ public class FireReloadRepairTest {
             ServerResponse res = world.perform(Command.generate(req("fire", "HAL")));
             assertEquals(StatusCode.OK, res.getResult());
             assertTrue(res.getData().getMessage().contains("HIT") || res.getData().getMessage().contains("KILLED"));
-            assertTrue(victim.getShields() < victim.getMaxShield() || victim.isDead());
+            assertTrue(victim.getShield() < victim.getMaxShield() || victim.isDead());
         }
 
         @Test void fireKillsLowShieldVictim() {
             launchAt("HAL", 0, 0, Directions.SOUTH);
             BaseRobot victim = launchAt("R2", 0, 1, Directions.NORTH);
             // Damage victim to brink, then fire — should kill.
-            victim.takeDamage(victim.getShields() - 1, "x");
+            victim.takeDamage(victim.getShield() - 1, "x");
             ServerResponse res = world.perform(Command.generate(req("fire", "HAL")));
             assertNotNull(res);
             assertEquals(StatusCode.OK, res.getResult());

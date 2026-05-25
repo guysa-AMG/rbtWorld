@@ -48,7 +48,7 @@ public class TurnCommand extends Command{
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
                                                        .status(robot.getOperationState())
-                                                       .shields(robot.getShields())
+                                                       .shields(robot.getShield())
                                                        .shots(robot.getShoots())
                                                        .build();
 

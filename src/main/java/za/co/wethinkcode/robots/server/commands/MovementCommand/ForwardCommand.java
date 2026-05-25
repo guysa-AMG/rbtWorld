@@ -110,7 +110,7 @@ public class ForwardCommand extends Command{
                                                        .position(robot.getPosition())
                                                        .direction(robot.getDirection())
                                                        .status(fellInto != null ? OperationalMode.DEAD :robot.getOperationState())
-                                                       .shields(robot.getShields())
+                                                       .shields(robot.getShield())
                                                        .shots(robot.getShoots())
                                                        .build();
 
