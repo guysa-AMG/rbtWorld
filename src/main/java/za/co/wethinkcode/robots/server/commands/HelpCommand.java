@@ -30,7 +30,7 @@ public class HelpCommand extends Command {
       System.setOut(origPrintStream);
 
       ServerResponseData data = ServerResponseData.builder()
-                                                  .message(origPrintStream.toString().trim())
+                                                  .message(capturedByteStream.toString())
                                                   .build();
       return ServerResponse.builder()
                            .result(StatusCode.OK)
