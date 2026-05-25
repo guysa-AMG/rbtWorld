@@ -11,8 +11,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import za.co.wethinkcode.robots.client.gui.WorldPanel;
 import za.co.wethinkcode.robots.models.impediment.EmptySpot;
 import za.co.wethinkcode.robots.models.impediment.Impediments;
+import za.co.wethinkcode.robots.server.world.RobotWorld;
 import za.co.wethinkcode.robots.server.world.WorldGenerator;
 import za.co.wethinkcode.robots.services.ITCService;
 
@@ -49,43 +51,58 @@ public class ServerUI implements Runnable {
 
 
 class WorldRender extends JPanel{
+    private static final int CELL = 16;
     int worldHeight;
-    int scale;
     int worldWidth;
     WorldRender(){
         worldHeight = ITCService.getInstance().getWorld().getHeight();
         worldWidth = ITCService.getInstance().getWorld().getWidth();
-        scale=WorldGenerator.MAP_SCALE;
-        setBackground(new Color(20,20,20));
-        setPreferredSize(new Dimension(worldWidth*scale,worldHeight*scale));
+        setBackground(Color.BLACK);
+        setPreferredSize(new Dimension(worldWidth * CELL + 2, worldHeight * CELL + 2));
     }
 
-
-  
     @Override
     protected void paintComponent(Graphics g) {
-       
         super.paintComponent(g);
         paintAllObjects(g);
         drawGrid(g);
     }
-   void  paintAllObjects(Graphics g){
-       List<Impediments> objs= ITCService.getInstance().getWorld().getMap();
-       for(Impediments obj:objs){
-        if (!( obj instanceof EmptySpot)){  obj.draw(g);}
-       }
+
+    void paintAllObjects(Graphics g){
+        List<Impediments> objs = ITCService.getInstance().getWorld().getMap();
+        for (Impediments obj : objs){
+            if (obj instanceof EmptySpot) continue;
+            int px = obj.getPosition().getX() * CELL;
+            int py = obj.getPosition().getY() * CELL;
+            g.setColor(colorFor(obj.type));
+            g.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
+        }
     }
-     private void drawGrid(Graphics g2) {
+
+    private void drawGrid(Graphics g2) {
         g2.setColor(new Color(40, 40, 50));
-        
         for (int gx = 0; gx <= worldWidth; gx++) {
-            int px = gx * scale;
-            g2.drawLine(px, 0, px, worldHeight * scale);
+            int px = gx * CELL;
+            g2.drawLine(px, 0, px, worldHeight * CELL);
         }
         for (int gy = 0; gy <= worldHeight; gy++) {
-            int py = gy * scale;
-            g2.drawLine(0, py, worldWidth * scale, py);
+            int py = gy * CELL;
+            g2.drawLine(0, py, worldWidth * CELL, py);
         }
+    }
 
+    // Same palette as the client GUI so server and client show identical-looking maps.
+    private static Color colorFor(String type) {
+        if (type == null) return Color.MAGENTA;
+        return switch (type.toUpperCase()) {
+            case "MOUNTAIN"      -> new Color(150, 100, 60);
+            case "WATER", "LAKE" -> new Color(60, 130, 220);
+            case "TREE"          -> new Color(40, 160, 70);
+            case "WALL"          -> new Color(200, 200, 200);
+            case "ROCK"          -> new Color(130, 130, 130);
+            case "PIT", "HOLE"   -> new Color(220, 40, 40);
+            case "BOUNDARY"      -> new Color(80, 80, 80);
+            default              -> Color.MAGENTA;
+        };
     }
 }

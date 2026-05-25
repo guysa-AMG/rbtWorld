@@ -54,13 +54,13 @@ public class ClientGui {
         inputRow.add(sendBtn, BorderLayout.EAST);
         left.add(inputRow, BorderLayout.SOUTH);
 
-        // ---- Right: world ----
+        // ---- Right: world (scales to fill its panel, no scrolling needed) ----
         JPanel right = new JPanel(new BorderLayout());
         right.setBorder(BorderFactory.createTitledBorder("World"));
         right.add(world, BorderLayout.CENTER);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
-        split.setResizeWeight(0.4);
+        split.setResizeWeight(0.25);
         frame.add(split, BorderLayout.CENTER);
 
         status.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
@@ -77,8 +77,17 @@ public class ClientGui {
         sendBtn.addActionListener(e -> submit.run());
         input.addActionListener(e -> submit.run());
 
-        frame.setPreferredSize(new Dimension(1200, 720));
+        // Size the window to fit the actual screen (90% of usable area, capped at a sane max).
+        Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        int w = Math.min(1400, (int) (screen.width  * 0.9));
+        int h = Math.min(900,  (int) (screen.height * 0.9));
+        frame.setPreferredSize(new Dimension(w, h));
+        frame.setMinimumSize(new Dimension(640, 480));
         frame.pack();
+        frame.setLocationRelativeTo(null);
+        // After pack the world's preferred size may have widened things — clamp again.
+        Dimension packed = frame.getSize();
+        frame.setSize(Math.min(packed.width, w), Math.min(packed.height, h));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         setStatus("connecting to " + host + ":" + port + " …");

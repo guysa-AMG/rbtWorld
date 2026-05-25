@@ -24,8 +24,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldPanel extends JPanel {
 
-    private static final int CELL = 20;
-    private static final String KILLER_NPC_NAME = "Bender";
+    // Cell size: fits the largest map possible inside the panel, capped between MIN/MAX so
+    // small maps don't get cartoonishly zoomed-in and big maps don't overflow.
+    // Recomputed each paint together with offsetX/offsetY to keep the map centred.
+    private static final int MIN_CELL = 12;
+    private static final int MAX_CELL = 36;
+    private int CELL = 24;
+    private int offsetX = 0;
+    private int offsetY = 0;
+    private static final String KILLER_NPC_NAME = "Guyser_Thekiller";
     private static final BufferedImage KILLER_IMAGE = loadImage("/images/killer_robot.jpg");
     private static final BufferedImage PLAYER_SHEET = loadImage("/images/player_robot_motions.jpeg");
     private static final java.util.Map<Directions, BufferedImage> PLAYER_FRAMES = slicePlayerFrames();
@@ -51,8 +58,8 @@ public class WorldPanel extends JPanel {
         int h = PLAYER_SHEET.getHeight();
         int cellW = w / 7;
         int cellH = h / 2;          // top row only
-        out.put(Directions.WEST,  PLAYER_SHEET.getSubimage(0 * cellW, 0, cellW, cellH));
-        out.put(Directions.EAST,  PLAYER_SHEET.getSubimage(1 * cellW, 0, cellW, cellH));
+        out.put(Directions.EAST,  PLAYER_SHEET.getSubimage(0 * cellW, 0, cellW, cellH));
+        out.put(Directions.WEST,  PLAYER_SHEET.getSubimage(1 * cellW, 0, cellW, cellH));
         out.put(Directions.NORTH, PLAYER_SHEET.getSubimage(2 * cellW, 0, cellW, cellH));
         out.put(Directions.SOUTH, PLAYER_SHEET.getSubimage(3 * cellW, 0, cellW, cellH));
         return out;
@@ -70,16 +77,26 @@ public class WorldPanel extends JPanel {
     private volatile boolean lookExpanded = false; // true between a successful look and the next move
 
     public WorldPanel() {
-        RobotWorld template = WorldGenerator.generateFromMapfile("worldmap.txt");
+        RobotWorld template = WorldGenerator.generateFromMapfile("biggermap.txt");
         this.worldWidth = template.getWidth();
         this.worldHeight = template.getHeight();
         this.obstacles = new ArrayList<>();
-        for (Object o : template.getObstacles()) {
-            if (o instanceof Obstacle obs) obstacles.add(obs);
+        // The file-based map system stores cells as Impediments in getMap(); synthesize single-cell
+        // Obstacles from each non-empty cell so the existing drawObstacles renderer can use them.
+        for (za.co.wethinkcode.robots.models.impediment.Impediments imp : template.getMap()) {
+            if (imp == null) continue;
+            if (imp instanceof za.co.wethinkcode.robots.models.impediment.EmptySpot) continue;
+            if (imp instanceof za.co.wethinkcode.robots.models.impediment.Boundary) continue;
+            za.co.wethinkcode.robots.models.Position p = imp.getPosition();
+            if (p == null) continue;
+            obstacles.add(new Obstacle(p.getX(), p.getY(), p.getX(), p.getY(), imp.type.toUpperCase()));
         }
-        setBackground(new Color(20, 20, 25));
-        setPreferredSize(new Dimension(worldWidth * CELL + 2, worldHeight * CELL + 2));
-        
+        // True black background gives the "dark surrounding" outside the map.
+        setBackground(Color.BLACK);
+        // Modest preferred size — actual CELL is recomputed each paint to fit the current panel,
+        // bounded by MIN_CELL/MAX_CELL, so big maps shrink and small maps don't get cartoonish.
+        setPreferredSize(new Dimension(worldWidth * MIN_CELL + 2, worldHeight * MIN_CELL + 2));
+        setMinimumSize(new Dimension(worldWidth * 6, worldHeight * 6));
     }
   
     public void setSelfName(String name) {
@@ -177,6 +194,14 @@ public class WorldPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        // Pick the biggest cell size that fits the panel, clamped to a sane range.
+        int byW = Math.max(1, (getWidth()  - 2) / worldWidth);
+        int byH = Math.max(1, (getHeight() - 2) / worldHeight);
+        this.CELL = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.min(byW, byH)));
+        // Centre the map inside the panel — extra space stays black.
+        this.offsetX = Math.max(0, (getWidth()  - worldWidth  * CELL) / 2);
+        this.offsetY = Math.max(0, (getHeight() - worldHeight * CELL) / 2);
+
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -194,7 +219,12 @@ public class WorldPanel extends JPanel {
 
     /** Heavy black mask covering everything outside the visibility square. */
     private void drawFog(Graphics2D g2) {
-        if (selfPosition == null) return; // not launched yet — show full map
+        if (selfPosition == null) {
+            // Not launched yet — black out the whole map.
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            return;
+        }
         int radius = visibilityRadius();
         int[] c = worldToScreen(selfPosition.getX(), selfPosition.getY());
         int side = (2 * radius + 1) * CELL;
@@ -203,7 +233,7 @@ public class WorldPanel extends JPanel {
 
         java.awt.geom.Area mask = new java.awt.geom.Area(new java.awt.Rectangle(0, 0, getWidth(), getHeight()));
         mask.subtract(new java.awt.geom.Area(new java.awt.Rectangle(x, y, side, side)));
-        g2.setColor(new Color(0, 0, 0, 235));
+        g2.setColor(Color.BLACK);
         g2.fill(mask);
 
         // Subtle red border on the visible square so the player can see where the fog edge is.
@@ -260,7 +290,8 @@ public class WorldPanel extends JPanel {
         float alpha = Math.max(0f, 1f - life);
 
         int dx = (b.dir == Directions.EAST) ? 1 : (b.dir == Directions.WEST) ? -1 : 0;
-        int dy = (b.dir == Directions.NORTH) ? 1 : (b.dir == Directions.SOUTH) ? -1 : 0;
+        // Top-left origin: NORTH means decreasing row (-Y), SOUTH means increasing row (+Y).
+        int dy = (b.dir == Directions.SOUTH) ? 1 : (b.dir == Directions.NORTH) ? -1 : 0;
 
         int[] from = worldToScreen(b.fromX, b.fromY);
         int[] to = worldToScreen(b.fromX + dx * b.distance, b.fromY + dy * b.distance);
@@ -292,27 +323,21 @@ public class WorldPanel extends JPanel {
     private void drawGrid(Graphics2D g2) {
         g2.setColor(new Color(40, 40, 50));
         for (int gx = 0; gx <= worldWidth; gx++) {
-            int px = gx * CELL;
-            g2.drawLine(px, 0, px, worldHeight * CELL);
+            int px = offsetX + gx * CELL;
+            g2.drawLine(px, offsetY, px, offsetY + worldHeight * CELL);
         }
         for (int gy = 0; gy <= worldHeight; gy++) {
-            int py = gy * CELL;
-            g2.drawLine(0, py, worldWidth * CELL, py);
+            int py = offsetY + gy * CELL;
+            g2.drawLine(offsetX, py, offsetX + worldWidth * CELL, py);
         }
-        // Centre cross-hairs
-        g2.setColor(new Color(70, 70, 90));
-        int cx = (worldWidth / 2) * CELL + CELL / 2;
-        int cy = (worldHeight / 2) * CELL + CELL / 2;
-        g2.drawLine(0, cy, worldWidth * CELL, cy);
-        g2.drawLine(cx, 0, cx, worldHeight * CELL);
     }
 
     private void drawObstacles(Graphics2D g2) {
         for (Obstacle obs : obstacles) {
             String type = obs.getType();
             // Obstacle exposes only type + isAt() publicly — rebuild the rect by scanning cells.
-            for (int wx = -worldWidth / 2; wx <= worldWidth / 2; wx++) {
-                for (int wy = -worldHeight / 2; wy <= worldHeight / 2; wy++) {
+            for (int wx = 0; wx < worldWidth; wx++) {
+                for (int wy = 0; wy < worldHeight; wy++) {
                     if (obs.isAt(wx, wy)) {
                         paintCell(g2, wx, wy, colorFor(type));
                     }
@@ -468,22 +493,23 @@ public class WorldPanel extends JPanel {
         g2.fillRect(s[0] - CELL / 2 + 1, s[1] - CELL / 2 + 1, CELL - 1, CELL - 1);
     }
 
-    // Convert world coords (centre origin, +Y up) to pixel coords (+Y down)
+    // Convert world coords (top-left origin matching map file rows/cols, +Y south) to pixel coords.
+    // offsetX/offsetY centre the map in the panel — set each paint.
     private int[] worldToScreen(int wx, int wy) {
-        int sx = (wx + worldWidth / 2) * CELL + CELL / 2;
-        int sy = (worldHeight / 2 - wy) * CELL + CELL / 2;
+        int sx = offsetX + wx * CELL + CELL / 2;
+        int sy = offsetY + wy * CELL + CELL / 2;
         return new int[] { sx, sy };
     }
 
     private static Color colorFor(String type) {
         return switch (type) {
-            case "MOUNTAIN" -> new Color(150, 100, 60);
-            case "LAKE"     -> new Color(60, 130, 220);
-            case "TREE"     -> new Color(40, 160, 70);
-            case "WALL"     -> new Color(200, 200, 200);
-            case "ROCK"     -> new Color(130, 130, 130);
-            case "PIT"      -> new Color(220, 40, 40);
-            default          -> Color.MAGENTA;
+            case "MOUNTAIN"     -> new Color(150, 100, 60);
+            case "WATER", "LAKE" -> new Color(60, 130, 220);
+            case "TREE"         -> new Color(40, 160, 70);
+            case "WALL"         -> new Color(200, 200, 200);
+            case "ROCK"         -> new Color(130, 130, 130);
+            case "PIT", "HOLE"  -> new Color(220, 40, 40);
+            default              -> Color.MAGENTA;
         };
     }
 
