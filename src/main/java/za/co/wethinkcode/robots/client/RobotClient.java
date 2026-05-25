@@ -20,7 +20,6 @@ import za.co.wethinkcode.robots.models.transitmodels.ServerResponseState;
 import za.co.wethinkcode.robots.server.commands.Command;
 import za.co.wethinkcode.robots.server.commands.CommandTypeEnum;
 import za.co.wethinkcode.robots.server.commands.QuitCommand;
-import za.co.wethinkcode.robots.server.world.Iworld;
 import za.co.wethinkcode.robots.shared.Protocol;
 
 import java.io.BufferedReader;
@@ -47,8 +46,9 @@ public class RobotClient {
     private String robotName=null;
     private volatile String lastCommand = null;
     private volatile boolean lookExpanded = false;
+    private volatile boolean subscribed = false;
     private final ObjectMapper mapper = new ObjectMapper();
-    private ServerResponse oldResponse;
+    private ServerResponse oldResponse = new ServerResponse();
 
     private Socket socket;
     private BufferedReader serverIn;
@@ -106,8 +106,36 @@ public class RobotClient {
             serverOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             gui.setStatus("connected to " + host + ":" + port);
             gui.appendLog("Connected to " + host + ":" + port);
-            gui.appendLog("Type: <robotName> launch    e.g.  HAL launch");
-            gui.appendLog("After launch, you can omit the name and just type commands (look, forward 3, ...)");
+            gui.appendLog("");
+            gui.appendLog("============================================================");
+            gui.appendLog(" HOW TO PLAY");
+            gui.appendLog("============================================================");
+            gui.appendLog("");
+            gui.appendLog("STEP 1 -- Launch your robot into the world.");
+            gui.appendLog("  Pick one of these three forms:");
+            gui.appendLog("    <name> launch <kind>                e.g.  HAL launch balanced");
+            gui.appendLog("    <name> launch <shield> <shots>      e.g.  HAL launch 6 6");
+            gui.appendLog("    <name> launch <kind> <shield> <shots>");
+            gui.appendLog("");
+            gui.appendLog("  Available kinds (presets):");
+            gui.appendLog("    balanced   -> shield 6, shots 6  (default)");
+            gui.appendLog("    offensive  -> shield 3, shots 9  (glass cannon)");
+            gui.appendLog("    defensive  -> shield 9, shots 3  (tank)");
+            gui.appendLog("");
+            gui.appendLog("STEP 2 -- After launch, drop the name. Just type commands:");
+            gui.appendLog("    look                  scan in 4 directions");
+            gui.appendLog("    forward <n>           move forward n cells");
+            gui.appendLog("    back <n>              move backward n cells");
+            gui.appendLog("    turn left | right     rotate 90 degrees");
+            gui.appendLog("    fire                  shoot in the facing direction");
+            gui.appendLog("    reload                refill ammo to max");
+            gui.appendLog("    repair                restore shields to max");
+            gui.appendLog("    state                 show position, shields, shots, status");
+            gui.appendLog("    quit                  leave the world");
+            gui.appendLog("");
+            gui.appendLog("TIP: the map auto-updates after every command -- no polling needed.");
+            gui.appendLog("============================================================");
+            gui.appendLog("");
 
             gui.setOnSend(line -> sendUserLine(line, gui));
 
@@ -191,7 +219,12 @@ public class RobotClient {
     }
 
     private static boolean isCommandKeyword(String token) {
-        return CommandTypeEnum.contains(token);
+        try {
+            CommandTypeEnum.valueOf(token.toLowerCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private void readerLoop(ClientGui gui) {
@@ -214,10 +247,36 @@ public class RobotClient {
             gui.appendLog("<< " + responseJson);
             return;
         }
+
+        // Unsolicited world-state broadcast from the server — just refresh the map.
+        if ("world_state".equals(response.getType())) {
+            ServerResponseData wsData = response.getData();
+            ServerResponseState wsState = response.getState();
+            if (wsData != null) {
+                if (wsData.getRobots() != null) gui.setAllRobots(wsData.getRobots());
+                if (wsData.getPickups() != null) gui.setPickups(wsData.getPickups());
+            }
+            if (wsState != null && wsState.getPosition() != null) {
+                gui.setFog(wsState.getPosition(), this.lookExpanded);
+            }
+            return;
+        }
+
         String result = response.getResult() == null ? "UNKNOWN" : response.getResult().toString();
         ServerResponseData data = response.getData();
         ServerResponseState state = response.getState();
         String message = (data == null || data.getMessage() == null) ? "" : data.getMessage();
+
+        // Silently swallow the subscribe/unsubscribe acks — they're protocol noise.
+        if (message.startsWith("Subscribed to world state") || message.startsWith("Unsubscribed from world state")) {
+            return;
+        }
+
+        // After a successful launch, ask the server to push world updates to us — once.
+        if (StatusCode.OK == response.getResult() && !this.subscribed
+                && "launch".equalsIgnoreCase(this.lastCommand) && this.robotName != null) {
+            sendSubscribe();
+        }
 
         // Global NPC broadcast — keep the line distinct so it stands out.
         if (message != null && message.startsWith("[Guyser_Thekiller]")) {
@@ -276,7 +335,7 @@ public class RobotClient {
                 gui.setStatus(this.robotName + " {" + state.getDirection() + "} ["
                         + state.getPosition().getX() + "," + state.getPosition().getY() + "]"
                        
-                        + "  Bullets:" + state.getShots() + "/" + Iworld.MAG_MAX
+                        + "  Bullets:" + state.getShots() + "/" + za.co.wethinkcode.robots.server.world.Iworld.MAG_MAX
                         + "  Shield:" + state.getShields());
             }
             gui.setHud(state.getShields(), state.getShots(),
@@ -307,6 +366,19 @@ public class RobotClient {
         }
     }
 
+    private void sendSubscribe() {
+        if (this.serverOut == null || this.robotName == null) return;
+        this.subscribed = true;
+        try {
+            ServerRequest req = new ServerRequest(this.robotName, "subscribe", new String[0]);
+            String json = new Protocol().encodeRequest(req).toString();
+            serverOut.println(json);
+            serverOut.flush();
+        } catch (Exception ignored) {
+            this.subscribed = false; // allow a retry
+        }
+    }
+
     private void handleDeath(ClientGui gui, String reason, Position deathPos) {
         String wasName = this.robotName;
         if (wasName != null) {
@@ -316,6 +388,7 @@ public class RobotClient {
             gui.removeRobot(wasName);
         }
         this.robotName = null;
+        this.subscribed = false;
         this.oldResponse.setState(null);
         gui.setSelfName(null);
         gui.setFog(null, false);
@@ -324,16 +397,16 @@ public class RobotClient {
 
     private void renderLook(ClientGui gui, List<ServerResponseObject> objects) {
         if (objects.isEmpty()) {
-            gui.appendLog("   (nothing in sight within " + Iworld.lookRange + " cells)");
+            gui.appendLog("   (nothing in sight within " + za.co.wethinkcode.robots.server.world.Iworld.lookRange + " cells)");
             return;
         }
         // Sort by direction then distance for readability
-        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
+        java.util.Map<za.co.wethinkcode.robots.models.Directions, java.util.List<za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject>> grouped = new java.util.EnumMap<>(za.co.wethinkcode.robots.models.Directions.class);
         for (var o : objects) grouped.computeIfAbsent(o.getDirection(), d -> new java.util.ArrayList<>()).add(o);
         for (var dir : za.co.wethinkcode.robots.models.Directions.values()) {
             var list = grouped.get(dir);
             if (list == null) continue;
-            list.sort(java.util.Comparator.comparingInt(ServerResponseObject::getDistance));
+            list.sort(java.util.Comparator.comparingInt(za.co.wethinkcode.robots.models.transitmodels.ServerResponseObject::getDistance));
             for (var o : list) {
                 String label = o.getName() != null ? o.getSubtype() + " " + o.getName() : o.getSubtype();
                 String posStr = o.getPosition() != null
@@ -495,10 +568,16 @@ public class RobotClient {
         String widget=response.getResult()==StatusCode.OK?ConsoleInteraction.ANSI_GREEN+"[I] "+ConsoleInteraction.ANSI_RESET:ConsoleInteraction.ANSI_RED+"[x] "+ConsoleInteraction.ANSI_RESET;
         System.out.println(widget+message);
        }}
-      
+         if(response.getState()!=null)
+       {
+         if (response.getState().getStatus() == OperationalMode.DEAD){
+        robotName =null;
+        oldResponse=null;
+        return;
+       }}
         parser.updatResponse(oldResponse, response);
         if(response == null){
-            
+            //TODO rather call interaction into print
             System.out.println("Received non-JSON/invalid response: " + responseJson);
             return;
         }
